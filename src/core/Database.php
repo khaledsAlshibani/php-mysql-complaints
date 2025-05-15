@@ -9,7 +9,7 @@ class Database
     $host = 'localhost';
     $dbname = 'complaints_suggestions_db';
     $user = 'root';
-    $pass = '';
+    $pass = 'root';
 
     if (self::$connection === null) {
       try {
