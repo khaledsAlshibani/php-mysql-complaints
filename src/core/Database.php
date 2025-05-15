@@ -6,17 +6,22 @@ class Database
 
   public static function getConnection()
   {
-    $host = 'localhost';
-    $dbname = 'complaints_suggestions_db';
-    $user = 'root';
-    $pass = 'root';
+    $host = Config::get('DB_HOST', 'localhost');
+    $dbname = Config::get('DB_NAME', 'complaints_suggestions_db');
+    $user = Config::get('DB_USER', 'root');
+    $pass = Config::get('DB_PASS', 'root');
 
     if (self::$connection === null) {
       try {
         self::$connection = new PDO(
           "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
           $user,
-          $pass
+          $pass,
+          [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false
+          ]
         );
       } catch (PDOException $e) {
         error_log("Connection Error: " . $e->getMessage());
@@ -31,7 +36,7 @@ class Database
     try {
       $stmt = self::getConnection()->prepare($query);
       $stmt->execute($params);
-      return $fetchAll ? $stmt->fetchAll(PDO::FETCH_ASSOC) : $stmt->fetch(PDO::FETCH_ASSOC);
+      return $fetchAll ? $stmt->fetchAll() : $stmt->fetch();
     } catch (PDOException $e) {
       error_log("Select Query Error: " . $e->getMessage());
       throw new Exception("Failed to execute select query");

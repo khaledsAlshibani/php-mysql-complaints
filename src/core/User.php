@@ -38,6 +38,27 @@ class User {
     
     public function requireLogin() {
         if ($this->isLoggedOut()) {
+            error_log("Access denied: User is not logged in");
+            header("Location: " . BASE_URL . "templates/pages/login.php");
+            exit;
+        }
+
+        // Check if the user exists in database
+        try {
+            $userId = $this->getUserId();
+            $query = "SELECT id FROM users WHERE id = ?";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([$userId]);
+            
+            if (!$stmt->fetch()) {
+                error_log("Access denied: User ID {$userId} not found in database");
+                session_destroy();
+                header("Location: " . BASE_URL . "templates/pages/login.php");
+                exit;
+            }
+        } catch (PDOException $e) {
+            error_log("User Verification Error: " . $e->getMessage());
+            session_destroy();
             header("Location: " . BASE_URL . "templates/pages/login.php");
             exit;
         }
@@ -45,6 +66,7 @@ class User {
     
     public function requireLogout() {
         if (!$this->isLoggedOut()) {
+            error_log("Redirect: Already logged in user attempting to access login page");
             header("Location: " . BASE_URL . "index.php");
             exit;
         }
@@ -60,15 +82,19 @@ class User {
     
     public function getFullNameById($userId) {
         try {
+            if (!$userId) {
+                return "Guest";
+            }
+            
             $query = "SELECT full_name FROM users WHERE id = ?";
             $stmt = $this->db->prepare($query);
             $stmt->execute([$userId]);
             
             $result = $stmt->fetch();
-            return $result ? $result['full_name'] : "User not found";
+            return $result ? $result['full_name'] : "Unknown User";
         } catch (PDOException $e) {
             error_log("Get Full Name Error: " . $e->getMessage());
-            throw new Exception("Failed to get user's full name");
+            return "Unknown User";
         }
     }
 }

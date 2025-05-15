@@ -1,5 +1,8 @@
 <?php
 
+// Require Composer's autoloader
+require_once __DIR__ . '/../vendor/autoload.php';
+
 // Start session
 session_start();
 
@@ -7,8 +10,12 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
+// Load environment configuration
+require_once __DIR__ . '/core/Config.php';
+Config::load();
+
 // Define directory constants
-define('BASE_URL', 'http://localhost/php-mysql-complaints-app/src/');
+define('BASE_URL', Config::getBaseUrl());
 define('HOME_DIR', str_replace('\\', '/', __DIR__) . '/');
 define('CORE_DIR', HOME_DIR . 'core/');
 define('TEMPLATES_DIR', HOME_DIR . 'templates/');

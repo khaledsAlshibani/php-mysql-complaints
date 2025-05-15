@@ -17,4 +17,10 @@ dist/
 backups/
 error.log
 
+# Dependencies
+/vendor/
+
+# Environment files
+.env.local
+.env.*.local
 .env
