@@ -1,0 +1,30 @@
+#launch.json folder
+.vscode/
+
+# Node artifact files
+node_modules/
+dist/
+
+# Maven
+target/
+dist/
+
+# Applications
+*.app
+*.exe
+*.war
+
+backups/
+error.log
+
+# Dependencies
+/vendor/
+
+# Environment files
+.env.local
+.env.*.local
+.env
+
+# Logs
+/storage/logs/*
+!/storage/logs/.gitkeep

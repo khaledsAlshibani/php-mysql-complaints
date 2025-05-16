@@ -1,0 +1,92 @@
+### Variables
+@baseUrl = {{$dotenv API_BASE_URL}}
+@contentType = application/json
+
+### Login as user
+# @name userLogin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser3",
+    "password": "Test123!"
+}
+
+### Login as admin
+# @name adminLogin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "admin",
+    "password": "Admin123!"
+}
+
+### Create feedback for complaint
+POST {{baseUrl}}/feedback
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+{
+    "complaint_id": 1,
+    "content": "Test feedback for complaint"
+}
+
+### Create feedback for suggestion
+POST {{baseUrl}}/feedback
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+{
+    "suggestion_id": 3,
+    "content": "Test feedback for suggestion"
+}
+
+### Get specific feedback
+GET {{baseUrl}}/feedback/1
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Update feedback
+PUT {{baseUrl}}/feedback/1
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+{
+    "content": "Updated feedback content"
+}
+
+### Delete feedback
+DELETE {{baseUrl}}/feedback/1
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Get all feedback by admin
+GET {{baseUrl}}/feedback/admin
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Get all feedback for specific complaint
+GET {{baseUrl}}/feedback/complaint/2
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Get all feedback for specific suggestion
+GET {{baseUrl}}/feedback/suggestion/2
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Get feedback for user's complaint
+GET {{baseUrl}}/feedback/complaint/1
+Content-Type: {{contentType}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
+
+### Get feedback for user's suggestion
+GET {{baseUrl}}/feedback/suggestion/2
+Content-Type: {{contentType}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
+
+### Get specific feedback item for user's complaint
+GET {{baseUrl}}/feedback/1
+Content-Type: {{contentType}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}

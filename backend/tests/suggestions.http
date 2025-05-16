@@ -1,0 +1,76 @@
+### Variables
+@baseUrl = {{$dotenv API_BASE_URL}}
+@contentType = application/json
+
+### Login as user
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser3",
+    "password": "Test123!"
+}
+
+### Login as admin
+# @name adminLogin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "admin",
+    "password": "Admin123!"
+}
+
+
+### Create new suggestion
+POST {{baseUrl}}/suggestions
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+{
+    "content": "Test suggestion content"
+}
+
+### Get all suggestions
+GET {{baseUrl}}/suggestions
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+### Get specific suggestion
+GET {{baseUrl}}/suggestions/1
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+### Update suggestion
+PUT {{baseUrl}}/suggestions/1
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+{
+    "content": "Updated suggestion content"
+}
+
+### Delete suggestion
+DELETE {{baseUrl}}/suggestions/1
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+### Get all suggestions
+GET {{baseUrl}}/suggestions/admin/all
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Get suggestions by status
+GET {{baseUrl}}/suggestions/admin/status/pending_no_feedback
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Update suggestion status
+PUT {{baseUrl}}/suggestions/1/status
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+{
+    "status": "in_progress"
+} 
