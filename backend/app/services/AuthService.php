@@ -5,6 +5,7 @@ namespace App\Services;
 use PDO;
 use App\Core\Database;
 use App\Core\Response;
+use App\Core\Logger;
 
 class AuthService
 {
@@ -92,9 +93,36 @@ class AuthService
             ');
 
             $stmt->execute($userData);
+            $userId = $this->db->lastInsertId();
+            
+            $newUser = $this->getUserById($userId);
+            
+            $tokenPayload = [
+                'sub' => $newUser['id'],
+                'username' => $newUser['username'],
+                'role' => $newUser['role']
+            ];
+
+            $accessToken = $this->jwtService->generateAccessToken($tokenPayload);
+            $refreshToken = $this->jwtService->generateRefreshToken($tokenPayload);
+
+            $this->jwtService->setAccessTokenCookie($accessToken);
+            $this->jwtService->setRefreshTokenCookie($refreshToken);
+
+            $responseData = [
+                'id' => $newUser['id'],
+                'username' => $newUser['username'],
+                'firstName' => $newUser['first_name'],
+                'lastName' => $newUser['last_name'],
+                'birthDate' => $newUser['birth_date'],
+                'role' => $newUser['role']
+            ];
+            
+            Logger::getInstance()->debug('User registration - final response data', ['responseData' => $responseData]);
+
             $this->db->commit();
 
-            return Response::formatSuccess(null, 'User registered successfully');
+            return Response::formatSuccess($responseData, 'User registered successfully');
         } catch (\PDOException $e) {
             $this->db->rollBack();
             return Response::formatError(

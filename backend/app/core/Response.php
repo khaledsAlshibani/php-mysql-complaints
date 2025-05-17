@@ -4,38 +4,86 @@ namespace App\Core;
 
 class Response
 {
-    public static function sendSuccess(?array $data = null, string $message = 'Request completed successfully', int $statusCode = 200): void
+    public static function sendSuccess($data = null, string $message = '', int $statusCode = 200): void
     {
-        http_response_code($statusCode);
-        header('Content-Type: application/json');
-        echo json_encode(self::formatSuccess($data, $message));
-    }
+        Logger::getInstance()->debug('Response::sendSuccess called', [
+            'data' => $data,
+            'message' => $message,
+            'statusCode' => $statusCode
+        ]);
 
-    public static function formatSuccess(?array $data = null, string $message = 'Request completed successfully'): array
-    {
-        return [
+        self::setHeaders($statusCode);
+        $response = [
             'status' => 'success',
             'data' => $data,
             'message' => $message
         ];
+
+        Logger::getInstance()->debug('Response::sendSuccess final response', ['response' => $response]);
+        
+        echo json_encode($response);
+        exit;
     }
 
     public static function sendError(
         string $message,
         int $statusCode = 400,
         array $details = [],
-        ?string $customErrorCode = null
+        string $errorCode = ''
     ): void {
-        http_response_code($statusCode);
-        header('Content-Type: application/json');
-        echo json_encode(self::formatError($message, $statusCode, $details, $customErrorCode));
+        $error = [
+            'message' => $message,
+            'code' => $statusCode
+        ];
+
+        if (!empty($details)) {
+            $error['details'] = $details;
+        }
+
+        if (!empty($errorCode)) {
+            $error['errorCode'] = $errorCode;
+        }
+
+        Logger::getInstance()->error($message, [
+            'statusCode' => $statusCode,
+            'errorCode' => $errorCode,
+            'details' => $details,
+            'url' => $_SERVER['REQUEST_URI'] ?? '',
+            'method' => $_SERVER['REQUEST_METHOD'] ?? '',
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? ''
+        ]);
+
+        self::setHeaders($statusCode);
+        echo json_encode([
+            'status' => 'error',
+            'error' => $error
+        ]);
+        exit;
+    }
+
+    public static function formatSuccess($data = null, string $message = ''): array
+    {
+        Logger::getInstance()->debug('Response::formatSuccess called', [
+            'data' => $data,
+            'message' => $message
+        ]);
+
+        $response = [
+            'status' => 'success',
+            'data' => $data,
+            'message' => $message
+        ];
+
+        Logger::getInstance()->debug('Response::formatSuccess returning', ['response' => $response]);
+        
+        return $response;
     }
 
     public static function formatError(
         string $message,
         int $statusCode = 400,
         array $details = [],
-        ?string $customErrorCode = null
+        string $errorCode = ''
     ): array {
         $error = [
             'code' => $statusCode,
@@ -46,14 +94,29 @@ class Response
             $error['details'] = $details;
         }
 
-        if ($customErrorCode) {
-            $error['errorCode'] = $customErrorCode;
+        if (!empty($errorCode)) {
+            $error['errorCode'] = $errorCode;
         }
+
+        Logger::getInstance()->error($message, [
+            'statusCode' => $statusCode,
+            'errorCode' => $errorCode,
+            'details' => $details,
+            'url' => $_SERVER['REQUEST_URI'] ?? '',
+            'method' => $_SERVER['REQUEST_METHOD'] ?? '',
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? ''
+        ]);
 
         return [
             'status' => 'error',
             'error' => $error
         ];
+    }
+
+    private static function setHeaders(int $statusCode): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code($statusCode);
     }
 
     public static function sendAuthenticationError(string $message = 'Authentication required'): void

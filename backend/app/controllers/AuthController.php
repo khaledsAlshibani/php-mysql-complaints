@@ -56,7 +56,7 @@ class AuthController extends Controller
             return;
         }
 
-        Response::sendSuccess(null, $result['message'], 201);
+        Response::sendSuccess($result['data'], $result['message'], 201);
     }
 
     public function logout(): void
