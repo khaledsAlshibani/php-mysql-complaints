@@ -63,6 +63,16 @@ class AuthService
         try {
             $this->db->beginTransaction();
 
+            // prevent registration with admin role
+            if (isset($userData['role']) && strtolower($userData['role']) === 'admin') {
+                return Response::formatError(
+                    'Cannot register as admin',
+                    403,
+                    [],
+                    'ADMIN_REGISTRATION_FORBIDDEN'
+                );
+            }
+
             if ($this->isUsernameExists($userData['username'])) {
                 return Response::formatError(
                     'Username already exists',
@@ -72,6 +82,8 @@ class AuthService
                 );
             }
 
+            // force role to be 'user' by default
+            $userData['role'] = 'user';
             $userData['password'] = password_hash($userData['password'], PASSWORD_DEFAULT);
             
             $stmt = $this->db->prepare('
