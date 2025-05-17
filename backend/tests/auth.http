@@ -24,25 +24,10 @@ Content-Type: {{contentType}}
     "password": "Test123!"
 }
 
-### Get user profile
-GET {{baseUrl}}/users/profile
-Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
-
 ### Refresh token
 POST {{baseUrl}}/auth/refresh
 Content-Type: {{contentType}}
 Cookie: refresh_token={{login.response.headers.Set-Cookie.[1]}}
-
-### Update password
-PUT {{baseUrl}}/users/password
-Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
-
-{
-    "current_password": "NewTest123!",
-    "new_password": "NewTest1234!"
-}
 
 ### Logout
 POST {{baseUrl}}/auth/logout

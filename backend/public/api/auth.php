@@ -1,9 +1,9 @@
 <?php
 
-use App\Controllers\UserController;
+use App\Controllers\AuthController;
 use App\Middleware\JWTAuthMiddleware;
 
-$router->addRoute('POST', '/auth/login', [UserController::class, 'login']);
-$router->addRoute('POST', '/auth/register', [UserController::class, 'register']);
-$router->addRoute('POST', '/auth/refresh', [UserController::class, 'refreshToken']);
-$router->addRoute('POST', '/auth/logout', [UserController::class, 'logout'], JWTAuthMiddleware::class);
+$router->addRoute('POST', '/auth/login', [AuthController::class, 'login']);
+$router->addRoute('POST', '/auth/register', [AuthController::class, 'register']);
+$router->addRoute('POST', '/auth/refresh', [AuthController::class, 'refreshToken']);
+$router->addRoute('POST', '/auth/logout', [AuthController::class, 'logout'], JWTAuthMiddleware::class);

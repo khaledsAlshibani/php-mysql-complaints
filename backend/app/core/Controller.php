@@ -10,8 +10,8 @@ abstract class Controller
         header('Content-Type: application/json');
         echo json_encode($data);
         
-        // Only exit in non-test environment
         // This was added for unit testing using phpunit
+        // Only exit in non-test environment
         // if (php_sapi_name() !== 'cli') {
         //     exit;
         // }
