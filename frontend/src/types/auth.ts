@@ -1,3 +1,8 @@
+export interface LoginFormData {
+    username: string;
+    password: string;
+}
+
 export interface SignupFormData extends RegisterData {
     confirm_password: string;
 }

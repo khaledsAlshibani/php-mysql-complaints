@@ -1,8 +1,34 @@
 'use server';
 
-import { SignupSchema } from '@/lib/validations/auth';
+import { LoginSchema, SignupSchema } from '@/lib/validations/auth';
 import { AuthResponse } from '@/types/auth';
 import { AuthService } from '@/services/auth.service';
+
+export async function login(formData: FormData): Promise<AuthResponse> {
+    const rawFormData = {
+        username: formData.get('username'),
+        password: formData.get('password'),
+    };
+
+    const validatedFields = LoginSchema.safeParse(rawFormData);
+
+    if (!validatedFields.success) {
+        return {
+            status: 'error',
+            error: {
+                message: 'Invalid form data',
+                code: 400,
+                details: validatedFields.error.errors.map(error => ({
+                    field: error.path[0].toString(),
+                    issue: error.message
+                })),
+                errorCode: 'VALIDATION_ERROR'
+            }
+        };
+    }
+
+    return AuthService.login(validatedFields.data);
+}
 
 export async function signUp(formData: FormData): Promise<AuthResponse> {
     const rawFormData = {
