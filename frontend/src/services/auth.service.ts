@@ -1,8 +1,8 @@
 import { API_URL } from '@/constants/api';
 import type { AuthResponse, LoginFormData, RegisterData } from '@/types/auth';
 
-export class AuthService {
-    static async login(data: LoginFormData): Promise<AuthResponse> {
+export const authService = () => {
+    const login = async (data: LoginFormData): Promise<AuthResponse> => {
         try {
             const response: Response = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
@@ -45,9 +45,9 @@ export class AuthService {
                 }
             };
         }
-    }
+    };
 
-    static async register(registerData: RegisterData): Promise<AuthResponse> {
+    const register = async (registerData: RegisterData): Promise<AuthResponse> => {
         try {
             const response: Response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
@@ -90,5 +90,10 @@ export class AuthService {
                 }
             };
         }
-    }
-}
+    };
+
+    return {
+        login,
+        register
+    };
+};

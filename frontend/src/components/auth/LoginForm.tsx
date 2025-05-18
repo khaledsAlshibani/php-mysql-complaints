@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -18,14 +18,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Eye, EyeOff } from 'lucide-react';
-import { login } from '@/actions/auth.actions';
+import { authService } from '@/services/auth.service';
 import { LoginSchema } from '@/lib/validations/auth';
 import type { LoginFormData } from '@/types/auth';
 
 export function LoginForm() {
     const router = useRouter();
-    const [isPending, startTransition] = useTransition();
+    const [isPending, setIsPending] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const auth = authService();
 
     const form = useForm<LoginFormData>({
         resolver: zodResolver(LoginSchema),
@@ -36,13 +37,9 @@ export function LoginForm() {
     });
 
     async function onSubmit(data: LoginFormData) {
-        const formData = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-            formData.append(key, value);
-        });
-
-        startTransition(async () => {
-            const response = await login(formData);
+        setIsPending(true);
+        try {
+            const response = await auth.login(data);
 
             if (response.status === 'success') {
                 toast.success('Logged in successfully');
@@ -56,7 +53,11 @@ export function LoginForm() {
                     toast.error(response.error?.message || 'Login failed');
                 }
             }
-        });
+        } catch (error) {
+            toast.error('An unexpected error occurred');
+        } finally {
+            setIsPending(false);
+        }
     }
 
     return (

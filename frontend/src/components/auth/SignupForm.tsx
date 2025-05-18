@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -18,15 +18,16 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Eye, EyeOff } from 'lucide-react';
-import { signUp } from '@/actions/auth.actions';
+import { authService } from '@/services/auth.service';
 import { SignupSchema } from '@/lib/validations/auth';
 import type { SignupFormData } from '@/types/auth';
 
 export function SignupForm() {
     const router = useRouter();
-    const [isPending, startTransition] = useTransition();
+    const [isPending, setIsPending] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const auth = authService();
 
     const form = useForm<SignupFormData>({
         resolver: zodResolver(SignupSchema),
@@ -41,13 +42,9 @@ export function SignupForm() {
     });
 
     async function onSubmit(data: SignupFormData) {
-        const formData = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-            formData.append(key, value);
-        });
-
-        startTransition(async () => {
-            const response = await signUp(formData);
+        setIsPending(true);
+        try {
+            const response = await auth.register(data);
 
             if (response.status === 'success') {
                 toast.success('Account created successfully');
@@ -61,7 +58,11 @@ export function SignupForm() {
                     toast.error(response.error?.message || 'Registration failed');
                 }
             }
-        });
+        } catch (error) {
+            toast.error('An unexpected error occurred');
+        } finally {
+            setIsPending(false);
+        }
     }
 
     return (
