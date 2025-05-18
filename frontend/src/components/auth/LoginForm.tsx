@@ -21,11 +21,13 @@ import { Eye, EyeOff } from 'lucide-react';
 import { authService } from '@/services/auth.service';
 import { LoginSchema } from '@/lib/validations/auth';
 import type { LoginFormData } from '@/types/auth';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export function LoginForm() {
     const router = useRouter();
     const [isPending, setIsPending] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const setUser = useAuthStore((state) => state.setUser);
     const auth = authService();
 
     const form = useForm<LoginFormData>({
@@ -41,9 +43,10 @@ export function LoginForm() {
         try {
             const response = await auth.login(data);
 
-            if (response.status === 'success') {
+            if (response.status === 'success' && response.data) {
+                setUser(response.data);
                 toast.success('Logged in successfully');
-                router.push('/');
+                router.push('/profile');
             } else {
                 if (response.error?.details) {
                     response.error.details.forEach(({ field, issue }) => {

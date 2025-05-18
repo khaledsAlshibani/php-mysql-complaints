@@ -49,13 +49,15 @@ export const authService = () => {
 
     const register = async (registerData: RegisterData): Promise<AuthResponse> => {
         try {
+            const { role, confirm_password, ...requestData } = registerData as any;
+            
             const response: Response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',
-                body: JSON.stringify(registerData),
+                body: JSON.stringify(requestData),
             });
 
             if (!response.ok) {

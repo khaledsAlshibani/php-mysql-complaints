@@ -13,6 +13,7 @@ export interface User {
     firstName: string;
     lastName: string;
     birthDate?: string;
+    role: string;
 }
 
 export interface AuthResponse {
@@ -33,4 +34,4 @@ export interface RegisterData {
     first_name: string;
     last_name?: string;
     birth_date: string;
-} 
+}
