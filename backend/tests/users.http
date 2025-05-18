@@ -13,7 +13,7 @@ Content-Type: {{contentType}}
 }
 
 ### Get user profile
-GET {{baseUrl}}/users/profile
+GET {{baseUrl}}/users/me
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 

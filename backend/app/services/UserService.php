@@ -104,7 +104,19 @@ class UserService
             );
         }
 
-        return Response::formatSuccess($user, 'Profile retrieved successfully');
+        // Format user data to include all fields
+        $userData = [
+            'id' => $user['id'],
+            'username' => $user['username'],
+            'firstName' => $user['firstName'],
+            'lastName' => $user['lastName'],
+            'birthDate' => $user['birthDate'],
+            'photoPath' => $user['photo_path'] ?? null,
+            'role' => $user['role'],
+            'createdAt' => $user['created_at'] ?? null
+        ];
+
+        return Response::formatSuccess($userData, 'Profile retrieved successfully');
     }
 
     public function handleTokenRefresh(): array
