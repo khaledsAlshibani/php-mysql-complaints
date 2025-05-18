@@ -56,8 +56,9 @@ class Config {
     }
 
     private function initCorsHeaders(): void {
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
         $this->corsHeaders = [
-            'Access-Control-Allow-Origin' => $_SERVER['HTTP_ORIGIN'] ?? '*',
+            'Access-Control-Allow-Origin' => $origin ?: 'null',
             'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers' => 'Content-Type, Authorization, Cookie',
             'Access-Control-Allow-Credentials' => 'true',
@@ -68,12 +69,6 @@ class Config {
     public function applyCorsHeaders(): void {
         foreach ($this->corsHeaders as $header => $value) {
             header("$header: $value");
-        }
-
-        if (isset($_SERVER['HTTP_ORIGIN'])) {
-            header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
-            header('Access-Control-Allow-Credentials: true');
-            header('Access-Control-Allow-Headers: Content-Type, Authorization, Cookie');
         }
     }
 
