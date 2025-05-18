@@ -1,101 +1,55 @@
-import { API_URL } from '@/constants/api';
 import type { AuthResponse, LoginFormData, RegisterData } from '@/types/auth';
+import axiosInstance from '@/lib/axios';
 
 export const authService = () => {
-    const login = async (data: LoginFormData): Promise<AuthResponse> => {
-        try {
-            const response: Response = await fetch(`${API_URL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify(data),
-            });
+	const login = async (data: LoginFormData): Promise<AuthResponse> => {
+		try {
+			const response = await axiosInstance.post('/auth/login', data);
+			return response.data;
+		} catch (error: any) {
+			if (error.response?.data) {
+				return error.response.data;
+			}
 
-            if (!response.ok) {
-                let errorData;
-                try {
-                    errorData = await response.json();
-                } catch {
-                    errorData = null;
-                }
+			return {
+				status: 'error',
+				error: {
+					message: error.message || 'An unknown error occurred',
+					code: 500,
+					errorCode: 'SERVER_ERROR'
+				}
+			};
+		}
+	};
 
-                return {
-                    status: 'error',
-                    error: {
-                        message: errorData?.message || `Server error: ${response.statusText}`,
-                        code: response.status,
-                        errorCode: 'SERVER_ERROR'
-                    }
-                };
-            }
+	const register = async (registerData: RegisterData): Promise<AuthResponse> => {
+		try {
+			const { role, confirm_password, ...requestData } = registerData as any;
+			const response = await axiosInstance.post('/auth/register', requestData);
+			return response.data;
+		} catch (error: any) {
+			if (error.response?.data) {
+				return error.response.data;
+			}
 
-            const responseData: AuthResponse = await response.json();
-            return responseData;
-        } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-            
-            return {
-                status: 'error',
-                error: {
-                    message: `Failed to connect to server: ${errorMessage}`,
-                    code: 500,
-                    errorCode: 'SERVER_ERROR'
-                }
-            };
-        }
-    };
+			return {
+				status: 'error',
+				error: {
+					message: error.message || 'An unknown error occurred',
+					code: 500,
+					errorCode: 'SERVER_ERROR'
+				}
+			};
+		}
+	};
 
-    const register = async (registerData: RegisterData): Promise<AuthResponse> => {
-        try {
-            const { role, confirm_password, ...requestData } = registerData as any;
-            
-            const response: Response = await fetch(`${API_URL}/auth/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify(requestData),
-            });
+	const logout = async (): Promise<void> => {
+		await axiosInstance.post('/auth/logout');
+	};
 
-            if (!response.ok) {
-                let errorData;
-                try {
-                    errorData = await response.json();
-                } catch {
-                    errorData = null;
-                }
-
-                return {
-                    status: 'error',
-                    error: {
-                        message: errorData?.message || `Server error: ${response.statusText}`,
-                        code: response.status,
-                        errorCode: 'SERVER_ERROR'
-                    }
-                };
-            }
-
-            const responseData: AuthResponse = await response.json();
-            return responseData;
-        } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-            
-            return {
-                status: 'error',
-                error: {
-                    message: `Failed to connect to server: ${errorMessage}`,
-                    code: 500,
-                    errorCode: 'SERVER_ERROR'
-                }
-            };
-        }
-    };
-
-    return {
-        login,
-        register
-    };
+	return {
+		login,
+		register,
+		logout
+	};
 };
