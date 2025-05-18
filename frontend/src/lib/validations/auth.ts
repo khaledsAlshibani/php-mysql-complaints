@@ -19,8 +19,14 @@ export const SignupSchema = z.object({
         .min(2, 'First name must be at least 2 characters')
         .max(50, 'First name must be less than 50 characters'),
     last_name: z.string()
-        .min(2, 'Last name must be at least 2 characters')
-        .max(50, 'Last name must be less than 50 characters'),
+        .optional()
+        .transform(e => e === '' ? undefined : e)
+        .pipe(
+            z.string()
+            .min(2, 'Last name must be at least 2 characters')
+            .max(50, 'Last name must be less than 50 characters')
+            .optional()
+        ),
     birth_date: z.string()
         .regex(/^\d{4}-\d{2}-\d{2}$/, 'Birth date must be in YYYY-MM-DD format')
 }).refine((data) => data.password === data.confirm_password, {
