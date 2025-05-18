@@ -87,6 +87,9 @@ class AuthService
             $userData['role'] = 'user';
             $userData['password'] = password_hash($userData['password'], PASSWORD_DEFAULT);
             
+            // Handle empty last_name
+            $userData['last_name'] = empty($userData['last_name']) ? null : $userData['last_name'];
+            
             $stmt = $this->db->prepare('
                 INSERT INTO users (username, password, first_name, last_name, birth_date, role)
                 VALUES (:username, :password, :first_name, :last_name, :birth_date, :role)

@@ -40,8 +40,8 @@ class RegistrationDTO
             $errors['first_name'] = 'First name is required';
         }
 
-        if (empty($this->lastName)) {
-            $errors['last_name'] = 'Last name is required';
+        if (!empty($this->lastName) && strlen($this->lastName) < 2) {
+            $errors['last_name'] = 'Last name must be at least 2 characters';
         }
 
         if (empty($this->birthDate)) {
@@ -55,6 +55,7 @@ class RegistrationDTO
 
     private function validatePassword(): ?array
     {
+        $errors = [];
         $errors = [];
         
         if (strlen($this->password) < self::PASSWORD_MIN_LENGTH) {
