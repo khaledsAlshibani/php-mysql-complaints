@@ -111,9 +111,9 @@ class UserService
             'firstName' => $user['firstName'],
             'lastName' => $user['lastName'],
             'birthDate' => $user['birthDate'],
-            'photoPath' => $user['photo_path'] ?? null,
+            'photoPath' => $user['photoPath'] ?? null,
             'role' => $user['role'],
-            'createdAt' => $user['created_at'] ?? null
+            'createdAt' => $user['createdAt'] ?? null
         ];
 
         return Response::formatSuccess($userData, 'Profile retrieved successfully');
