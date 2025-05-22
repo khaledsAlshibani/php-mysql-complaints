@@ -18,7 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Eye, EyeOff } from 'lucide-react';
-import { authService } from '@/services/auth.service';
+import { authService } from '@/services/authService';
 import { SignupSchema } from '@/lib/validations/auth';
 import type { SignupFormData } from '@/types/auth';
 import { useAuthStore } from '@/store/useAuthStore';

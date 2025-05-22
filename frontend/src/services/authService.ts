@@ -44,7 +44,7 @@ export const authService = () => {
 	};
 
 	const logout = async (): Promise<void> => {
-		await axiosInstance.post('/auth/logout');
+		await axiosInstance.post('/auth/logout', {}, { withCredentials: true });
 	};
 
 	return {
