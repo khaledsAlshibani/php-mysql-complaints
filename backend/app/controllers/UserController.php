@@ -52,4 +52,26 @@ class UserController extends Controller
 
         Response::sendSuccess(null, $result['message']);
     }
+
+    public function deleteAccount(): void
+    {
+        $data = $this->getJsonInput();
+        if (!$data) {
+            Response::sendError('Invalid request payload', 400);
+            return;
+        }
+
+        $result = $this->userService->handleDeleteAccount($data);
+        if ($result['status'] === 'error') {
+            Response::sendError(
+                $result['error']['message'],
+                $result['error']['code'],
+                $result['error']['details'] ?? [],
+                $result['error']['errorCode']
+            );
+            return;
+        }
+
+        Response::sendSuccess(null, $result['message']);
+    }
 }

@@ -265,4 +265,44 @@ class AuthService
         $stmt->execute([$userId]);
         return $stmt->fetch() ?: null;
     }
+
+    public function verifyPassword(int $userId, string $password): bool
+    {
+        $user = $this->getUserById($userId);
+        if (!$user) {
+            return false;
+        }
+
+        return password_verify($password, $user['password']);
+    }
+
+    public function deleteAccount(int $userId): bool
+    {
+        try {
+            $this->db->beginTransaction();
+
+            // Delete the user - related records will be deleted automatically due to CASCADE
+            $stmt = $this->db->prepare('DELETE FROM users WHERE id = ?');
+            $success = $stmt->execute([$userId]);
+
+            if ($success) {
+                $this->db->commit();
+                // Clear cookies and session
+                $this->jwtService->clearTokenCookies();
+                $this->sessionService->clear();
+                $this->sessionService->destroy();
+                return true;
+            }
+
+            $this->db->rollBack();
+            return false;
+        } catch (\PDOException $e) {
+            $this->db->rollBack();
+            Logger::getInstance()->error('Failed to delete account', [
+                'userId' => $userId,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
 }
