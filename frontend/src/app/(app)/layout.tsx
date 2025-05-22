@@ -8,7 +8,7 @@ export default function RootLayout({
   return (
     <div className="min-h-screen">
       <Navbar />
-      <main className="container max-w-screen-lg mx-auto">
+      <main className="container max-w-screen-lg mx-auto py-16">
         {children}
       </main>
     </div>

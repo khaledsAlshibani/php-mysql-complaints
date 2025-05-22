@@ -17,7 +17,7 @@ export interface User {
     lastName: string | null;
     birthDate: string | null;
     photoPath: string | null;
-    role: string;
+    role: UserRole;
     createdAt: string | null;
 }
 
@@ -32,3 +32,9 @@ export interface AuthResponse {
         errorCode?: string;
     };
 }
+
+export enum UserRole {
+    ADMIN = 'admin',
+    USER = 'user',
+}
+

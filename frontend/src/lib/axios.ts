@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URL } from '@/constants/api';
+import { API_URL } from '@/constants/API_URL';
 
 // Create axios instance
 const axiosInstance = axios.create({
