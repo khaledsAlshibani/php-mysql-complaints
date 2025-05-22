@@ -17,6 +17,32 @@ GET {{baseUrl}}/users/me
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
+### Update profile
+PUT {{baseUrl}}/users/me
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+{
+    "firstName": "Updated",
+    "lastName": "User",
+    "birthDate": "1990-01-01",
+    "photoPath": "/uploads/profile/new-photo.jpg"
+}
+
+### Update profile with invalid fields (should fail)
+PUT {{baseUrl}}/users/me
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+{
+    "firstName": "Updated",
+    "lastName": "User",
+    "birthDate": "1990-01-01",
+    "username": "hacker",
+    "password": "hack123",
+    "created_at": "2024-01-01"
+}
+
 ### Update password
 PUT {{baseUrl}}/users/password
 Content-Type: {{contentType}}
@@ -50,7 +76,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-    "username": "testuser3",
+    "username": "testuser5",
     "password": "Test123!"
 }
 

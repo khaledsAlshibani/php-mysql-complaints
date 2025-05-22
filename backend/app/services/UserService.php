@@ -6,6 +6,8 @@ use App\Core\Response;
 use App\DTO\LoginDTO;
 use App\DTO\RegistrationDTO;
 use App\DTO\PasswordUpdateDTO;
+use App\DTO\ProfileUpdateDTO;
+
 class UserService
 {
     private AuthService $authService;
@@ -167,5 +169,43 @@ class UserService
     public function handleTokenRefresh(): array
     {
         return $this->authService->refreshToken();
+    }
+
+    public function handleProfileUpdate(array $data): array
+    {
+        try {
+            $profileUpdateDTO = new ProfileUpdateDTO($data);
+            $validationErrors = $profileUpdateDTO->validate();
+            
+            if ($validationErrors) {
+                return Response::formatError(
+                    'Validation failed',
+                    422,
+                    array_map(function($field, $message) {
+                        return ['field' => $field, 'issue' => $message];
+                    }, array_keys($validationErrors), $validationErrors),
+                    'VALIDATION_ERROR'
+                );
+            }
+
+            $currentUser = $this->authService->getCurrentUser();
+            if (!$currentUser) {
+                return Response::formatError(
+                    'Unauthorized',
+                    401,
+                    [],
+                    'AUTHENTICATION_REQUIRED'
+                );
+            }
+
+            return $this->authService->updateProfile($currentUser['id'], $profileUpdateDTO->toArray());
+        } catch (\InvalidArgumentException $e) {
+            return Response::formatError(
+                $e->getMessage(),
+                400,
+                [],
+                'INVALID_UPDATE_FIELDS'
+            );
+        }
     }
 }

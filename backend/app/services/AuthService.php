@@ -305,4 +305,96 @@ class AuthService
             return false;
         }
     }
+
+    public function updateProfile(int $userId, array $data): array
+    {
+        try {
+            $this->db->beginTransaction();
+
+            $updateFields = [];
+            $params = [];
+
+            if (isset($data['first_name'])) {
+                $updateFields[] = 'first_name = ?';
+                $params[] = $data['first_name'];
+            }
+            if (array_key_exists('last_name', $data)) {
+                $updateFields[] = 'last_name = ?';
+                $params[] = $data['last_name'];
+            }
+            if (isset($data['birth_date'])) {
+                $updateFields[] = 'birth_date = ?';
+                $params[] = $data['birth_date'];
+            }
+            if (array_key_exists('photo_path', $data)) {
+                $updateFields[] = 'photo_path = ?';
+                $params[] = $data['photo_path'];
+            }
+
+            if (empty($updateFields)) {
+                return Response::formatError(
+                    'No fields to update',
+                    400,
+                    [],
+                    'NO_FIELDS_TO_UPDATE'
+                );
+            }
+
+            $params[] = $userId;
+            $sql = 'UPDATE users SET ' . implode(', ', $updateFields) . ' WHERE id = ?';
+            
+            $stmt = $this->db->prepare($sql);
+            $success = $stmt->execute($params);
+
+            if (!$success) {
+                $this->db->rollBack();
+                return Response::formatError(
+                    'Failed to update profile',
+                    500,
+                    [],
+                    'PROFILE_UPDATE_FAILED'
+                );
+            }
+
+            $this->db->commit();
+            
+            // Get updated user data
+            $updatedUser = $this->getUserById($userId);
+            if (!$updatedUser) {
+                return Response::formatError(
+                    'Failed to retrieve updated profile',
+                    500,
+                    [],
+                    'PROFILE_RETRIEVAL_FAILED'
+                );
+            }
+
+            return Response::formatSuccess(
+                [
+                    'id' => $updatedUser['id'],
+                    'username' => $updatedUser['username'],
+                    'firstName' => $updatedUser['first_name'],
+                    'lastName' => $updatedUser['last_name'],
+                    'birthDate' => $updatedUser['birth_date'],
+                    'photoPath' => $updatedUser['photo_path'],
+                    'role' => $updatedUser['role'],
+                    'createdAt' => $updatedUser['created_at']
+                ],
+                'Profile updated successfully'
+            );
+
+        } catch (\PDOException $e) {
+            $this->db->rollBack();
+            Logger::getInstance()->error('Failed to update profile', [
+                'userId' => $userId,
+                'error' => $e->getMessage()
+            ]);
+            return Response::formatError(
+                'Failed to update profile',
+                500,
+                [],
+                'PROFILE_UPDATE_FAILED'
+            );
+        }
+    }
 }
