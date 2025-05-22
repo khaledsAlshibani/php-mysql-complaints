@@ -3,7 +3,10 @@ export interface LoginFormData {
     password: string;
 }
 
-export interface SignupFormData extends RegisterData {
+export interface RegisterData extends LoginFormData {
+    firstName: string;
+    lastName?: string;
+    birthDate?: string;
     confirm_password: string;
 }
 
@@ -11,9 +14,11 @@ export interface User {
     id: number;
     username: string;
     firstName: string;
-    lastName: string;
-    birthDate?: string;
+    lastName: string | null;
+    birthDate: string | null;
+    photoPath: string | null;
     role: string;
+    createdAt: string | null;
 }
 
 export interface AuthResponse {
@@ -26,12 +31,4 @@ export interface AuthResponse {
         details?: Array<{ field: string; issue: string }>;
         errorCode?: string;
     };
-}
-
-export interface RegisterData {
-    username: string;
-    password: string;
-    first_name: string;
-    last_name?: string;
-    birth_date: string;
 }

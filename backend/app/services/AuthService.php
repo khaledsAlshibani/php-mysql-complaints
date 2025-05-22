@@ -117,7 +117,6 @@ class AuthService
                 'username' => $newUser['username'],
                 'firstName' => $newUser['first_name'],
                 'lastName' => $newUser['last_name'],
-                'birthDate' => $newUser['birth_date'],
                 'role' => $newUser['role']
             ];
             
@@ -236,7 +235,9 @@ class AuthService
             'firstName' => $user['first_name'],
             'lastName' => $user['last_name'],
             'birthDate' => $user['birth_date'],
-            'role' => $user['role']
+            'photoPath' => $user['photo_path'],
+            'role' => $user['role'],
+            'createdAt' => $user['created_at']
         ];
     }
 
