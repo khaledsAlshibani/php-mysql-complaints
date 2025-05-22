@@ -4,9 +4,10 @@ import { ProfileActions } from "./ProfileActions";
 
 interface ProfileInformationProps {
     profile: User | null;
+    onProfileUpdate: (updatedProfile: User) => void;
 }
 
-export function ProfileInformation({ profile }: ProfileInformationProps) {
+export function ProfileInformation({ profile, onProfileUpdate }: ProfileInformationProps) {
     return (
         <div className="md:col-span-2 space-y-6">
             <Card>
@@ -36,7 +37,7 @@ export function ProfileInformation({ profile }: ProfileInformationProps) {
                 </CardContent>
             </Card>
 
-            <ProfileActions profile={profile} />
+            <ProfileActions profile={profile} onProfileUpdate={onProfileUpdate} />
         </div>
     );
 }

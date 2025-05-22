@@ -33,7 +33,7 @@ export function Navbar() {
 
   return (
     <div className="border-b">
-      <div className="container max-w-screen-lg mx-auto px-4">
+      <div className="container max-w-screen-lg mx-auto">
         <div className="flex h-16 items-center justify-between">
           {/* Desktop Navigation */}
           <NavigationMenu className="hidden md:flex">
