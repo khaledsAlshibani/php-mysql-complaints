@@ -6,7 +6,6 @@ use App\Core\Response;
 use App\DTO\LoginDTO;
 use App\DTO\RegistrationDTO;
 use App\DTO\PasswordUpdateDTO;
-
 class UserService
 {
     private AuthService $authService;
@@ -90,6 +89,52 @@ class UserService
     public function handleLogout(): array
     {
         return $this->authService->logout();
+    }
+
+    public function handleDeleteAccount(array $data): array
+    {
+        if (!isset($data['password'])) {
+            return Response::formatError(
+                'Password is required',
+                422,
+                [['field' => 'password', 'issue' => 'Password is required']],
+                'VALIDATION_ERROR'
+            );
+        }
+
+        $currentUser = $this->authService->getCurrentUser();
+        if (!$currentUser) {
+            return Response::formatError(
+                'Unauthorized',
+                401,
+                [],
+                'AUTHENTICATION_REQUIRED'
+            );
+        }
+
+        // Verify password
+        $user = $this->authService->verifyPassword($currentUser['id'], $data['password']);
+        if (!$user) {
+            return Response::formatError(
+                'Current password is incorrect',
+                400,
+                [['field' => 'password', 'issue' => 'Current password is incorrect']],
+                'INVALID_PASSWORD'
+            );
+        }
+
+        // Delete the account
+        $result = $this->authService->deleteAccount($currentUser['id']);
+        if (!$result) {
+            return Response::formatError(
+                'Unable to delete your account. Please try again later.',
+                500,
+                [],
+                'DELETE_ACCOUNT_FAILED'
+            );
+        }
+
+        return Response::formatSuccess(null, 'Account deleted successfully');
     }
 
     public function getUserProfile(): array
