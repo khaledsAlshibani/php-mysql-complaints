@@ -56,32 +56,14 @@ export const feedbackService = {
     }
   },
 
-  createForComplaint: async (complaintId: number, data: CreateFeedbackRequest): Promise<CreateFeedbackResponse> => {
+  create: async (data: CreateFeedbackRequest): Promise<CreateFeedbackResponse> => {
     try {
-      const response = await axiosInstance.post(`/complaints/${complaintId}/feedback`, data);
+      const response = await axiosInstance.post('/feedback', data);
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
         if (error.response?.status === 404) {
           throw new Error('Complaint not found');
-        }
-        if (error.response?.status === 422) {
-          throw new Error('Validation failed');
-        }
-        throw new Error(error.response?.data?.error?.message || 'Failed to create feedback');
-      }
-      throw error;
-    }
-  },
-
-  createForSuggestion: async (suggestionId: number, data: CreateFeedbackRequest): Promise<CreateFeedbackResponse> => {
-    try {
-      const response = await axiosInstance.post(`/suggestions/${suggestionId}/feedback`, data);
-      return response.data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.response?.status === 404) {
-          throw new Error('Suggestion not found');
         }
         if (error.response?.status === 422) {
           throw new Error('Validation failed');

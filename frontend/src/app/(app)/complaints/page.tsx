@@ -9,13 +9,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { AlertCircle, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, XCircle, MessageSquarePlus } from 'lucide-react';
+import Link from 'next/link';
 
 const statusColors = {
-  pending_no_feedback: 'border-yellow-600 text-yellow-600 bg-yellow-900/30',
-  pending_reviewed: 'border-sky-600 text-sky-600 bg-sky-900/30',
-  resolved: 'border-emerald-600 text-emerald-600 bg-emerald-900/30',
-  ignored: 'border-rose-600 text-rose-600 bg-rose-900/30'
+  pending_no_feedback: 'border-yellow-300 text-yellow-700 bg-yellow-50 dark:border-yellow-400 dark:text-yellow-300 dark:bg-yellow-950/30',
+  pending_reviewed: 'border-sky-300 text-sky-700 bg-sky-50 dark:border-sky-400 dark:text-sky-300 dark:bg-sky-950/30',
+  resolved: 'border-emerald-300 text-emerald-700 bg-emerald-50 dark:border-emerald-400 dark:text-emerald-300 dark:bg-emerald-950/30',
+  ignored: 'border-rose-300 text-rose-700 bg-rose-50 dark:border-rose-400 dark:text-rose-300 dark:bg-rose-950/30'
 } as const;
 
 const statusIcons = {
@@ -111,38 +112,51 @@ export default function ComplaintsPage() {
       {complaints.map((complaint) => {
         const StatusIcon = statusIcons[complaint.status];
         return (
-          <Card key={complaint.id} className="overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
-            <CardHeader>
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-col gap-6">
-                  <Badge className={`w-fit border ${statusColors[complaint.status]}`}>
-                    <StatusIcon className="mr-1 h-3 w-3" />
-                    {complaint.status
-                      .split('_')
-                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(' ')}
-                  </Badge>
-                  <CardTitle className="line-clamp-1">{complaint.content}</CardTitle>
-                </div>
-                <CardDescription>
-                  Submitted by {complaint.user.fullName}
-                </CardDescription>
+          <div key={complaint.id} className="group relative">
+            <Link 
+              href={`/complaints/${complaint.id}`} 
+              className="block"
+            >
+              <Card className="overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
+                <CardHeader>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-6">
+                      <Badge className={`w-fit border ${statusColors[complaint.status]}`}>
+                        <StatusIcon className="mr-1 h-3 w-3" />
+                        {complaint.status
+                          .split('_')
+                          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(' ')}
+                      </Badge>
+                      <CardTitle className="line-clamp-1">{complaint.content}</CardTitle>
+                    </div>
+                    <CardDescription>
+                      Submitted by {complaint.user.fullName}
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="line-clamp-3 text-sm text-muted-foreground">
+                    {complaint.content}
+                  </p>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <p className="text-xs text-muted-foreground">
+                    {format(new Date(complaint.createdAt), 'MMM d, yyyy')}
+                  </p>
+                </CardFooter>
+              </Card>
+            </Link>
+            {user?.role === 'admin' && (
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Link href={`/complaints/${complaint.id}?feedback=new`}>
+                  <Button size="icon" variant="secondary" className="h-8 w-8">
+                    <MessageSquarePlus className="h-4 w-4" />
+                  </Button>
+                </Link>
               </div>
-            </CardHeader>
-            <CardContent>
-              <p className="line-clamp-3 text-sm text-muted-foreground">
-                {complaint.content}
-              </p>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <p className="text-xs text-muted-foreground">
-                {format(new Date(complaint.createdAt), 'MMM d, yyyy')}
-              </p>
-              <Button variant="outline" size="sm">
-                View Details
-              </Button>
-            </CardFooter>
-          </Card>
+            )}
+          </div>
         )
       })}
     </div>

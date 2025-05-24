@@ -37,8 +37,8 @@ export type DeleteFeedbackResponse = ApiResponse<Feedback, FeedbackErrorCode>; /
 // Request types for feedback operations
 export interface CreateFeedbackRequest {
   content: string;
-  complaintId?: number;
-  suggestionId?: number;
+  complaint_id?: number;
+  suggestion_id?: number;
 }
 
 export interface UpdateFeedbackRequest {
