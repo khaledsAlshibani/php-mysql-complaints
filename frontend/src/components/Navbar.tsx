@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useLogout } from "@/hooks/useLogout"
 import { Skeleton } from "@/components/ui/skeleton"
+import ThemeToggle from "./ThemeToggle";
 
 export function Navbar() {
   const router = useRouter()
@@ -110,18 +111,22 @@ export function Navbar() {
           </NavigationMenu>
 
           {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
 
           {/* Desktop Auth Buttons or User Menu */}
           <div className="hidden md:flex items-center gap-4">
             <AuthButtons />
+            <ThemeToggle />
           </div>
 
           {/* Mobile Menu */}

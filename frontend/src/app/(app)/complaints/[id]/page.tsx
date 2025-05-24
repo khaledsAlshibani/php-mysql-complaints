@@ -437,76 +437,79 @@ export default function ComplaintPage() {
             <div className="space-y-4">
               <h3 className="flex items-center gap-2 font-semibold">
                 <MessageSquare className="h-4 w-4" />
-                Feedback History
+                Feedback History ({complaint.feedback.length})
               </h3>
-              <div className="relative pl-6">
-                <div className="absolute top-0 bottom-0 left-2 w-px bg-border" />
-                <div className="space-y-6">
-                  {complaint.feedback.map((feedback, index) => (
-                    <div 
-                      key={feedback.id}
-                      className={cn(
-                        "relative pl-6",
-                        index === complaint.feedback.length - 1 && "pb-0"
-                      )}
-                    >
-                      {/* Connection line */}
-                      <div className="absolute left-0 top-3 w-4 h-px bg-border" />
-                      {/* Dot */}
-                      <div className="absolute left-[-5px] top-2 h-3 w-3 rounded-full border-2 border-background bg-muted-foreground" />
-                      
-                      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-                        <div className="p-4 space-y-2">
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <span className="font-medium text-foreground">
-                                {feedback.admin.fullName}
-                              </span>
-                              <span>•</span>
-                              <time dateTime={feedback.createdAt}>
-                                {format(new Date(feedback.createdAt), 'MMM d, yyyy')}
-                              </time>
-                            </div>
-                            {user?.role === 'admin' && (
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => {
-                                      setSelectedFeedback(feedback);
-                                      setUpdatedFeedbackContent(feedback.content);
-                                      setIsUpdateFeedbackDialogOpen(true);
-                                    }}
-                                  >
-                                    <Pencil className="mr-2 h-4 w-4" />
-                                    Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    className="text-red-600"
-                                    onClick={() => {
-                                      setSelectedFeedback(feedback);
-                                      setIsDeleteFeedbackDialogOpen(true);
-                                    }}
-                                  >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            )}
+              <div className="relative space-y-4 pl-4 ">
+                {complaint.feedback.map((feedback, index) => (
+                  <div 
+                    key={feedback.id}
+                    className={cn(
+                      "relative",
+                      "before:absolute before:left-[-12px] before:top-[12px] before:h-[3px] before:w-3 before:bg-border dark:before:bg-border/50",
+                      "after:absolute after:left-[-16px] after:top-2 after:h-3 after:w-3 after:rounded-full after:border-2 after:border-background after:bg-border after:content-[''] dark:after:border-background dark:after:bg-border/50",
+                      index === complaint.feedback.length - 1 && "pb-0"
+                    )}
+                  >
+                    <div className="rounded-lg border bg-card text-card-foreground shadow-sm transition-colors hover:bg-accent/5">
+                      <div className="p-4 space-y-2">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 text-sm">
+                            <span className="font-medium text-foreground">
+                              {feedback.admin.fullName}
+                            </span>
+                            <span className="hidden sm:inline text-muted-foreground">•</span>
+                            <time 
+                              dateTime={feedback.createdAt}
+                              className="text-muted-foreground"
+                            >
+                              {format(new Date(feedback.createdAt), 'MMM d, yyyy')}
+                            </time>
                           </div>
-                          <p className="text-sm">
+                          {user?.role === 'admin' && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 w-8 p-0 hover:bg-accent/10"
+                                >
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedFeedback(feedback);
+                                    setUpdatedFeedbackContent(feedback.content);
+                                    setIsUpdateFeedbackDialogOpen(true);
+                                  }}
+                                >
+                                  <Pencil className="mr-2 h-4 w-4" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                  onClick={() => {
+                                    setSelectedFeedback(feedback);
+                                    setIsDeleteFeedbackDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div>
+                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                          <p className="text-sm leading-relaxed">
                             {feedback.content}
                           </p>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
