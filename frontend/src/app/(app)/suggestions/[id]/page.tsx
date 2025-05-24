@@ -270,23 +270,23 @@ export default function SuggestionPage() {
   const StatusIcon = statusIcons[suggestion.status];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/suggestions" className="flex items-center gap-2">
+          <Link href="/suggestions" className="flex items-center gap-2 -ml-2">
             <ChevronLeft className="h-4 w-4" />
             Back to Suggestions
           </Link>
         </Button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           {user?.role === 'admin' && (
             <Dialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen}>
               <DialogTrigger asChild>
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="flex items-center gap-2"
+                  className="flex items-center justify-center gap-2"
                 >
                   <MessageSquarePlus className="h-4 w-4" />
                   Add Feedback
@@ -327,13 +327,13 @@ export default function SuggestionPage() {
           )}
 
           {canModify && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-stretch sm:items-center gap-2">
               <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
                     onClick={() => setUpdatedContent(suggestion.content)}
                   >
                     <Pencil className="h-4 w-4" />
@@ -378,7 +378,7 @@ export default function SuggestionPage() {
                   <Button 
                     variant="destructive" 
                     size="sm"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
                   >
                     <Trash2 className="h-4 w-4" />
                     Delete
@@ -414,9 +414,9 @@ export default function SuggestionPage() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader className="space-y-4">
-          <div>
+      <Card className="overflow-hidden flex flex-col">
+        <CardHeader className="space-y-4 border-b">
+          <div className="space-y-2">
             <Badge className={`mb-2 w-fit border ${statusColors[suggestion.status]}`}>
               <StatusIcon className="mr-1 h-3 w-3" />
               {suggestion.status
@@ -424,22 +424,22 @@ export default function SuggestionPage() {
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                 .join(' ')}
             </Badge>
-            <CardTitle className="text-2xl">{suggestion.content}</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl sm:text-2xl leading-tight">{suggestion.content}</CardTitle>
+            <CardDescription className="text-sm">
               Submitted by {suggestion.user.fullName} on{' '}
               {format(new Date(suggestion.createdAt), 'MMMM d, yyyy')}
             </CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <h3 className="mb-2 font-semibold">Description</h3>
-            <p className="text-muted-foreground">{suggestion.content}</p>
+        <CardContent className="flex-1 space-y-8">
+          <div className="pt-2">
+            <h3 className="text-base font-semibold mb-3">Description</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{suggestion.content}</p>
           </div>
 
           {suggestion.feedback.length > 0 && (
             <div className="space-y-4">
-              <h3 className="flex items-center gap-2 font-semibold">
+              <h3 className="flex items-center gap-2 text-base font-semibold">
                 <MessageSquare className="h-4 w-4" />
                 Feedback History ({suggestion.feedback.length})
               </h3>
@@ -455,16 +455,16 @@ export default function SuggestionPage() {
                     )}
                   >
                     <div className="rounded-lg border bg-card text-card-foreground shadow-sm transition-colors hover:bg-accent/5">
-                      <div className="p-4 space-y-2">
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 text-sm">
+                      <div className="p-4 space-y-3">
+                        <div className="flex items-start sm:items-center justify-between gap-4">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm">
                             <span className="font-medium text-foreground">
                               {feedback.admin.fullName}
                             </span>
                             <span className="hidden sm:inline text-muted-foreground">•</span>
                             <time 
                               dateTime={feedback.createdAt}
-                              className="text-muted-foreground"
+                              className="text-xs sm:text-sm text-muted-foreground"
                             >
                               {format(new Date(feedback.createdAt), 'MMM d, yyyy')}
                             </time>
@@ -475,12 +475,12 @@ export default function SuggestionPage() {
                                 <Button 
                                   variant="ghost" 
                                   size="sm" 
-                                  className="h-8 w-8 p-0 hover:bg-accent/10"
+                                  className="h-8 w-8 p-0 hover:bg-accent/10 -mr-2"
                                 >
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
+                              <DropdownMenuContent align="end" className="w-[180px]">
                                 <DropdownMenuItem
                                   onClick={() => {
                                     setSelectedFeedback(feedback);

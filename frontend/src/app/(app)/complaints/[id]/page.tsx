@@ -266,23 +266,23 @@ export default function ComplaintPage() {
   const StatusIcon = statusIcons[complaint.status];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/complaints" className="flex items-center gap-2">
+          <Link href="/complaints" className="flex items-center gap-2 -ml-2">
             <ChevronLeft className="h-4 w-4" />
             Back to Complaints
           </Link>
         </Button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           {user?.role === 'admin' && (
             <Dialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen}>
               <DialogTrigger asChild>
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="flex items-center gap-2"
+                  className="flex items-center justify-center gap-2"
                 >
                   <MessageSquarePlus className="h-4 w-4" />
                   Add Feedback
@@ -323,13 +323,13 @@ export default function ComplaintPage() {
           )}
 
           {canModify && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-stretch sm:items-center gap-2">
               <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
                     onClick={() => setUpdatedContent(complaint.content)}
                   >
                     <Pencil className="h-4 w-4" />
@@ -374,7 +374,7 @@ export default function ComplaintPage() {
                   <Button 
                     variant="destructive" 
                     size="sm"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
                   >
                     <Trash2 className="h-4 w-4" />
                     Delete
@@ -410,9 +410,9 @@ export default function ComplaintPage() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader className="space-y-4">
-          <div>
+      <Card className="overflow-hidden flex flex-col">
+        <CardHeader className="space-y-4 border-b">
+          <div className="space-y-2">
             <Badge className={`mb-2 w-fit border ${statusColors[complaint.status]}`}>
               <StatusIcon className="mr-1 h-3 w-3" />
               {complaint.status
@@ -420,26 +420,26 @@ export default function ComplaintPage() {
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                 .join(' ')}
             </Badge>
-            <CardTitle className="text-2xl">{complaint.content}</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl sm:text-2xl leading-tight">{complaint.content}</CardTitle>
+            <CardDescription className="text-sm">
               Submitted by {complaint.user.fullName} on{' '}
               {format(new Date(complaint.createdAt), 'MMMM d, yyyy')}
             </CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <h3 className="mb-2 font-semibold">Description</h3>
-            <p className="text-muted-foreground">{complaint.content}</p>
+        <CardContent className="flex-1 space-y-8">
+          <div className="pt-2">
+            <h3 className="text-base font-semibold mb-3">Description</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{complaint.content}</p>
           </div>
 
           {complaint.feedback.length > 0 && (
             <div className="space-y-4">
-              <h3 className="flex items-center gap-2 font-semibold">
+              <h3 className="flex items-center gap-2 text-base font-semibold">
                 <MessageSquare className="h-4 w-4" />
                 Feedback History ({complaint.feedback.length})
               </h3>
-              <div className="relative space-y-4 pl-4 ">
+              <div className="relative space-y-4 pl-4">
                 {complaint.feedback.map((feedback, index) => (
                   <div 
                     key={feedback.id}
@@ -451,16 +451,16 @@ export default function ComplaintPage() {
                     )}
                   >
                     <div className="rounded-lg border bg-card text-card-foreground shadow-sm transition-colors hover:bg-accent/5">
-                      <div className="p-4 space-y-2">
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 text-sm">
+                      <div className="p-4 space-y-3">
+                        <div className="flex items-start sm:items-center justify-between gap-4">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm">
                             <span className="font-medium text-foreground">
                               {feedback.admin.fullName}
                             </span>
                             <span className="hidden sm:inline text-muted-foreground">•</span>
                             <time 
                               dateTime={feedback.createdAt}
-                              className="text-muted-foreground"
+                              className="text-xs sm:text-sm text-muted-foreground"
                             >
                               {format(new Date(feedback.createdAt), 'MMM d, yyyy')}
                             </time>
@@ -471,12 +471,12 @@ export default function ComplaintPage() {
                                 <Button 
                                   variant="ghost" 
                                   size="sm" 
-                                  className="h-8 w-8 p-0 hover:bg-accent/10"
+                                  className="h-8 w-8 p-0 hover:bg-accent/10 -mr-2"
                                 >
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
+                              <DropdownMenuContent align="end" className="w-[180px]">
                                 <DropdownMenuItem
                                   onClick={() => {
                                     setSelectedFeedback(feedback);

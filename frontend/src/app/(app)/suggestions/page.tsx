@@ -112,16 +112,16 @@ export default function SuggestionsPage() {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
       {suggestions.map((suggestion) => {
         const StatusIcon = statusIcons[suggestion.status];
         return (
-          <div key={suggestion.id} className="group relative">
+          <div key={suggestion.id} className="group relative h-full">
             <Link 
               href={`/suggestions/${suggestion.id}`} 
-              className="block"
+              className="block h-full"
             >
-              <Card className="overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
+              <Card className="overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 flex flex-col h-full">
                 <CardHeader>
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col gap-6">
@@ -132,19 +132,19 @@ export default function SuggestionsPage() {
                           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                           .join(' ')}
                       </Badge>
-                      <CardTitle className="line-clamp-1">{suggestion.content}</CardTitle>
+                      <CardTitle className="line-clamp-2">{suggestion.content}</CardTitle>
                     </div>
                     <CardDescription>
                       Submitted by {suggestion.user.fullName}
                     </CardDescription>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-1">
                   <p className="line-clamp-3 text-sm text-muted-foreground">
                     {suggestion.content}
                   </p>
                 </CardContent>
-                <CardFooter className="flex justify-between">
+                <CardFooter className="border-t bg-muted/5">
                   <p className="text-xs text-muted-foreground">
                     {format(new Date(suggestion.createdAt), 'MMM d, yyyy')}
                   </p>
@@ -154,7 +154,7 @@ export default function SuggestionsPage() {
             {user?.role === 'admin' && (
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Link href={`/suggestions/${suggestion.id}?feedback=new`}>
-                  <Button size="icon" variant="secondary" className="h-8 w-8">
+                  <Button size="icon" variant="secondary" className="h-8 w-8 bg-background/80 backdrop-blur-sm">
                     <MessageSquarePlus className="h-4 w-4" />
                   </Button>
                 </Link>
