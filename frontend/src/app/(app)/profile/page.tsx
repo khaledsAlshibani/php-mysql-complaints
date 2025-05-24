@@ -18,7 +18,7 @@ export default function ProfilePage() {
             if (response.status === "success" && response.data) {
                 setProfile(response.data);
             } else {
-                toast.error(response.error?.message || "Failed to fetch profile");
+                console.error(response.error?.message || "Failed to fetch profile");
             }
         } catch (error) {
             console.error("Failed to fetch profile:", error);

@@ -21,9 +21,17 @@ export interface User {
     createdAt: string | null;
 }
 
+export interface UserAuth {
+    id: User['id'],
+    username: User['username'],
+    firstName: User['firstName'],
+    lastName: User['lastName'],
+    role: User['role'],
+}
+
 export interface AuthResponse {
     status: 'success' | 'error';
-    data?: User;
+    data?: UserAuth;
     message?: string;
     error?: {
         message: string;
@@ -38,3 +46,7 @@ export enum UserRole {
     USER = 'user',
 }
 
+export interface AuthContextType {
+    isLoading: boolean;
+    setUser: (user: UserAuth | null) => void;
+}

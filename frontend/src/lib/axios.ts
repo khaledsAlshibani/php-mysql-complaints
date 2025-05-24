@@ -1,5 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { API_URL } from '@/constants/API_URL';
+import { useAuthStore } from '@/store/useAuthStore';
 
 // Create axios instance
 const axiosInstance = axios.create({
@@ -28,12 +29,73 @@ const processQueue = (error: any = null) => {
   failedQueue = [];
 };
 
+// Only set loading for non-refresh requests
+const shouldSetLoading = (url: string) => !url.includes('/auth/refresh');
+
+axiosInstance.interceptors.request.use(
+  (config) => {
+    if (shouldSetLoading(config.url || '')) {
+      useAuthStore.getState().setLoading(true);
+    }
+    
+    // Log request
+    console.info('🌐 Request:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      headers: config.headers,
+      data: config.data,
+      params: config.params
+    });
+
+    return config;
+  },
+  (error) => {
+    if (shouldSetLoading(error.config?.url || '')) {
+      useAuthStore.getState().setLoading(false);
+    }
+    
+    // Log request error
+    console.error('❌ Request Error:', {
+      message: error.message,
+      error
+    });
+
+    return Promise.reject(error);
+  }
+);
+
 axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  (response) => {
+    if (shouldSetLoading(response.config.url || '')) {
+      useAuthStore.getState().setLoading(false);
+    }
+    
+    // Log successful response
+    console.info('✅ Response:', {
+      status: response.status,
+      method: response.config.method?.toUpperCase(),
+      url: response.config.url,
+      data: response.data
+    });
+
+    return response;
+  },
+  async (error: AxiosError) => {
+    const originalRequest = error.config as any;
+
+    // Log response error
+    console.error('❌ Response Error:', {
+      status: error.response?.status,
+      method: originalRequest?.method?.toUpperCase(),
+      url: originalRequest?.url,
+      data: error.response?.data,
+      message: error.message
+    });
 
     if (error.response?.status !== 401 || originalRequest._retry) {
+      if (shouldSetLoading(originalRequest?.url || '')) {
+        useAuthStore.getState().setLoading(false);
+      }
       return Promise.reject(error);
     }
 
@@ -53,16 +115,26 @@ axiosInstance.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      await axiosInstance.post('/auth/refresh');
+      console.info('🔄 Token refresh attempt');
+      const response = await axiosInstance.post('/auth/refresh');
+      if (response.data.status === 'success' && response.data.data) {
+        useAuthStore.getState().setUser(response.data.data);
+        console.info('🔑 Token refresh successful');
+      }
       
       processQueue();
       return axiosInstance(originalRequest);
     } catch (refreshError) {
+      console.error('🚫 Token refresh failed:', refreshError);
       processQueue(refreshError);
+      useAuthStore.getState().logout();
       window.location.href = '/login';
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
+      if (shouldSetLoading(originalRequest?.url || '')) {
+        useAuthStore.getState().setLoading(false);
+      }
     }
   }
 );

@@ -47,9 +47,16 @@ export const authService = () => {
 		await axiosInstance.post('/auth/logout', {}, { withCredentials: true });
 	};
 
+	const refresh = async (): Promise<AuthResponse> => {
+		const response = await axiosInstance.post('/auth/refresh', {}, { withCredentials: true });
+
+		return response.data;
+	};
+
 	return {
 		login,
 		register,
-		logout
+		logout,
+		refresh
 	};
 };
