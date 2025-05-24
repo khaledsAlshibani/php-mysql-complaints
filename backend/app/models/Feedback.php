@@ -87,7 +87,23 @@ class Feedback extends Model
             ORDER BY f.created_at DESC
         ');
         $stmt->execute(['complaintId' => $complaintId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Format each feedback entry
+        return array_map(function($feedback) {
+            return [
+                'id' => (int)$feedback['id'],
+                'content' => $feedback['content'],
+                'createdAt' => $feedback['created_at'],
+                'admin' => [
+                    'id' => (int)$feedback['admin_id'],
+                    'username' => $feedback['username'],
+                    'fullName' => trim($feedback['first_name'] . ' ' . ($feedback['last_name'] ?? ''))
+                ],
+                'complaintId' => $feedback['complaint_id'] ? (int)$feedback['complaint_id'] : null,
+                'suggestionId' => $feedback['suggestion_id'] ? (int)$feedback['suggestion_id'] : null
+            ];
+        }, $feedbacks);
     }
 
     public function getAllForSuggestion(int $suggestionId): array
@@ -100,7 +116,23 @@ class Feedback extends Model
             ORDER BY f.created_at DESC
         ');
         $stmt->execute(['suggestionId' => $suggestionId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Format each feedback entry
+        return array_map(function($feedback) {
+            return [
+                'id' => (int)$feedback['id'],
+                'content' => $feedback['content'],
+                'createdAt' => $feedback['created_at'],
+                'admin' => [
+                    'id' => (int)$feedback['admin_id'],
+                    'username' => $feedback['username'],
+                    'fullName' => trim($feedback['first_name'] . ' ' . ($feedback['last_name'] ?? ''))
+                ],
+                'complaintId' => $feedback['complaint_id'] ? (int)$feedback['complaint_id'] : null,
+                'suggestionId' => $feedback['suggestion_id'] ? (int)$feedback['suggestion_id'] : null
+            ];
+        }, $feedbacks);
     }
 
     public function getAllByAdmin(int $adminId): array
@@ -113,7 +145,23 @@ class Feedback extends Model
             ORDER BY f.created_at DESC
         ');
         $stmt->execute(['adminId' => $adminId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Format each feedback entry
+        return array_map(function($feedback) {
+            return [
+                'id' => (int)$feedback['id'],
+                'content' => $feedback['content'],
+                'createdAt' => $feedback['created_at'],
+                'admin' => [
+                    'id' => (int)$feedback['admin_id'],
+                    'username' => $feedback['username'],
+                    'fullName' => trim($feedback['first_name'] . ' ' . ($feedback['last_name'] ?? ''))
+                ],
+                'complaintId' => $feedback['complaint_id'] ? (int)$feedback['complaint_id'] : null,
+                'suggestionId' => $feedback['suggestion_id'] ? (int)$feedback['suggestion_id'] : null
+            ];
+        }, $feedbacks);
     }
 
     protected function mapToObject(array $data): static
