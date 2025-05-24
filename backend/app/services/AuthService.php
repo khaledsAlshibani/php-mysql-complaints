@@ -206,6 +206,35 @@ class AuthService
         ];
     }
 
+    public function getCurrentUser(): ?array
+    {
+        $token = $this->jwtService->getTokenFromHeader();
+        if (!$token) {
+            return null;
+        }
+
+        $payload = $this->jwtService->verifyToken($token);
+        if (!$payload) {
+            return null;
+        }
+
+        $user = $this->getUserById($payload['sub']);
+        if (!$user) {
+            return null;
+        }
+
+        return [
+            'id' => $user['id'],
+            'username' => $user['username'],
+            'firstName' => $user['first_name'],
+            'lastName' => $user['last_name'],
+            'birthDate' => $user['birth_date'],
+            'photoPath' => $user['photo_path'],
+            'role' => $user['role'],
+            'createdAt' => $user['created_at']
+        ];
+    }
+
     public function verifyAuthentication(): bool
     {
         $token = $this->jwtService->getTokenFromHeader();
