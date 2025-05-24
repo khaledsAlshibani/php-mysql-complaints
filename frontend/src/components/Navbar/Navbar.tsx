@@ -57,12 +57,16 @@ export function Navbar() {
             <DropdownMenuItem onClick={() => router.push("/profile")}>
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push("/complaints")}>
-              My Complaints
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push("/suggestions")}>
-              My Suggestions
-            </DropdownMenuItem>
+            {user?.role !== 'admin' && (
+              <>
+                <DropdownMenuItem onClick={() => router.push("/complaints")}>
+                  My Complaints
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/suggestions")}>
+                  My Suggestions
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               onClick={handleLogout}
