@@ -1,0 +1,150 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { complaintService } from '@/services/complaintService';
+import type { Complaint } from '@/types/api/complaint';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { format } from 'date-fns';
+import { AlertCircle, CheckCircle2, Clock, XCircle } from 'lucide-react';
+
+const statusColors = {
+  pending_no_feedback: 'border-yellow-600 text-yellow-600 bg-yellow-900/30',
+  pending_reviewed: 'border-sky-600 text-sky-600 bg-sky-900/30',
+  resolved: 'border-emerald-600 text-emerald-600 bg-emerald-900/30',
+  ignored: 'border-rose-600 text-rose-600 bg-rose-900/30'
+} as const;
+
+const statusIcons = {
+  pending_no_feedback: Clock,
+  pending_reviewed: AlertCircle,
+  resolved: CheckCircle2,
+  ignored: XCircle
+} as const;
+
+export default function ComplaintsPage() {
+  const { user } = useAuthStore();
+  const [complaints, setComplaints] = useState<Complaint[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchComplaints = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = user?.role === 'admin'
+          ? await complaintService.getAllAdmin()
+          : await complaintService.getAll();
+        if (response.status === 'error') {
+          throw new Error(response.error.message);
+        }
+        setComplaints(response.data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch complaints');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchComplaints();
+  }, [user?.role]);
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-red-500">Error</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(6)].map((_, i) => (
+          <Card key={i} className="overflow-hidden">
+            <CardHeader>
+              <Skeleton className="h-6 w-2/3" />
+              <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-20 w-full" />
+            </CardContent>
+            <CardFooter>
+              <Skeleton className="h-4 w-1/3" />
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (complaints.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>No Complaints</CardTitle>
+            <CardDescription>
+              {user?.role === 'admin'
+                ? 'There are no complaints in the system yet.'
+                : 'You haven\'t submitted any complaints yet.'}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {complaints.map((complaint) => {
+        const StatusIcon = statusIcons[complaint.status];
+        return (
+          <Card key={complaint.id} className="overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
+            <CardHeader>
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-6">
+                  <Badge className={`w-fit border ${statusColors[complaint.status]}`}>
+                    <StatusIcon className="mr-1 h-3 w-3" />
+                    {complaint.status
+                      .split('_')
+                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(' ')}
+                  </Badge>
+                  <CardTitle className="line-clamp-1">{complaint.content}</CardTitle>
+                </div>
+                <CardDescription>
+                  Submitted by {complaint.user.fullName}
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="line-clamp-3 text-sm text-muted-foreground">
+                {complaint.content}
+              </p>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <p className="text-xs text-muted-foreground">
+                {format(new Date(complaint.createdAt), 'MMM d, yyyy')}
+              </p>
+              <Button variant="outline" size="sm">
+                View Details
+              </Button>
+            </CardFooter>
+          </Card>
+        )
+      })}
+    </div>
+  )
+}

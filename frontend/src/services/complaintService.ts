@@ -92,7 +92,7 @@ export const complaintService = {
   // Admin-specific endpoints
   getAllAdmin: async (): Promise<GetComplaintsResponse> => {
     try {
-      const response = await axiosInstance.get('/complaints/admin');
+      const response = await axiosInstance.get('/complaints');
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {

@@ -29,7 +29,7 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { user, isAuthenticated, isLoading } = useAuthStore()
   const { handleLogout, isLoggingOut } = useLogout()
-  const userDisplayName = user ? `${user.firstName} ${user.lastName}` : ""
+  const userDisplayName = user ? `${user.firstName}${user.lastName && user.lastName !== null ? " " + user.lastName : ""}` : ""
 
   const AuthButtons = () => {
     if (isLoading) {

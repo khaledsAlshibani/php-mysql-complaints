@@ -1,6 +1,6 @@
 import { ApiResponse, PartialResponseUser } from './global';
 
-export type ComplaintStatus = 'pending_no_feedback' | 'pending_with_feedback' | 'resolved' | 'rejected';
+export type ComplaintStatus = 'pending_no_feedback' | 'pending_reviewed' | 'resolved' | 'ignored';
 
 export interface ComplaintFeedback {
   id: number;
