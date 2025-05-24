@@ -28,7 +28,6 @@ export function LoginForm() {
     const [isPending, setIsPending] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const setUser = useAuthStore((state) => state.setUser);
-    const auth = authService();
 
     const form = useForm<LoginFormData>({
         resolver: zodResolver(LoginSchema),
@@ -41,7 +40,7 @@ export function LoginForm() {
     async function onSubmit(data: LoginFormData) {
         setIsPending(true);
         try {
-            const response = await auth.login(data);
+            const response = await authService.login(data);
 
             if (response.status === 'success' && response.data) {
                 setUser(response.data);
@@ -57,7 +56,11 @@ export function LoginForm() {
                 }
             }
         } catch (error) {
-            toast.error('An unexpected error occurred');
+            if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error('An unexpected error occurred');
+            }
         } finally {
             setIsPending(false);
         }

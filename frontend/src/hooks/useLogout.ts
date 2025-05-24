@@ -12,7 +12,7 @@ export function useLogout() {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true)
-      await authService().logout()
+      await authService.logout()
       logout()
       toast.success("Logged out successfully")
       router.push("/login")

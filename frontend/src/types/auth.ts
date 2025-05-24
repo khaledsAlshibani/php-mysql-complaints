@@ -3,11 +3,11 @@ export interface LoginFormData {
     password: string;
 }
 
-export interface RegisterData extends LoginFormData {
+export interface RegisterFormData extends LoginFormData {
     firstName: string;
-    lastName?: string;
-    birthDate?: string;
-    confirm_password: string;
+    lastName: string;
+    birthDate: string;
+    confirmPassword: string;
 }
 
 export interface User {

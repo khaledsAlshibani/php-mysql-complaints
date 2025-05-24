@@ -14,7 +14,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const response = await authService().refresh();
+        const { isAuthenticated } = useAuthStore.getState();
+        
+        // Only attempt refresh if previously authenticated
+        if (!isAuthenticated) {
+          setLoading(false);
+          return;
+        }
+
+        const response = await authService.refresh();
         
         if (response.status === 'success' && response.data) {
           setUser(response.data);
@@ -23,12 +31,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } catch (error) {
         if (isAxiosError(error) && error.response?.status !== 401) {
-          logout();
+          console.error('Auth initialization error:', error);
         }
+        logout();
       } finally {
         setLoading(false);
       }
     };
+
     initializeAuth();
   }, [setUser, setLoading, logout]);
 

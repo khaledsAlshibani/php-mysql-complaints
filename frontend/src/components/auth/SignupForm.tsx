@@ -20,8 +20,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Eye, EyeOff } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { SignupSchema } from '@/lib/validations/auth';
-import type { SignupFormData } from '@/types/auth';
 import { useAuthStore } from '@/store/useAuthStore';
+import { RegisterFormData } from '@/types/auth';
 
 export function SignupForm() {
     const router = useRouter();
@@ -29,24 +29,23 @@ export function SignupForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const setUser = useAuthStore((state) => state.setUser);
-    const auth = authService();
 
-    const form = useForm<SignupFormData>({
+    const form = useForm<RegisterFormData>({
         resolver: zodResolver(SignupSchema),
         defaultValues: {
             username: '',
             password: '',
-            confirm_password: '',
-            first_name: '',
-            last_name: '',
-            birth_date: ''
+            confirmPassword: '',
+            firstName: '',
+            lastName: '',
+            birthDate: ''
         }
     });
 
-    async function onSubmit(data: SignupFormData) {
+    async function onSubmit(data: RegisterFormData) {
         setIsPending(true);
         try {
-            const response = await auth.register(data);
+            const response = await authService.register(data);
 
             if (response.status === 'success' && response.data) {
                 setUser(response.data);
@@ -55,14 +54,22 @@ export function SignupForm() {
             } else {
                 if (response.error?.details) {
                     response.error.details.forEach(({ field, issue }) => {
-                        toast.error(`${field}: ${issue}`);
+                        // Convert snake_case field names to user-friendly format
+                        const fieldName = field.split('_').map(word => 
+                            word.charAt(0).toUpperCase() + word.slice(1)
+                        ).join(' ');
+                        toast.error(`${fieldName}: ${issue}`);
                     });
                 } else {
                     toast.error(response.error?.message || 'Registration failed');
                 }
             }
         } catch (error) {
-            toast.error('An unexpected error occurred');
+            if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error('An unexpected error occurred');
+            }
         } finally {
             setIsPending(false);
         }
@@ -127,7 +134,7 @@ export function SignupForm() {
 
                             <FormField
                                 control={form.control}
-                                name="confirm_password"
+                                name="confirmPassword"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Confirm Password</FormLabel>
@@ -161,7 +168,7 @@ export function SignupForm() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
-                                    name="first_name"
+                                    name="firstName"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>First Name</FormLabel>
@@ -175,7 +182,7 @@ export function SignupForm() {
 
                                 <FormField
                                     control={form.control}
-                                    name="last_name"
+                                    name="lastName"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Last Name</FormLabel>
@@ -190,7 +197,7 @@ export function SignupForm() {
 
                             <FormField
                                 control={form.control}
-                                name="birth_date"
+                                name="birthDate"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Birth Date</FormLabel>
