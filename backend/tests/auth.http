@@ -20,7 +20,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-    "username": "testuser3",
+    "username": "testuser4",
     "password": "Test123!"
 }
 

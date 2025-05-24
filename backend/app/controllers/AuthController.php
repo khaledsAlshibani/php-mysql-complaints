@@ -78,6 +78,6 @@ class AuthController extends Controller
             return;
         }
 
-        Response::sendSuccess(null, $result['message']);
+        Response::sendSuccess($result['data'], $result['message']);
     }
 } 

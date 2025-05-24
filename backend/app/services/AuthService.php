@@ -47,16 +47,7 @@ class AuthService
         $this->jwtService->setAccessTokenCookie($accessToken);
         $this->jwtService->setRefreshTokenCookie($refreshToken);
 
-        return Response::formatSuccess(
-            [
-                'id' => $user['id'],
-                'username' => $user['username'],
-                'firstName' => $user['first_name'],
-                'lastName' => $user['last_name'],
-                'role' => $user['role']
-            ],
-            'Login successful'
-        );
+        return Response::formatSuccess($this->createAuthRes($user), 'Login successful');
     }
 
     public function register(array $userData): array
@@ -86,10 +77,10 @@ class AuthService
             // force role to be 'user' by default
             $userData['role'] = 'user';
             $userData['password'] = password_hash($userData['password'], PASSWORD_DEFAULT);
-            
+
             // Handle empty last_name
             $userData['last_name'] = empty($userData['last_name']) ? null : $userData['last_name'];
-            
+
             $stmt = $this->db->prepare('
                 INSERT INTO users (username, password, first_name, last_name, birth_date, role)
                 VALUES (:username, :password, :first_name, :last_name, :birth_date, :role)
@@ -97,9 +88,9 @@ class AuthService
 
             $stmt->execute($userData);
             $userId = $this->db->lastInsertId();
-            
+
             $newUser = $this->getUserById($userId);
-            
+
             $tokenPayload = [
                 'sub' => $newUser['id'],
                 'username' => $newUser['username'],
@@ -112,19 +103,9 @@ class AuthService
             $this->jwtService->setAccessTokenCookie($accessToken);
             $this->jwtService->setRefreshTokenCookie($refreshToken);
 
-            $responseData = [
-                'id' => $newUser['id'],
-                'username' => $newUser['username'],
-                'firstName' => $newUser['first_name'],
-                'lastName' => $newUser['last_name'],
-                'role' => $newUser['role']
-            ];
-            
-            Logger::getInstance()->debug('User registration - final response data', ['responseData' => $responseData]);
-
             $this->db->commit();
 
-            return Response::formatSuccess($responseData, 'User registered successfully');
+            return Response::formatSuccess($this->createAuthRes($newUser), 'User registered successfully');
         } catch (\PDOException $e) {
             $this->db->rollBack();
             return Response::formatError(
@@ -154,7 +135,7 @@ class AuthService
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             $stmt = $this->db->prepare('UPDATE users SET password = ? WHERE id = ?');
             $stmt->execute([$hashedPassword, $userId]);
-            
+
             $this->db->commit();
 
             return Response::formatSuccess(null, 'Password updated successfully');
@@ -197,10 +178,12 @@ class AuthService
             'role' => $payload['role']
         ];
 
+        $user = $this->getUserById($payload['sub']);
+
         $accessToken = $this->jwtService->generateAccessToken($tokenPayload);
         $this->jwtService->setAccessTokenCookie($accessToken);
-
-        return Response::formatSuccess(null, 'Token refreshed successfully');
+        Logger::getInstance()->info('user ' . print_r($this->createAuthRes($user), true));
+        return Response::formatSuccess($this->createAuthRes($user), 'Token refreshed successfully');
     }
 
     public function logout(): array
@@ -212,32 +195,14 @@ class AuthService
         return Response::formatSuccess(null, 'Logged out successfully');
     }
 
-    public function getCurrentUser(): ?array
+    private function createAuthRes($newUser): ?array
     {
-        $token = $this->jwtService->getTokenFromHeader();
-        if (!$token) {
-            return null;
-        }
-
-        $payload = $this->jwtService->verifyToken($token);
-        if (!$payload) {
-            return null;
-        }
-
-        $user = $this->getUserById($payload['sub']);
-        if (!$user) {
-            return null;
-        }
-
         return [
-            'id' => $user['id'],
-            'username' => $user['username'],
-            'firstName' => $user['first_name'],
-            'lastName' => $user['last_name'],
-            'birthDate' => $user['birth_date'],
-            'photoPath' => $user['photo_path'],
-            'role' => $user['role'],
-            'createdAt' => $user['created_at']
+            'id' => $newUser['id'],
+            'username' => $newUser['username'],
+            'firstName' => $newUser['first_name'],
+            'lastName' => $newUser['last_name'],
+            'role' => $newUser['role']
         ];
     }
 
@@ -342,7 +307,7 @@ class AuthService
 
             $params[] = $userId;
             $sql = 'UPDATE users SET ' . implode(', ', $updateFields) . ' WHERE id = ?';
-            
+
             $stmt = $this->db->prepare($sql);
             $success = $stmt->execute($params);
 
@@ -357,7 +322,7 @@ class AuthService
             }
 
             $this->db->commit();
-            
+
             // Get updated user data
             $updatedUser = $this->getUserById($userId);
             if (!$updatedUser) {
@@ -382,7 +347,6 @@ class AuthService
                 ],
                 'Profile updated successfully'
             );
-
         } catch (\PDOException $e) {
             $this->db->rollBack();
             Logger::getInstance()->error('Failed to update profile', [
