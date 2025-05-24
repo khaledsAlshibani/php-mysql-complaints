@@ -1,32 +1,6 @@
 import type { User } from '@/types/api/auth';
 import axiosInstance from '@/lib/axios';
-
-interface UpdatePasswordData {
-  currentPassword: string;
-  newPassword: string;
-}
-
-interface UpdateProfileData {
-  firstName: string;
-  lastName: string;
-  birthDate: string;
-}
-
-interface DeleteAccountData {
-  password: string;
-}
-
-interface ServiceResponse<T = any> {
-  status: 'success' | 'error';
-  data?: T;
-  message?: string;
-  error?: {
-    message: string;
-    code: number;
-    details?: Array<{ field: string; issue: string }>;
-    errorCode?: string;
-  };
-}
+import type { ServiceResponse, UpdateProfileData, UpdatePasswordData, DeleteAccountData } from '@/types/api/user';
 
 export const userService = () => {
   const getProfile = async (): Promise<ServiceResponse<User>> => {

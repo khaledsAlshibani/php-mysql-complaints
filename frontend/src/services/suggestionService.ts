@@ -89,7 +89,6 @@ export const suggestionService = {
     }
   },
 
-  // Admin-specific endpoints
   getAllAdmin: async (): Promise<GetSuggestionsResponse> => {
     try {
       const response = await axiosInstance.get('/suggestions');

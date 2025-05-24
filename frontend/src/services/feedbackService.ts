@@ -107,7 +107,6 @@ export const feedbackService = {
     }
   },
 
-  // Admin-specific endpoints
   getAllByAdmin: async (): Promise<GetFeedbacksResponse> => {
     try {
       const response = await axiosInstance.get('/feedback/admin');

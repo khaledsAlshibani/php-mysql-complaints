@@ -89,7 +89,6 @@ export const complaintService = {
     }
   },
 
-  // Admin-specific endpoints
   getAllAdmin: async (): Promise<GetComplaintsResponse> => {
     try {
       const response = await axiosInstance.get('/complaints');

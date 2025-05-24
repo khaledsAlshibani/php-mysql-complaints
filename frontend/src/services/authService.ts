@@ -23,7 +23,6 @@ export const authService = {
 
 	register: async (credentials: RegisterFormData): Promise<AuthResponse> => {
 		try {
-			// Transform the data to match backend's expected format
 			const transformedData = {
 				username: credentials.username,
 				password: credentials.password,
