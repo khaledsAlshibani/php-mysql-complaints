@@ -10,7 +10,6 @@ interface UpdateProfileData {
   firstName: string;
   lastName: string;
   birthDate: string;
-  photoPath: string | null;
 }
 
 interface DeleteAccountData {

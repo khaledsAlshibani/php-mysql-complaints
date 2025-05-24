@@ -24,7 +24,6 @@ export function ProfileActions({ profile, onProfileUpdate }: ProfileActionsProps
         firstName: profile?.firstName || "",
         lastName: profile?.lastName || "",
         birthDate: profile?.birthDate || "",
-        photoPath: profile?.photoPath || ""
     });
     const [deletePassword, setDeletePassword] = useState("");
 
@@ -115,17 +114,6 @@ export function ProfileActions({ profile, onProfileUpdate }: ProfileActionsProps
                                 disabled={isLoading}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="photoPath">Photo URL</Label>
-                            <Input
-                                id="photoPath"
-                                name="photoPath"
-                                value={formData.photoPath}
-                                onChange={handleInputChange}
-                                placeholder="https://example.com/photo.jpg"
-                                disabled={isLoading}
-                            />
-                        </div>
                         <div className="flex gap-2">
                             <Button type="submit" disabled={isLoading}>
                                 {isLoading ? "Saving..." : "Save Changes"}
@@ -138,7 +126,6 @@ export function ProfileActions({ profile, onProfileUpdate }: ProfileActionsProps
                                         firstName: profile?.firstName || "",
                                         lastName: profile?.lastName || "",
                                         birthDate: profile?.birthDate || "",
-                                        photoPath: profile?.photoPath || ""
                                     });
                                     setIsEditing(false);
                                 }}
