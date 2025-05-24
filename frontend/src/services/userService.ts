@@ -1,4 +1,4 @@
-import type { User } from '@/types/auth';
+import type { User } from '@/types/api/auth';
 import axiosInstance from '@/lib/axios';
 
 interface UpdatePasswordData {

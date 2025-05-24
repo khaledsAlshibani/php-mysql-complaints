@@ -4,7 +4,7 @@ import { useMemo, useEffect, createContext } from "react";
 import { authService } from "@/services/authService";
 import { isAxiosError } from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
-import { AuthContextType } from "@/types/auth";
+import { AuthContextType } from "@/types/api/auth";
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

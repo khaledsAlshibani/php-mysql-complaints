@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import type { User } from "@/types/auth";
+import type { User } from "@/types/api/auth";
 import { userService } from "@/services/userService";
 
 interface ProfileActionsProps {

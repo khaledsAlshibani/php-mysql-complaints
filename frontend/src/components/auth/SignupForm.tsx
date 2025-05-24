@@ -21,7 +21,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { SignupSchema } from '@/lib/validations/auth';
 import { useAuthStore } from '@/store/useAuthStore';
-import { RegisterFormData } from '@/types/auth';
+import { RegisterFormData } from '@/types/api/auth';
 
 export function SignupForm() {
     const router = useRouter();

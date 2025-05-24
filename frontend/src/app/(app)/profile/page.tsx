@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { userService } from "@/services/userService";
-import type { User } from "@/types/auth";
+import type { User } from "@/types/api/auth";
 import { ProfileSkeleton } from "@/components/profile/ProfileSkeleton";
 import { ProfileSummary } from "@/components/profile/ProfileSummary";
 import { ProfileInformation } from "@/components/profile/ProfileInformation";

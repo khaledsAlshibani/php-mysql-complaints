@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { UserAuth } from '@/types/auth';
+import type { UserAuth } from '@/types/api/auth';
 
 interface AuthStore {
     user: UserAuth | null;

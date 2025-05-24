@@ -1,4 +1,4 @@
-import type { AuthResponse, LoginFormData, RegisterFormData } from '@/types/auth';
+import type { AuthResponse, LoginFormData, RegisterFormData } from '@/types/api/auth';
 import axiosInstance from '@/lib/axios';
 import { isAxiosError } from 'axios';
 

@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Mail, Camera } from "lucide-react";
-import type { User } from "@/types/auth";
+import type { User } from "@/types/api/auth";
 import { getDefaultProfilePhoto } from "@/utils/getDefaultProfilePhoto";
 import { toast } from "sonner";
 import { userService } from "@/services/userService";

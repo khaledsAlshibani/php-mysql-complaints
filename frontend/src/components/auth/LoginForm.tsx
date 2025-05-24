@@ -20,7 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Eye, EyeOff } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { LoginSchema } from '@/lib/validations/auth';
-import type { LoginFormData } from '@/types/auth';
+import type { LoginFormData } from '@/types/api/auth';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export function LoginForm() {

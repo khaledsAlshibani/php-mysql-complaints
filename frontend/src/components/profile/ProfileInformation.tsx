@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { User } from "@/types/auth";
+import type { User } from "@/types/api/auth";
 import { ProfileActions } from "./ProfileActions";
 
 interface ProfileInformationProps {
