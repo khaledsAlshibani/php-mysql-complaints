@@ -8,7 +8,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-    "username": "testuser3",
+    "username": "testuser4",
     "password": "Test123!"
 }
 
@@ -28,8 +28,7 @@ Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
 {
-    "content": "Test complaint content",
-    "category": "general"
+    "content": "Test complaint content"
 }
 
 ### Get all complaints
@@ -43,13 +42,12 @@ Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
 ### Update complaint
-PUT {{baseUrl}}/complaints/1
+PUT {{baseUrl}}/complaints/9
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
 {
-    "content": "Updated complaint content",
-    "category": "technical"
+    "content": "Updated complaint content"
 }
 
 ### Delete complaint

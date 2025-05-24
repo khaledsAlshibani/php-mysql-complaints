@@ -118,7 +118,7 @@ class FeedbackController extends Controller
         // Update parent item status
         $parentItem->update(['status' => 'pending_reviewed']);
 
-        Response::sendSuccess(null, 'Feedback created successfully', 201);
+        Response::sendSuccess($data, 'Feedback created successfully', 201);
     }
 
     public function update(array $params): void
@@ -171,7 +171,7 @@ class FeedbackController extends Controller
             return;
         }
 
-        Response::sendSuccess(null, 'Feedback updated successfully');
+        Response::sendSuccess($data, 'Feedback updated successfully');
     }
 
     public function delete(array $params): void

@@ -68,7 +68,10 @@ class FeedbackService
             );
         }
 
-        if (!$this->feedback->create($feedbackDTO->toArray())) {
+        $feedbackData = $feedbackDTO->toArray();
+        $newFeedbackId = $this->feedback->create($feedbackData);
+        
+        if (!$newFeedbackId) {
             return Response::formatError(
                 'Failed to create feedback',
                 500,
@@ -77,7 +80,45 @@ class FeedbackService
             );
         }
 
-        return Response::formatSuccess(null, 'Feedback created successfully');
+        // Fetch the newly created feedback with all its data
+        $newFeedback = $this->feedback->find($newFeedbackId);
+        if (!$newFeedback) {
+            return Response::formatError(
+                'Failed to retrieve created feedback',
+                500,
+                [],
+                'FEEDBACK_RETRIEVAL_FAILED'
+            );
+        }
+
+        // Get admin user data
+        $admin = $newFeedback->getAdmin();
+
+        // Update parent item status
+        if ($newFeedback->getComplaintId()) {
+            $complaint = $this->complaint->find($newFeedback->getComplaintId());
+            if ($complaint) {
+                $complaint->update(['status' => 'pending_reviewed']);
+            }
+        } elseif ($newFeedback->getSuggestionId()) {
+            $suggestion = $this->suggestion->find($newFeedback->getSuggestionId());
+            if ($suggestion) {
+                $suggestion->update(['status' => 'pending_reviewed']);
+            }
+        }
+
+        return Response::formatSuccess([
+            'id' => $newFeedback->getId(),
+            'content' => $newFeedback->getContent(),
+            'createdAt' => $newFeedback->getCreatedAt(),
+            'admin' => [
+                'id' => $admin->getId(),
+                'username' => $admin->getUsername(),
+                'fullName' => $admin->getFullName()
+            ],
+            'complaintId' => $newFeedback->getComplaintId(),
+            'suggestionId' => $newFeedback->getSuggestionId()
+        ], 'Feedback created successfully');
     }
 
     public function update(array $params, array $data): array
@@ -163,7 +204,22 @@ class FeedbackService
             );
         }
 
-        return Response::formatSuccess(null, 'Feedback updated successfully');
+        // Get the updated feedback data
+        $updatedFeedback = $this->feedback->find((int)$params['id']);
+        $admin = $updatedFeedback->getAdmin();
+
+        return Response::formatSuccess([
+            'id' => $updatedFeedback->getId(),
+            'content' => $updatedFeedback->getContent(),
+            'createdAt' => $updatedFeedback->getCreatedAt(),
+            'admin' => [
+                'id' => $admin->getId(),
+                'username' => $admin->getUsername(),
+                'fullName' => $admin->getFullName()
+            ],
+            'complaintId' => $updatedFeedback->getComplaintId(),
+            'suggestionId' => $updatedFeedback->getSuggestionId()
+        ], 'Feedback updated successfully');
     }
 
     public function delete(array $params): array
@@ -215,6 +271,21 @@ class FeedbackService
             );
         }
 
+        // Get the feedback data before deletion
+        $admin = $feedback->getAdmin();
+        $feedbackData = [
+            'id' => $feedback->getId(),
+            'content' => $feedback->getContent(),
+            'createdAt' => $feedback->getCreatedAt(),
+            'admin' => [
+                'id' => $admin->getId(),
+                'username' => $admin->getUsername(),
+                'fullName' => $admin->getFullName()
+            ],
+            'complaintId' => $feedback->getComplaintId(),
+            'suggestionId' => $feedback->getSuggestionId()
+        ];
+
         if (!$feedback->delete()) {
             return Response::formatError(
                 'Failed to delete feedback',
@@ -224,7 +295,7 @@ class FeedbackService
             );
         }
 
-        return Response::formatSuccess(null, 'Feedback deleted successfully');
+        return Response::formatSuccess($feedbackData, 'Feedback deleted successfully');
     }
 
     public function getById(array $params): array

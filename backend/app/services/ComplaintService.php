@@ -32,7 +32,10 @@ class ComplaintService
             );
         }
 
-        if (!$this->complaint->create($complaintDTO->toArray())) {
+        $complaintData = $complaintDTO->toArray();
+        $newComplaintId = $this->complaint->create($complaintData);
+        
+        if (!$newComplaintId) {
             return Response::formatError(
                 'Failed to create complaint',
                 500,
@@ -41,7 +44,33 @@ class ComplaintService
             );
         }
 
-        return Response::formatSuccess(null, 'Complaint created successfully');
+        // Fetch the newly created complaint with all its data
+        $newComplaint = $this->complaint->find($newComplaintId);
+        if (!$newComplaint) {
+            return Response::formatError(
+                'Failed to retrieve created complaint',
+                500,
+                [],
+                'COMPLAINT_RETRIEVAL_FAILED'
+            );
+        }
+
+        // Format the complaint data with user and feedback
+        $user = $newComplaint->getUser();
+        $feedback = $newComplaint->getFeedback();
+
+        return Response::formatSuccess([
+            'id' => $newComplaint->getId(),
+            'content' => $newComplaint->getContent(),
+            'status' => $newComplaint->getStatus(),
+            'createdAt' => $newComplaint->getCreatedAt(),
+            'user' => [
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'fullName' => $user->getFullName()
+            ],
+            'feedback' => $feedback
+        ], 'Complaint created successfully');
     }
 
     public function update(int $id, array $data, int $userId, string $userRole): array
@@ -90,7 +119,33 @@ class ComplaintService
             );
         }
 
-        return Response::formatSuccess(null, 'Complaint updated successfully');
+        // Fetch the updated complaint with all its data
+        $updatedComplaint = $this->complaint->find($id);
+        if (!$updatedComplaint) {
+            return Response::formatError(
+                'Failed to retrieve updated complaint',
+                500,
+                [],
+                'COMPLAINT_RETRIEVAL_FAILED'
+            );
+        }
+
+        // Format the complaint data with user and feedback
+        $user = $updatedComplaint->getUser();
+        $feedback = $updatedComplaint->getFeedback();
+
+        return Response::formatSuccess([
+            'id' => $updatedComplaint->getId(),
+            'content' => $updatedComplaint->getContent(),
+            'status' => $updatedComplaint->getStatus(),
+            'createdAt' => $updatedComplaint->getCreatedAt(),
+            'user' => [
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'fullName' => $user->getFullName()
+            ],
+            'feedback' => $feedback
+        ], 'Complaint updated successfully');
     }
 
     public function delete(int $id, int $userId, string $userRole): array

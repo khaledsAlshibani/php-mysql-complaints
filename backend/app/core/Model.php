@@ -28,7 +28,7 @@ abstract class Model
         return null;
     }
 
-    public function create(array $data): bool
+    public function create(array $data): bool|int
     {
         $fields = array_intersect_key($data, array_flip($this->fillable));
         $columns = implode(', ', array_keys($fields));
@@ -36,7 +36,8 @@ abstract class Model
 
         $stmt = $this->db->prepare("INSERT INTO {$this->table} ($columns) VALUES ($values)");
 
-        return $stmt->execute($fields);
+        $success = $stmt->execute($fields);
+        return $success ? (int)$this->db->lastInsertId() : false;
     }
 
     public function update(array $data): bool

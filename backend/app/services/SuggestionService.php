@@ -53,7 +53,10 @@ class SuggestionService
             );
         }
 
-        if (!$this->suggestion->create($suggestionDTO->toArray())) {
+        $suggestionData = $suggestionDTO->toArray();
+        $newSuggestionId = $this->suggestion->create($suggestionData);
+        
+        if (!$newSuggestionId) {
             return Response::formatError(
                 'Failed to create suggestion',
                 500,
@@ -62,7 +65,33 @@ class SuggestionService
             );
         }
 
-        return Response::formatSuccess(null, 'Suggestion created successfully');
+        // Fetch the newly created suggestion with all its data
+        $newSuggestion = $this->suggestion->find($newSuggestionId);
+        if (!$newSuggestion) {
+            return Response::formatError(
+                'Failed to retrieve created suggestion',
+                500,
+                [],
+                'SUGGESTION_RETRIEVAL_FAILED'
+            );
+        }
+
+        // Format the suggestion data with user and feedback
+        $suggestionUser = $newSuggestion->getUser();
+        $feedback = $newSuggestion->getFeedback();
+
+        return Response::formatSuccess([
+            'id' => $newSuggestion->getId(),
+            'content' => $newSuggestion->getContent(),
+            'status' => $newSuggestion->getStatus(),
+            'createdAt' => $newSuggestion->getCreatedAt(),
+            'user' => [
+                'id' => $suggestionUser->getId(),
+                'username' => $suggestionUser->getUsername(),
+                'fullName' => $suggestionUser->getFullName()
+            ],
+            'feedback' => $feedback
+        ], 'Suggestion created successfully');
     }
 
     public function update(array $params, array $data): array
@@ -139,7 +168,33 @@ class SuggestionService
             );
         }
 
-        return Response::formatSuccess(null, 'Suggestion updated successfully');
+        // Fetch the updated suggestion with all its data
+        $updatedSuggestion = $this->suggestion->find((int)$params['id']);
+        if (!$updatedSuggestion) {
+            return Response::formatError(
+                'Failed to retrieve updated suggestion',
+                500,
+                [],
+                'SUGGESTION_RETRIEVAL_FAILED'
+            );
+        }
+
+        // Format the suggestion data with user and feedback
+        $suggestionUser = $updatedSuggestion->getUser();
+        $feedback = $updatedSuggestion->getFeedback();
+
+        return Response::formatSuccess([
+            'id' => $updatedSuggestion->getId(),
+            'content' => $updatedSuggestion->getContent(),
+            'status' => $updatedSuggestion->getStatus(),
+            'createdAt' => $updatedSuggestion->getCreatedAt(),
+            'user' => [
+                'id' => $suggestionUser->getId(),
+                'username' => $suggestionUser->getUsername(),
+                'fullName' => $suggestionUser->getFullName()
+            ],
+            'feedback' => $feedback
+        ], 'Suggestion updated successfully');
     }
 
     public function delete(array $params): array

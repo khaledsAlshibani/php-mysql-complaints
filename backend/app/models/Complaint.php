@@ -32,18 +32,20 @@ class Complaint extends Model
         return null;
     }
 
-    public function create(array $data): bool
+    public function create(array $data): int|false
     {
         $stmt = $this->db->prepare('
             INSERT INTO complaints (user_id, content, status)
             VALUES (:userId, :content, :status)
         ');
 
-        return $stmt->execute([
+        $success = $stmt->execute([
             'userId' => $data['user_id'],
             'content' => $data['content'],
             'status' => $data['status'] ?? 'pending_no_feedback'
         ]);
+
+        return $success ? (int)$this->db->lastInsertId() : false;
     }
 
     public function update(array $data): bool

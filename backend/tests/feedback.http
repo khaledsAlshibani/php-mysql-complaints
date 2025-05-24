@@ -28,7 +28,7 @@ Content-Type: {{contentType}}
 Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 
 {
-    "complaint_id": 1,
+    "complaint_id": 5,
     "content": "Test feedback for complaint"
 }
 
@@ -38,7 +38,7 @@ Content-Type: {{contentType}}
 Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 
 {
-    "suggestion_id": 3,
+    "suggestion_id": 7,
     "content": "Test feedback for suggestion"
 }
 
@@ -48,7 +48,7 @@ Content-Type: {{contentType}}
 Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 
 ### Update feedback
-PUT {{baseUrl}}/feedback/1
+PUT {{baseUrl}}/feedback/7
 Content-Type: {{contentType}}
 Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 

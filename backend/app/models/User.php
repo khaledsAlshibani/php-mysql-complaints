@@ -22,7 +22,7 @@ class User extends Model
     private string $username;
     private string $password;
     private string $firstName;
-    private string $lastName;
+    private ?string $lastName;
     private string $birthDate;
     private ?string $photoPath;
     private string $role;
@@ -172,6 +172,6 @@ class User extends Model
     
     public function getFullName(): string
     {
-        return $this->firstName . ' ' . $this->lastName;
+        return $this->firstName . ($this->lastName ? ' ' . $this->lastName : '');
     }
 }

@@ -32,18 +32,20 @@ class Suggestion extends Model
         return null;
     }
 
-    public function create(array $data): bool
+    public function create(array $data): int|false
     {
         $stmt = $this->db->prepare('
             INSERT INTO suggestions (user_id, content, status)
             VALUES (:userId, :content, :status)
         ');
 
-        return $stmt->execute([
+        $success = $stmt->execute([
             'userId' => $data['user_id'],
             'content' => $data['content'],
             'status' => $data['status'] ?? 'pending_review'
         ]);
+
+        return $success ? (int)$this->db->lastInsertId() : false;
     }
 
     public function update(array $data): bool

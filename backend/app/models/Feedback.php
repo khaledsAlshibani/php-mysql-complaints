@@ -34,19 +34,21 @@ class Feedback extends Model
         return null;
     }
 
-    public function create(array $data): bool
+    public function create(array $data): int|false
     {
         $stmt = $this->db->prepare('
             INSERT INTO feedback (admin_id, complaint_id, suggestion_id, content)
             VALUES (:adminId, :complaintId, :suggestionId, :content)
         ');
 
-        return $stmt->execute([
+        $success = $stmt->execute([
             'adminId' => $data['admin_id'],
             'complaintId' => $data['complaint_id'] ?? null,
             'suggestionId' => $data['suggestion_id'] ?? null,
             'content' => $data['content']
         ]);
+
+        return $success ? (int)$this->db->lastInsertId() : false;
     }
 
     public function update(array $data): bool
