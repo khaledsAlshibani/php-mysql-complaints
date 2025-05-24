@@ -21,10 +21,10 @@ export function ProfileInformation({ profile, onProfileUpdate }: ProfileInformat
                             <label className="text-sm font-medium text-muted-foreground">First Name</label>
                             <p className="text-sm">{profile?.firstName}</p>
                         </div>
-                        <div className="space-y-1">
+                        {profile?.lastName && <div className="space-y-1">
                             <label className="text-sm font-medium text-muted-foreground">Last Name</label>
                             <p className="text-sm">{profile?.lastName}</p>
-                        </div>
+                        </div>}
                         <div className="space-y-1">
                             <label className="text-sm font-medium text-muted-foreground">Birth Date</label>
                             <p className="text-sm">{profile?.birthDate ? new Date(profile.birthDate).toLocaleDateString() : "N/A"}</p>
