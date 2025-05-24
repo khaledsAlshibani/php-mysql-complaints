@@ -37,7 +37,7 @@ Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
 ### Get specific complaint
-GET {{baseUrl}}/complaints/1
+GET {{baseUrl}}/complaints/5
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 

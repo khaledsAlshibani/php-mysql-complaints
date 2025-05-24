@@ -402,8 +402,29 @@ class FeedbackService
             );
         }
 
-        $feedback = $this->feedback->getAllForComplaint((int)$params['id']);
-        return Response::formatSuccess($feedback);
+        $rawFeedback = $this->feedback->getAllForComplaint((int)$params['id']);
+        $formattedFeedback = [];
+
+        foreach ($rawFeedback as $feedbackItem) {
+            $feedback = $this->feedback->find((int)$feedbackItem['id']);
+            if ($feedback) {
+                $admin = $feedback->getAdmin();
+                $formattedFeedback[] = [
+                    'id' => $feedback->getId(),
+                    'content' => $feedback->getContent(),
+                    'createdAt' => $feedback->getCreatedAt(),
+                    'admin' => [
+                        'id' => $admin->getId(),
+                        'username' => $admin->getUsername(),
+                        'fullName' => $admin->getFullName()
+                    ],
+                    'complaintId' => $feedback->getComplaintId(),
+                    'suggestionId' => $feedback->getSuggestionId()
+                ];
+            }
+        }
+
+        return Response::formatSuccess($formattedFeedback);
     }
 
     public function getAllForSuggestion(array $params): array
@@ -446,8 +467,29 @@ class FeedbackService
             );
         }
 
-        $feedback = $this->feedback->getAllForSuggestion((int)$params['id']);
-        return Response::formatSuccess($feedback);
+        $rawFeedback = $this->feedback->getAllForSuggestion((int)$params['id']);
+        $formattedFeedback = [];
+
+        foreach ($rawFeedback as $feedbackItem) {
+            $feedback = $this->feedback->find((int)$feedbackItem['id']);
+            if ($feedback) {
+                $admin = $feedback->getAdmin();
+                $formattedFeedback[] = [
+                    'id' => $feedback->getId(),
+                    'content' => $feedback->getContent(),
+                    'createdAt' => $feedback->getCreatedAt(),
+                    'admin' => [
+                        'id' => $admin->getId(),
+                        'username' => $admin->getUsername(),
+                        'fullName' => $admin->getFullName()
+                    ],
+                    'complaintId' => $feedback->getComplaintId(),
+                    'suggestionId' => $feedback->getSuggestionId()
+                ];
+            }
+        }
+
+        return Response::formatSuccess($formattedFeedback);
     }
 
     public function getAll(): array
@@ -471,7 +513,28 @@ class FeedbackService
             );
         }
 
-        $feedback = $this->feedback->getAllByAdmin($user['id']);
-        return Response::formatSuccess($feedback);
+        $rawFeedback = $this->feedback->getAllByAdmin($user['id']);
+        $formattedFeedback = [];
+
+        foreach ($rawFeedback as $feedbackItem) {
+            $feedback = $this->feedback->find((int)$feedbackItem['id']);
+            if ($feedback) {
+                $admin = $feedback->getAdmin();
+                $formattedFeedback[] = [
+                    'id' => $feedback->getId(),
+                    'content' => $feedback->getContent(),
+                    'createdAt' => $feedback->getCreatedAt(),
+                    'admin' => [
+                        'id' => $admin->getId(),
+                        'username' => $admin->getUsername(),
+                        'fullName' => $admin->getFullName()
+                    ],
+                    'complaintId' => $feedback->getComplaintId(),
+                    'suggestionId' => $feedback->getSuggestionId()
+                ];
+            }
+        }
+
+        return Response::formatSuccess($formattedFeedback);
     }
-} 
+}

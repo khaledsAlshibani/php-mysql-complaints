@@ -105,6 +105,13 @@ class Complaint extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAll(): array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM complaints ORDER BY created_at DESC');
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     protected function mapToObject(array $data): static
     {
         $this->id = (int)$data['id'];

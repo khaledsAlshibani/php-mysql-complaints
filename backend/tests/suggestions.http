@@ -38,7 +38,7 @@ Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
 ### Get specific suggestion
-GET {{baseUrl}}/suggestions/1
+GET {{baseUrl}}/suggestions/8
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 

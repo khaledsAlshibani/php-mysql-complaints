@@ -318,9 +318,31 @@ class SuggestionService
             );
         }
 
-        $suggestions = $user['role'] === 'user' ? 
-            $this->suggestion->getAllByUser($user['id']) :
+        $rawSuggestions = $user['role'] === 'admin' ? 
+            $this->suggestion->getAll() :
             $this->suggestion->getAllByUser($user['id']);
+
+        $suggestions = [];
+        foreach ($rawSuggestions as $suggestionData) {
+            $suggestion = $this->suggestion->find((int)$suggestionData['id']);
+            if ($suggestion) {
+                $suggestionUser = $suggestion->getUser();
+                $feedback = $suggestion->getFeedback();
+
+                $suggestions[] = [
+                    'id' => $suggestion->getId(),
+                    'content' => $suggestion->getContent(),
+                    'status' => $suggestion->getStatus(),
+                    'createdAt' => $suggestion->getCreatedAt(),
+                    'user' => [
+                        'id' => $suggestionUser->getId(),
+                        'username' => $suggestionUser->getUsername(),
+                        'fullName' => $suggestionUser->getFullName()
+                    ],
+                    'feedback' => $feedback
+                ];
+            }
+        }
 
         return Response::formatSuccess($suggestions);
     }
@@ -346,7 +368,30 @@ class SuggestionService
             );
         }
 
-        $suggestions = $this->suggestion->getAllByUser($user['id']);
+        $rawSuggestions = $this->suggestion->getAll();
+        $suggestions = [];
+        
+        foreach ($rawSuggestions as $suggestionData) {
+            $suggestion = $this->suggestion->find((int)$suggestionData['id']);
+            if ($suggestion) {
+                $suggestionUser = $suggestion->getUser();
+                $feedback = $suggestion->getFeedback();
+
+                $suggestions[] = [
+                    'id' => $suggestion->getId(),
+                    'content' => $suggestion->getContent(),
+                    'status' => $suggestion->getStatus(),
+                    'createdAt' => $suggestion->getCreatedAt(),
+                    'user' => [
+                        'id' => $suggestionUser->getId(),
+                        'username' => $suggestionUser->getUsername(),
+                        'fullName' => $suggestionUser->getFullName()
+                    ],
+                    'feedback' => $feedback
+                ];
+            }
+        }
+
         return Response::formatSuccess($suggestions);
     }
 
@@ -380,7 +425,30 @@ class SuggestionService
             );
         }
 
-        $suggestions = $this->suggestion->getAllByStatus($params['status']);
+        $rawSuggestions = $this->suggestion->getAllByStatus($params['status']);
+        $suggestions = [];
+        
+        foreach ($rawSuggestions as $suggestionData) {
+            $suggestion = $this->suggestion->find((int)$suggestionData['id']);
+            if ($suggestion) {
+                $suggestionUser = $suggestion->getUser();
+                $feedback = $suggestion->getFeedback();
+
+                $suggestions[] = [
+                    'id' => $suggestion->getId(),
+                    'content' => $suggestion->getContent(),
+                    'status' => $suggestion->getStatus(),
+                    'createdAt' => $suggestion->getCreatedAt(),
+                    'user' => [
+                        'id' => $suggestionUser->getId(),
+                        'username' => $suggestionUser->getUsername(),
+                        'fullName' => $suggestionUser->getFullName()
+                    ],
+                    'feedback' => $feedback
+                ];
+            }
+        }
+
         return Response::formatSuccess($suggestions);
     }
 

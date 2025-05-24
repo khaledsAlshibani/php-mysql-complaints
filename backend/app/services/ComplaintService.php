@@ -223,14 +223,35 @@ class ComplaintService
     {
         $complaints = [];
         
-        if ($userRole === 'user') {
-            $complaints = $this->complaint->getAllByUser($userId);
-        } else {
-            $complaints = $status ? 
+        if ($userRole === 'admin') {
+            $rawComplaints = $status ? 
                 $this->complaint->getAllByStatus($status) : 
-                $this->complaint->getAllByUser($userId);
+                $this->complaint->getAll();
+        } else {
+            $rawComplaints = $this->complaint->getAllByUser($userId);
+        }
+
+        foreach ($rawComplaints as $complaintData) {
+            $complaint = $this->complaint->find((int)$complaintData['id']);
+            if ($complaint) {
+                $user = $complaint->getUser();
+                $feedback = $complaint->getFeedback();
+
+                $complaints[] = [
+                    'id' => $complaint->getId(),
+                    'content' => $complaint->getContent(),
+                    'status' => $complaint->getStatus(),
+                    'createdAt' => $complaint->getCreatedAt(),
+                    'user' => [
+                        'id' => $user->getId(),
+                        'username' => $user->getUsername(),
+                        'fullName' => $user->getFullName()
+                    ],
+                    'feedback' => $feedback
+                ];
+            }
         }
 
         return Response::formatSuccess($complaints);
     }
-} 
+}

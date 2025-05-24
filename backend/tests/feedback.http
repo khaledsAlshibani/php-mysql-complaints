@@ -43,7 +43,7 @@ Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 }
 
 ### Get specific feedback
-GET {{baseUrl}}/feedback/1
+GET {{baseUrl}}/feedback/5
 Content-Type: {{contentType}}
 Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 
