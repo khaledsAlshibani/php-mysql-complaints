@@ -26,6 +26,7 @@ class AdminUserSeeder extends AbstractSeed
                     'first_name' => 'Administrator',
                     'birth_date' => date('Y-m-d'),
                     'role' => 'admin',
+                    'photo_path' => 'uploads/profiles/defaults/admin.webp',
                     'created_at' => date('Y-m-d H:i:s')
                 ])
                 ->save();
