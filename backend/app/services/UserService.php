@@ -208,4 +208,96 @@ class UserService
             );
         }
     }
+
+    public function handlePhotoUpdate(array $photoFile): array
+    {
+        try {
+            // Get current user
+            $currentUser = $this->authService->getCurrentUser();
+            if (!$currentUser) {
+                return Response::formatError(
+                    'Unauthorized',
+                    401,
+                    [],
+                    'AUTHENTICATION_REQUIRED'
+                );
+            }
+
+            // Validate file
+            if ($photoFile['error'] !== UPLOAD_ERR_OK) {
+                return Response::formatError(
+                    'File upload failed',
+                    400,
+                    [],
+                    'UPLOAD_ERROR'
+                );
+            }
+
+            // Validate file type
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!in_array($photoFile['type'], $allowedTypes)) {
+                return Response::formatError(
+                    'Invalid file type. Only JPG, JPEG and PNG are allowed',
+                    400,
+                    [],
+                    'INVALID_FILE_TYPE'
+                );
+            }
+
+            // Validate file size (max 5MB)
+            $maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            if ($photoFile['size'] > $maxSize) {
+                return Response::formatError(
+                    'File too large. Maximum size is 5MB',
+                    400,
+                    [],
+                    'FILE_TOO_LARGE'
+                );
+            }
+
+            // Create uploads directory if it doesn't exist
+            $uploadDir = __DIR__ . '/../../storage/uploads/profiles';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            // Generate unique filename
+            $extension = pathinfo($photoFile['name'], PATHINFO_EXTENSION);
+            $filename = uniqid('profile_') . '.' . $extension;
+            $filepath = $uploadDir . '/' . $filename;
+
+            // Move uploaded file
+            if (!move_uploaded_file($photoFile['tmp_name'], $filepath)) {
+                return Response::formatError(
+                    'Failed to save file',
+                    500,
+                    [],
+                    'FILE_SAVE_ERROR'
+                );
+            }
+
+            // Update user's photo path in database
+            $relativePath = 'uploads/profiles/' . $filename;
+            $result = $this->authService->updateProfile($currentUser['id'], ['photo_path' => $relativePath]);
+
+            if ($result['status'] === 'error') {
+                // If database update fails, delete the uploaded file
+                unlink($filepath);
+                return $result;
+            }
+
+            return Response::formatSuccess(
+                ['photoPath' => $relativePath],
+                'Profile photo updated successfully'
+            );
+
+        } catch (\Exception $e) {
+            return Response::formatError(
+                'Failed to update profile photo',
+                500,
+                [],
+                'PHOTO_UPDATE_FAILED'
+            );
+        }
+    }
 }

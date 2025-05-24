@@ -28,3 +28,7 @@ error.log
 # Logs
 /storage/logs/*
 !/storage/logs/.gitkeep
+
+# Uploads
+/storage/uploads/profiles/*
+!/storage/uploads/profiles/.gitkeep

@@ -281,7 +281,6 @@ class AuthService
 
             if ($success) {
                 $this->db->commit();
-                // Clear cookies and session
                 $this->jwtService->clearTokenCookies();
                 $this->sessionService->clear();
                 $this->sessionService->destroy();
@@ -312,7 +311,7 @@ class AuthService
                 $updateFields[] = 'first_name = ?';
                 $params[] = $data['first_name'];
             }
-            if (array_key_exists('last_name', $data)) {
+            if (isset($data['last_name'])) {
                 $updateFields[] = 'last_name = ?';
                 $params[] = $data['last_name'];
             }
@@ -320,7 +319,7 @@ class AuthService
                 $updateFields[] = 'birth_date = ?';
                 $params[] = $data['birth_date'];
             }
-            if (array_key_exists('photo_path', $data)) {
+            if (isset($data['photo_path'])) {
                 $updateFields[] = 'photo_path = ?';
                 $params[] = $data['photo_path'];
             }

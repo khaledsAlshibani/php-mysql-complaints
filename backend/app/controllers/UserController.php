@@ -96,4 +96,25 @@ class UserController extends Controller
 
         Response::sendSuccess($result['data'], $result['message']);
     }
+
+    public function updatePhoto(): void
+    {
+        if (!isset($_FILES['photo'])) {
+            Response::sendError('No photo uploaded', 400, [], 'PHOTO_REQUIRED');
+            return;
+        }
+
+        $result = $this->userService->handlePhotoUpdate($_FILES['photo']);
+        if ($result['status'] === 'error') {
+            Response::sendError(
+                $result['error']['message'],
+                $result['error']['code'],
+                $result['error']['details'] ?? [],
+                $result['error']['errorCode']
+            );
+            return;
+        }
+
+        Response::sendSuccess($result['data'], $result['message']);
+    }
 }
