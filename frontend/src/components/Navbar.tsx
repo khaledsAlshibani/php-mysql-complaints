@@ -60,6 +60,9 @@ export function Navbar() {
             <DropdownMenuItem onClick={() => router.push("/complaints")}>
               My Complaints
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/suggestions")}>
+              My Suggestions
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               onClick={handleLogout}
@@ -104,6 +107,11 @@ export function Navbar() {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                  <Link href="/suggestions">Suggestions</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
                   <Link href="/profile">Profile</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -138,6 +146,9 @@ export function Navbar() {
                 </Link>
                 <Link href="/complaints" className="block py-2 hover:text-primary">
                   Complaints
+                </Link>
+                <Link href="/suggestions" className="block py-2 hover:text-primary">
+                  Suggestions
                 </Link>
                 <Link href="/profile" className="block py-2 hover:text-primary">
                   Profile
