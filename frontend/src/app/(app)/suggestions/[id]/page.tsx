@@ -326,7 +326,7 @@ export default function SuggestionPage() {
             </Dialog>
           )}
 
-          {canModify && (
+          {canModify && user?.id === suggestion?.user.id && (
             <div className="flex items-stretch sm:items-center gap-2">
               <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
                 <DialogTrigger asChild>

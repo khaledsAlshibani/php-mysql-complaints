@@ -67,9 +67,9 @@ export function ProfileSummary({ profile, onProfileUpdate }: ProfileSummaryProps
                         </Avatar>
                         <label 
                             htmlFor="photo-upload" 
-                            className="absolute bottom-0 right-0 p-1 rounded-full bg-secondary hover:bg-secondary/80 cursor-pointer transition-colors"
+                            className="absolute bottom-0 right-0 p-2 rounded-full bg-background border shadow-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-200 group"
                         >
-                            <Camera className="w-4 h-4" />
+                            <Camera className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
                             <input
                                 id="photo-upload"
                                 type="file"

@@ -322,7 +322,7 @@ export default function ComplaintPage() {
             </Dialog>
           )}
 
-          {canModify && (
+          {canModify && user?.id === complaint?.user.id && (
             <div className="flex items-stretch sm:items-center gap-2">
               <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
                 <DialogTrigger asChild>

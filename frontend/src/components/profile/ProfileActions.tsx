@@ -138,41 +138,43 @@ export function ProfileActions({ profile, onProfileUpdate }: ProfileActionsProps
                 ) : (
                     <div className="flex gap-2">
                         <Button onClick={() => setIsEditing(true)} disabled={isLoading}>Edit Profile</Button>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="destructive" disabled={isLoading}>Delete Account</Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete your
-                                        account and remove all your data from our servers.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <div className="my-4">
-                                    <Label htmlFor="deletePassword">Enter your password to confirm</Label>
-                                    <Input
-                                        id="deletePassword"
-                                        type="password"
-                                        value={deletePassword}
-                                        onChange={(e) => setDeletePassword(e.target.value)}
-                                        placeholder="Enter your password"
-                                        className="mt-2"
-                                    />
-                                </div>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel onClick={() => setDeletePassword("")}>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction 
-                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                        onClick={handleDelete}
-                                        disabled={!deletePassword || isLoading}
-                                    >
-                                        {isLoading ? "Deleting..." : "Delete Account"}
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                        {profile?.role !== 'admin' && (
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" disabled={isLoading}>Delete Account</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete your
+                                            account and remove all your data from our servers.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <div className="my-4">
+                                        <Label htmlFor="deletePassword">Enter your password to confirm</Label>
+                                        <Input
+                                            id="deletePassword"
+                                            type="password"
+                                            value={deletePassword}
+                                            onChange={(e) => setDeletePassword(e.target.value)}
+                                            placeholder="Enter your password"
+                                            className="mt-2"
+                                        />
+                                    </div>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel onClick={() => setDeletePassword("")}>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction 
+                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            onClick={handleDelete}
+                                            disabled={!deletePassword || isLoading}
+                                        >
+                                            {isLoading ? "Deleting..." : "Delete Account"}
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )}
                     </div>
                 )}
             </CardContent>
