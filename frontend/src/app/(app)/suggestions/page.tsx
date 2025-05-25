@@ -9,10 +9,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { AlertCircle, CheckCircle2, Clock, XCircle, MessageSquarePlus, Search } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, XCircle, MessageSquarePlus, Search, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from '@/hooks/useDebounce';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const statusColors = {
   pending_no_feedback: 'border-yellow-300 text-yellow-700 bg-yellow-50 dark:border-yellow-400 dark:text-yellow-300 dark:bg-yellow-950/30',
@@ -79,7 +85,7 @@ export default function SuggestionsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Search Section */}
+      {/* Search and Add Section */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -90,6 +96,14 @@ export default function SuggestionsPage() {
             className="pl-10"
           />
         </div>
+        {user && user.role !== 'admin' && (
+          <Link href="/suggestions/add">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Suggestion
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Loading State */}

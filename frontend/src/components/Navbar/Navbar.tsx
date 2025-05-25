@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { Menu, X, User } from "lucide-react"
+import { Menu, X, User, Plus } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useAuthStore } from "@/store/useAuthStore"
 import {
@@ -62,39 +62,64 @@ export function Navbar() {
 
     if (isAuthenticated) {
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-2 h-9">
-              <User className="h-4 w-4" />
-              <span className="line-clamp-1">{userDisplayName}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push("/profile")}>
-              Profile
-            </DropdownMenuItem>
-            {user?.role !== 'admin' && (
-              <>
-                <DropdownMenuItem onClick={() => router.push("/complaints")}>
-                  My Complaints
+        <div className="flex items-center gap-2">
+          {user?.role !== 'admin' && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="outline">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Add Item</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/complaints/add">
+                    Add Complaint
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/suggestions")}>
-                  My Suggestions
+                <DropdownMenuItem asChild>
+                  <Link href="/suggestions/add">
+                    Add Suggestion
+                  </Link>
                 </DropdownMenuItem>
-              </>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="text-destructive focus:text-destructive"
-            >
-              {isLoggingOut ? "Logging out..." : "Log out"}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="gap-2 h-9">
+                <User className="h-4 w-4" />
+                <span className="line-clamp-1">{userDisplayName}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/profile")}>
+                Profile
+              </DropdownMenuItem>
+              {user?.role !== 'admin' && (
+                <>
+                  <DropdownMenuItem onClick={() => router.push("/complaints")}>
+                    My Complaints
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/suggestions")}>
+                    My Suggestions
+                  </DropdownMenuItem>
+                </>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="text-destructive focus:text-destructive"
+              >
+                {isLoggingOut ? "Logging out..." : "Log out"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     }
 
