@@ -8,7 +8,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-    "username": "testuser3",
+    "username": "testuser4",
     "password": "Test123!"
 }
 
@@ -22,7 +22,6 @@ Content-Type: {{contentType}}
     "password": "Admin123!"
 }
 
-
 ### Create new suggestion
 POST {{baseUrl}}/suggestions
 Content-Type: {{contentType}}
@@ -32,18 +31,28 @@ Cookie: access_token={{login.response.headers.Set-Cookie}}
     "content": "Test suggestion content"
 }
 
-### Get all suggestions
+### Get all suggestions (no search)
 GET {{baseUrl}}/suggestions
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
+### Get all suggestions with search by content
+GET {{baseUrl}}/suggestions?search=test
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+### Get all suggestions with search by username
+GET {{baseUrl}}/suggestions?search=testuser
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
 ### Get specific suggestion
-GET {{baseUrl}}/suggestions/8
+GET {{baseUrl}}/suggestions/5
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
 ### Update suggestion
-PUT {{baseUrl}}/suggestions/1
+PUT {{baseUrl}}/suggestions/9
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
@@ -56,13 +65,28 @@ DELETE {{baseUrl}}/suggestions/1
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
-### Get all suggestions
+### Get all suggestions for admin (no search)
 GET {{baseUrl}}/suggestions/admin/all
 Content-Type: {{contentType}}
 Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 
-### Get suggestions by status
-GET {{baseUrl}}/suggestions/admin/status/pending_no_feedback
+### Get all suggestions for admin with search by content
+GET {{baseUrl}}/suggestions/admin/all?search=suggestion
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Get all suggestions for admin with search by user
+GET {{baseUrl}}/suggestions/admin/all?search=testuser4
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Get suggestions by status (no search)
+GET {{baseUrl}}/suggestions/admin/status/pending_review
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Get suggestions by status with search
+GET {{baseUrl}}/suggestions/admin/status/pending_review?search=test
 Content-Type: {{contentType}}
 Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 
@@ -72,5 +96,20 @@ Content-Type: {{contentType}}
 Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 
 {
-    "status": "in_progress"
-} 
+    "status": "in_review"
+}
+
+### Test empty search (should return all results)
+GET {{baseUrl}}/suggestions?search=
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+### Test search with special characters
+GET {{baseUrl}}/suggestions?search=test%20suggestion
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+### Test case-insensitive search
+GET {{baseUrl}}/suggestions?search=TEST
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}} 

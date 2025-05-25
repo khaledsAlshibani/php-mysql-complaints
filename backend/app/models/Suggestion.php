@@ -98,6 +98,32 @@ class Suggestion extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllByUserWithSearch(int $userId, string $search): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT DISTINCT s.* 
+            FROM suggestions s
+            JOIN users u ON s.user_id = u.id
+            WHERE s.user_id = :userId
+            AND (
+                LOWER(s.content) LIKE :searchContent
+                OR LOWER(u.username) LIKE :searchUsername
+                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :searchName
+            )
+            ORDER BY s.created_at DESC
+        ');
+        
+        $searchTerm = '%' . strtolower($search) . '%';
+        $stmt->execute([
+            'userId' => $userId,
+            'searchContent' => $searchTerm,
+            'searchUsername' => $searchTerm,
+            'searchName' => $searchTerm
+        ]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getAllByStatus(string $status): array
     {
         $stmt = $this->db->prepare('SELECT * FROM suggestions WHERE status = :status ORDER BY created_at DESC');
@@ -105,10 +131,59 @@ class Suggestion extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllByStatusWithSearch(string $status, string $search): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT DISTINCT s.* 
+            FROM suggestions s
+            JOIN users u ON s.user_id = u.id
+            WHERE s.status = :status
+            AND (
+                LOWER(s.content) LIKE :searchContent
+                OR LOWER(u.username) LIKE :searchUsername
+                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :searchName
+            )
+            ORDER BY s.created_at DESC
+        ');
+        
+        $searchTerm = '%' . strtolower($search) . '%';
+        $stmt->execute([
+            'status' => $status,
+            'searchContent' => $searchTerm,
+            'searchUsername' => $searchTerm,
+            'searchName' => $searchTerm
+        ]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getAll(): array
     {
         $stmt = $this->db->prepare('SELECT * FROM suggestions ORDER BY created_at DESC');
         $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllWithSearch(string $search): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT DISTINCT s.* 
+            FROM suggestions s
+            JOIN users u ON s.user_id = u.id
+            WHERE 
+                LOWER(s.content) LIKE :searchContent
+                OR LOWER(u.username) LIKE :searchUsername
+                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :searchName
+            ORDER BY s.created_at DESC
+        ');
+        
+        $searchTerm = '%' . strtolower($search) . '%';
+        $stmt->execute([
+            'searchContent' => $searchTerm,
+            'searchUsername' => $searchTerm,
+            'searchName' => $searchTerm
+        ]);
+        
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

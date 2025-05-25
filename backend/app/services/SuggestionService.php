@@ -314,33 +314,43 @@ class SuggestionService
             );
         }
 
-        $rawSuggestions = $user['role'] === 'admin' ? 
-            $this->suggestion->getAll() :
-            $this->suggestion->getAllByUser($user['id']);
+        try {
+            $search = $_GET['search'] ?? null;
+            $rawSuggestions = $user['role'] === 'admin' ? 
+                ($search ? $this->suggestion->getAllWithSearch($search) : $this->suggestion->getAll()) :
+                ($search ? $this->suggestion->getAllByUserWithSearch($user['id'], $search) : $this->suggestion->getAllByUser($user['id']));
 
-        $suggestions = [];
-        foreach ($rawSuggestions as $suggestionData) {
-            $suggestion = $this->suggestion->find((int)$suggestionData['id']);
-            if ($suggestion) {
-                $suggestionUser = $suggestion->getUser();
-                $feedback = $suggestion->getFeedback();
+            $suggestions = [];
+            foreach ($rawSuggestions as $suggestionData) {
+                $suggestion = $this->suggestion->find((int)$suggestionData['id']);
+                if ($suggestion) {
+                    $suggestionUser = $suggestion->getUser();
+                    $feedback = $suggestion->getFeedback();
 
-                $suggestions[] = [
-                    'id' => $suggestion->getId(),
-                    'content' => $suggestion->getContent(),
-                    'status' => $suggestion->getStatus(),
-                    'createdAt' => $suggestion->getCreatedAt(),
-                    'user' => [
-                        'id' => $suggestionUser->getId(),
-                        'username' => $suggestionUser->getUsername(),
-                        'fullName' => $suggestionUser->getFullName()
-                    ],
-                    'feedback' => $feedback
-                ];
+                    $suggestions[] = [
+                        'id' => $suggestion->getId(),
+                        'content' => $suggestion->getContent(),
+                        'status' => $suggestion->getStatus(),
+                        'createdAt' => $suggestion->getCreatedAt(),
+                        'user' => [
+                            'id' => $suggestionUser->getId(),
+                            'username' => $suggestionUser->getUsername(),
+                            'fullName' => $suggestionUser->getFullName()
+                        ],
+                        'feedback' => $feedback
+                    ];
+                }
             }
-        }
 
-        return Response::formatSuccess($suggestions);
+            return Response::formatSuccess($suggestions);
+        } catch (\Exception $e) {
+            return Response::formatError(
+                'Failed to fetch suggestions',
+                500,
+                ['error' => $e->getMessage()],
+                'SUGGESTIONS_FETCH_ERROR'
+            );
+        }
     }
 
     public function getAllAdmin(): array
@@ -364,31 +374,43 @@ class SuggestionService
             );
         }
 
-        $rawSuggestions = $this->suggestion->getAll();
-        $suggestions = [];
-        
-        foreach ($rawSuggestions as $suggestionData) {
-            $suggestion = $this->suggestion->find((int)$suggestionData['id']);
-            if ($suggestion) {
-                $suggestionUser = $suggestion->getUser();
-                $feedback = $suggestion->getFeedback();
+        try {
+            $search = $_GET['search'] ?? null;
+            $rawSuggestions = $search ? 
+                $this->suggestion->getAllWithSearch($search) : 
+                $this->suggestion->getAll();
 
-                $suggestions[] = [
-                    'id' => $suggestion->getId(),
-                    'content' => $suggestion->getContent(),
-                    'status' => $suggestion->getStatus(),
-                    'createdAt' => $suggestion->getCreatedAt(),
-                    'user' => [
-                        'id' => $suggestionUser->getId(),
-                        'username' => $suggestionUser->getUsername(),
-                        'fullName' => $suggestionUser->getFullName()
-                    ],
-                    'feedback' => $feedback
-                ];
+            $suggestions = [];
+            foreach ($rawSuggestions as $suggestionData) {
+                $suggestion = $this->suggestion->find((int)$suggestionData['id']);
+                if ($suggestion) {
+                    $suggestionUser = $suggestion->getUser();
+                    $feedback = $suggestion->getFeedback();
+
+                    $suggestions[] = [
+                        'id' => $suggestion->getId(),
+                        'content' => $suggestion->getContent(),
+                        'status' => $suggestion->getStatus(),
+                        'createdAt' => $suggestion->getCreatedAt(),
+                        'user' => [
+                            'id' => $suggestionUser->getId(),
+                            'username' => $suggestionUser->getUsername(),
+                            'fullName' => $suggestionUser->getFullName()
+                        ],
+                        'feedback' => $feedback
+                    ];
+                }
             }
-        }
 
-        return Response::formatSuccess($suggestions);
+            return Response::formatSuccess($suggestions);
+        } catch (\Exception $e) {
+            return Response::formatError(
+                'Failed to fetch suggestions',
+                500,
+                ['error' => $e->getMessage()],
+                'SUGGESTIONS_FETCH_ERROR'
+            );
+        }
     }
 
     public function getByStatus(array $params): array
@@ -421,31 +443,43 @@ class SuggestionService
             );
         }
 
-        $rawSuggestions = $this->suggestion->getAllByStatus($params['status']);
-        $suggestions = [];
-        
-        foreach ($rawSuggestions as $suggestionData) {
-            $suggestion = $this->suggestion->find((int)$suggestionData['id']);
-            if ($suggestion) {
-                $suggestionUser = $suggestion->getUser();
-                $feedback = $suggestion->getFeedback();
+        try {
+            $search = $_GET['search'] ?? null;
+            $rawSuggestions = $search ? 
+                $this->suggestion->getAllByStatusWithSearch($params['status'], $search) : 
+                $this->suggestion->getAllByStatus($params['status']);
 
-                $suggestions[] = [
-                    'id' => $suggestion->getId(),
-                    'content' => $suggestion->getContent(),
-                    'status' => $suggestion->getStatus(),
-                    'createdAt' => $suggestion->getCreatedAt(),
-                    'user' => [
-                        'id' => $suggestionUser->getId(),
-                        'username' => $suggestionUser->getUsername(),
-                        'fullName' => $suggestionUser->getFullName()
-                    ],
-                    'feedback' => $feedback
-                ];
+            $suggestions = [];
+            foreach ($rawSuggestions as $suggestionData) {
+                $suggestion = $this->suggestion->find((int)$suggestionData['id']);
+                if ($suggestion) {
+                    $suggestionUser = $suggestion->getUser();
+                    $feedback = $suggestion->getFeedback();
+
+                    $suggestions[] = [
+                        'id' => $suggestion->getId(),
+                        'content' => $suggestion->getContent(),
+                        'status' => $suggestion->getStatus(),
+                        'createdAt' => $suggestion->getCreatedAt(),
+                        'user' => [
+                            'id' => $suggestionUser->getId(),
+                            'username' => $suggestionUser->getUsername(),
+                            'fullName' => $suggestionUser->getFullName()
+                        ],
+                        'feedback' => $feedback
+                    ];
+                }
             }
-        }
 
-        return Response::formatSuccess($suggestions);
+            return Response::formatSuccess($suggestions);
+        } catch (\Exception $e) {
+            return Response::formatError(
+                'Failed to fetch suggestions',
+                500,
+                ['error' => $e->getMessage()],
+                'SUGGESTIONS_FETCH_ERROR'
+            );
+        }
     }
 
     public function updateStatus(array $params, array $data): array
