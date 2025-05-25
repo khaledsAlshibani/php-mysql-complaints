@@ -54,5 +54,6 @@ export interface UpdateSuggestionRequest {
 
 // Query parameters for getAll
 export interface GetAllSuggestionsParams {
-  status?: SuggestionStatus;
+  status?: string;
+  search?: string;
 }

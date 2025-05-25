@@ -49,5 +49,6 @@ export interface UpdateComplaintRequest {
 
 // Query parameters for getAll
 export interface GetAllComplaintsParams {
-  status?: ComplaintStatus;
+  status?: string;
+  search?: string;
 }

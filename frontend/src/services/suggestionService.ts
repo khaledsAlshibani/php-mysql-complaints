@@ -15,8 +15,11 @@ import type {
 export const suggestionService = {
   getAll: async (params?: GetAllSuggestionsParams): Promise<GetSuggestionsResponse> => {
     try {
-      const queryParams = params?.status ? `?status=${params.status}` : '';
-      const response = await axiosInstance.get(`/suggestions${queryParams}`);
+      const searchParams = new URLSearchParams();
+      if (params?.status) searchParams.append('status', params.status);
+      if (params?.search) searchParams.append('search', params.search);
+      const queryString = searchParams.toString();
+      const response = await axiosInstance.get(`/suggestions${queryString ? `?${queryString}` : ''}`);
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
@@ -89,9 +92,12 @@ export const suggestionService = {
     }
   },
 
-  getAllAdmin: async (): Promise<GetSuggestionsResponse> => {
+  getAllAdmin: async (params?: { search?: string }): Promise<GetSuggestionsResponse> => {
     try {
-      const response = await axiosInstance.get('/suggestions');
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.append('search', params.search);
+      const queryString = searchParams.toString();
+      const response = await axiosInstance.get(`/suggestions/admin/all${queryString ? `?${queryString}` : ''}`);
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
@@ -104,9 +110,12 @@ export const suggestionService = {
     }
   },
 
-  getByStatus: async (status: Suggestion['status']): Promise<GetSuggestionsResponse> => {
+  getByStatus: async (status: Suggestion['status'], params?: { search?: string }): Promise<GetSuggestionsResponse> => {
     try {
-      const response = await axiosInstance.get(`/suggestions/status/${status}`);
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.append('search', params.search);
+      const queryString = searchParams.toString();
+      const response = await axiosInstance.get(`/suggestions/admin/status/${status}${queryString ? `?${queryString}` : ''}`);
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {

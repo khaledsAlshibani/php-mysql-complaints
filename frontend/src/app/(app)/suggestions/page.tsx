@@ -9,8 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { AlertCircle, CheckCircle2, Clock, XCircle, MessageSquarePlus } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, XCircle, MessageSquarePlus, Search } from 'lucide-react';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const statusColors = {
   pending_no_feedback: 'border-yellow-300 text-yellow-700 bg-yellow-50 dark:border-yellow-400 dark:text-yellow-300 dark:bg-yellow-950/30',
@@ -35,6 +37,8 @@ export default function SuggestionsPage() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -42,8 +46,8 @@ export default function SuggestionsPage() {
         setIsLoading(true);
         setError(null);
         const response = user?.role === 'admin'
-          ? await suggestionService.getAllAdmin()
-          : await suggestionService.getAll();
+          ? await suggestionService.getAllAdmin({ search: debouncedSearch || undefined })
+          : await suggestionService.getAll({ search: debouncedSearch || undefined });
         if (response.status === 'error') {
           throw new Error(response.error.message);
         }
@@ -56,7 +60,7 @@ export default function SuggestionsPage() {
     };
 
     fetchSuggestions();
-  }, [user?.role]);
+  }, [user?.role, debouncedSearch]);
 
   if (error) {
     return (
@@ -73,96 +77,108 @@ export default function SuggestionsPage() {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {[...Array(6)].map((_, i) => (
-          <Card key={i} className="overflow-hidden">
-            <CardHeader>
-              <Skeleton className="h-6 w-2/3" />
-              <Skeleton className="h-4 w-1/2" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-20 w-full" />
-            </CardContent>
-            <CardFooter>
-              <Skeleton className="h-4 w-1/3" />
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-    );
-  }
-
-  if (suggestions.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>No Suggestions</CardTitle>
-            <CardDescription>
-              {user?.role === 'admin'
-                ? 'There are no suggestions in the system yet.'
-                : 'You haven\'t submitted any suggestions yet.'}
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
-      {suggestions.map((suggestion) => {
-        const StatusIcon = statusIcons[suggestion.status];
-        return (
-          <div key={suggestion.id} className="group relative h-full">
-            <Link 
-              href={`/suggestions/${suggestion.id}`} 
-              className="block h-full"
-            >
-              <Card className="overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 flex flex-col h-full">
-                <CardHeader>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex flex-col gap-6">
-                      <Badge className={`w-fit border ${statusColors[suggestion.status]}`}>
-                        <StatusIcon className="mr-1 h-3 w-3" />
-                        {suggestion.status
-                          .split('_')
-                          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                          .join(' ')}
-                      </Badge>
-                      <CardTitle className="line-clamp-2">{suggestion.content}</CardTitle>
-                    </div>
-                    <CardDescription>
-                      Submitted by {suggestion.user.fullName}
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <p className="line-clamp-3 text-sm text-muted-foreground">
-                    {suggestion.content}
-                  </p>
-                </CardContent>
-                <CardFooter className="border-t bg-muted/5">
-                  <p className="text-xs text-muted-foreground">
-                    {format(new Date(suggestion.createdAt), 'MMM d, yyyy')}
-                  </p>
-                </CardFooter>
-              </Card>
-            </Link>
-            {user?.role === 'admin' && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Link href={`/suggestions/${suggestion.id}?feedback=new`}>
-                  <Button size="icon" variant="secondary" className="h-8 w-8 bg-background/80 backdrop-blur-sm">
-                    <MessageSquarePlus className="h-4 w-4" />
-                  </Button>
+    <div className="space-y-6">
+      {/* Search Section */}
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search suggestions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </div>
+
+      {/* Loading State */}
+      {isLoading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <CardHeader>
+                <Skeleton className="h-6 w-2/3" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-20 w-full" />
+              </CardContent>
+              <CardFooter>
+                <Skeleton className="h-4 w-1/3" />
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : suggestions.length === 0 ? (
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>No Suggestions</CardTitle>
+              <CardDescription>
+                {searchQuery 
+                  ? 'No suggestions found matching your search.'
+                  : user?.role === 'admin'
+                    ? 'There are no suggestions in the system yet.'
+                    : 'You haven\'t submitted any suggestions yet.'}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+          {suggestions.map((suggestion) => {
+            const StatusIcon = statusIcons[suggestion.status];
+            return (
+              <div key={suggestion.id} className="group relative h-full">
+                <Link 
+                  href={`/suggestions/${suggestion.id}`} 
+                  className="block h-full"
+                >
+                  <Card className="overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 flex flex-col h-full">
+                    <CardHeader>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-6">
+                          <Badge className={`w-fit border ${statusColors[suggestion.status]}`}>
+                            <StatusIcon className="mr-1 h-3 w-3" />
+                            {suggestion.status
+                              .split('_')
+                              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                              .join(' ')}
+                          </Badge>
+                          <CardTitle className="line-clamp-2">{suggestion.content}</CardTitle>
+                        </div>
+                        <CardDescription>
+                          Submitted by {suggestion.user.fullName}
+                        </CardDescription>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <p className="line-clamp-3 text-sm text-muted-foreground">
+                        {suggestion.content}
+                      </p>
+                    </CardContent>
+                    <CardFooter className="border-t bg-muted/5">
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(suggestion.createdAt), 'MMM d, yyyy')}
+                      </p>
+                    </CardFooter>
+                  </Card>
                 </Link>
+                {user?.role === 'admin' && (
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Link href={`/suggestions/${suggestion.id}?feedback=new`}>
+                      <Button size="icon" variant="secondary" className="h-8 w-8 bg-background/80 backdrop-blur-sm">
+                        <MessageSquarePlus className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        )
-      })}
+            )
+          })}
+        </div>
+      )}
     </div>
-  )
+  );
 }

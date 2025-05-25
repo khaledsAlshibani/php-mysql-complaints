@@ -15,8 +15,11 @@ import type {
 export const complaintService = {
   getAll: async (params?: GetAllComplaintsParams): Promise<GetComplaintsResponse> => {
     try {
-      const queryParams = params?.status ? `?status=${params.status}` : '';
-      const response = await axiosInstance.get(`/complaints${queryParams}`);
+      const searchParams = new URLSearchParams();
+      if (params?.status) searchParams.append('status', params.status);
+      if (params?.search) searchParams.append('search', params.search);
+      const queryString = searchParams.toString();
+      const response = await axiosInstance.get(`/complaints${queryString ? `?${queryString}` : ''}`);
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
@@ -89,9 +92,12 @@ export const complaintService = {
     }
   },
 
-  getAllAdmin: async (): Promise<GetComplaintsResponse> => {
+  getAllAdmin: async (params?: { search?: string }): Promise<GetComplaintsResponse> => {
     try {
-      const response = await axiosInstance.get('/complaints');
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.append('search', params.search);
+      const queryString = searchParams.toString();
+      const response = await axiosInstance.get(`/complaints/admin/all${queryString ? `?${queryString}` : ''}`);
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
@@ -104,9 +110,12 @@ export const complaintService = {
     }
   },
 
-  getByStatus: async (status: Complaint['status']): Promise<GetComplaintsResponse> => {
+  getByStatus: async (status: Complaint['status'], params?: { search?: string }): Promise<GetComplaintsResponse> => {
     try {
-      const response = await axiosInstance.get(`/complaints/status/${status}`);
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.append('search', params.search);
+      const queryString = searchParams.toString();
+      const response = await axiosInstance.get(`/complaints/admin/status/${status}${queryString ? `?${queryString}` : ''}`);
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
