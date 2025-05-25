@@ -219,39 +219,57 @@ class ComplaintService
         ]);
     }
 
-    public function getAll(int $userId, string $userRole, ?string $status = null): array
+    public function getAll(int $userId, string $userRole, ?string $status = null, ?string $search = null): array
     {
         $complaints = [];
-        
-        if ($userRole === 'admin') {
-            $rawComplaints = $status ? 
-                $this->complaint->getAllByStatus($status) : 
-                $this->complaint->getAll();
-        } else {
-            $rawComplaints = $this->complaint->getAllByUser($userId);
-        }
+        $rawComplaints = [];
 
-        foreach ($rawComplaints as $complaintData) {
-            $complaint = $this->complaint->find((int)$complaintData['id']);
-            if ($complaint) {
-                $user = $complaint->getUser();
-                $feedback = $complaint->getFeedback();
-
-                $complaints[] = [
-                    'id' => $complaint->getId(),
-                    'content' => $complaint->getContent(),
-                    'status' => $complaint->getStatus(),
-                    'createdAt' => $complaint->getCreatedAt(),
-                    'user' => [
-                        'id' => $user->getId(),
-                        'username' => $user->getUsername(),
-                        'fullName' => $user->getFullName()
-                    ],
-                    'feedback' => $feedback
-                ];
+        try {
+            if ($userRole === 'admin') {
+                if ($status !== null) {
+                    $rawComplaints = $search !== null && !empty($search)
+                        ? $this->complaint->getAllByStatusWithSearch($status, $search)
+                        : $this->complaint->getAllByStatus($status);
+                } else {
+                    $rawComplaints = $search !== null && !empty($search)
+                        ? $this->complaint->getAllWithSearch($search)
+                        : $this->complaint->getAll();
+                }
+            } else {
+                $rawComplaints = $search !== null && !empty($search)
+                    ? $this->complaint->getAllByUserWithSearch($userId, $search)
+                    : $this->complaint->getAllByUser($userId);
             }
-        }
 
-        return Response::formatSuccess($complaints);
+            foreach ($rawComplaints as $complaintData) {
+                $complaint = $this->complaint->find((int)$complaintData['id']);
+                if ($complaint) {
+                    $user = $complaint->getUser();
+                    $feedback = $complaint->getFeedback();
+
+                    $complaints[] = [
+                        'id' => $complaint->getId(),
+                        'content' => $complaint->getContent(),
+                        'status' => $complaint->getStatus(),
+                        'createdAt' => $complaint->getCreatedAt(),
+                        'user' => [
+                            'id' => $user->getId(),
+                            'username' => $user->getUsername(),
+                            'fullName' => $user->getFullName()
+                        ],
+                        'feedback' => $feedback
+                    ];
+                }
+            }
+
+            return Response::formatSuccess($complaints);
+        } catch (\Exception $e) {
+            return Response::formatError(
+                'Failed to fetch complaints',
+                500,
+                ['error' => $e->getMessage()],
+                'COMPLAINTS_FETCH_ERROR'
+            );
+        }
     }
 }

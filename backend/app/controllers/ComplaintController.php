@@ -141,7 +141,10 @@ class ComplaintController extends Controller
             return;
         }
 
-        $result = $this->complaintService->getAll($user['id'], $user['role']);
+        // handle search query
+        $search = $_GET['search'] ?? null;
+
+        $result = $this->complaintService->getAll($user['id'], $user['role'], null, $search);
         if ($result['status'] === 'error') {
             Response::sendError(
                 $result['error']['message'],
@@ -168,7 +171,10 @@ class ComplaintController extends Controller
             return;
         }
 
-        $result = $this->complaintService->getAll($user['id'], $user['role']);
+        // handle search query
+        $search = $_GET['search'] ?? null;
+
+        $result = $this->complaintService->getAll($user['id'], $user['role'], null, $search);
         if ($result['status'] === 'error') {
             Response::sendError(
                 $result['error']['message'],
@@ -200,7 +206,10 @@ class ComplaintController extends Controller
             return;
         }
 
-        $result = $this->complaintService->getAll($user['id'], $user['role'], $params['status']);
+        // handle search query
+        $search = $_GET['search'] ?? null;
+
+        $result = $this->complaintService->getAll($user['id'], $user['role'], $params['status'], $search);
         if ($result['status'] === 'error') {
             Response::sendError(
                 $result['error']['message'],

@@ -36,6 +36,16 @@ GET {{baseUrl}}/complaints
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
+### Get all complaints with search by content
+GET {{baseUrl}}/complaints?search=contentssadasdasdassdsd555656
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+### Get all complaints with search by username
+GET {{baseUrl}}/complaints?search=admin
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
 ### Get specific complaint
 GET {{baseUrl}}/complaints/5
 Content-Type: {{contentType}}
@@ -55,13 +65,28 @@ DELETE {{baseUrl}}/complaints/1
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
-### Get all complaints
+### Get all complaints for admin (no search)
 GET {{baseUrl}}/complaints/admin/all
 Content-Type: {{contentType}}
 Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 
-### Get complaints by status
+### Get all complaints for admin with search by content
+GET {{baseUrl}}/complaints/admin/all?search=complaint
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Get all complaints for admin with search by user
+GET {{baseUrl}}/complaints/admin/all?search=testuser4
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Get complaints by status (no search)
 GET {{baseUrl}}/complaints/admin/status/pending_no_feedback
+Content-Type: {{contentType}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+### Get complaints by status with search
+GET {{baseUrl}}/complaints/admin/status/pending_no_feedback?search=test
 Content-Type: {{contentType}}
 Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 
@@ -72,4 +97,19 @@ Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 
 {
     "status": "in_progress"
-} 
+}
+
+### Test empty search (should return all results)
+GET {{baseUrl}}/complaints?search=
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+### Test search with special characters
+GET {{baseUrl}}/complaints?search=test%20complaint
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
+
+### Test case-insensitive search
+GET {{baseUrl}}/complaints?search=TEST
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}} 

@@ -106,9 +106,9 @@ class Complaint extends Model
             JOIN users u ON c.user_id = u.id
             WHERE c.user_id = :userId
             AND (
-                LOWER(c.content) LIKE :search
-                OR LOWER(u.username) LIKE :search
-                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :search
+                LOWER(c.content) LIKE :searchContent
+                OR LOWER(u.username) LIKE :searchUsername
+                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :searchName
             )
             ORDER BY c.created_at DESC
         ');
@@ -116,7 +116,9 @@ class Complaint extends Model
         $searchTerm = '%' . strtolower($search) . '%';
         $stmt->execute([
             'userId' => $userId,
-            'search' => $searchTerm
+            'searchContent' => $searchTerm,
+            'searchUsername' => $searchTerm,
+            'searchName' => $searchTerm
         ]);
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -137,9 +139,9 @@ class Complaint extends Model
             JOIN users u ON c.user_id = u.id
             WHERE c.status = :status
             AND (
-                LOWER(c.content) LIKE :search
-                OR LOWER(u.username) LIKE :search
-                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :search
+                LOWER(c.content) LIKE :searchContent
+                OR LOWER(u.username) LIKE :searchUsername
+                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :searchName
             )
             ORDER BY c.created_at DESC
         ');
@@ -147,7 +149,9 @@ class Complaint extends Model
         $searchTerm = '%' . strtolower($search) . '%';
         $stmt->execute([
             'status' => $status,
-            'search' => $searchTerm
+            'searchContent' => $searchTerm,
+            'searchUsername' => $searchTerm,
+            'searchName' => $searchTerm
         ]);
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -167,14 +171,18 @@ class Complaint extends Model
             FROM complaints c
             JOIN users u ON c.user_id = u.id
             WHERE 
-                LOWER(c.content) LIKE :search
-                OR LOWER(u.username) LIKE :search
-                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :search
+                LOWER(c.content) LIKE :searchContent
+                OR LOWER(u.username) LIKE :searchUsername
+                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :searchName
             ORDER BY c.created_at DESC
         ');
         
         $searchTerm = '%' . strtolower($search) . '%';
-        $stmt->execute(['search' => $searchTerm]);
+        $stmt->execute([
+            'searchContent' => $searchTerm,
+            'searchUsername' => $searchTerm,
+            'searchName' => $searchTerm
+        ]);
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
