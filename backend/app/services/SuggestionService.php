@@ -65,7 +65,6 @@ class SuggestionService
             );
         }
 
-        // Fetch the newly created suggestion with all its data
         $newSuggestion = $this->suggestion->find($newSuggestionId);
         if (!$newSuggestion) {
             return Response::formatError(
@@ -76,7 +75,6 @@ class SuggestionService
             );
         }
 
-        // Format the suggestion data with user and feedback
         $suggestionUser = $newSuggestion->getUser();
         $feedback = $newSuggestion->getFeedback();
 
@@ -168,7 +166,6 @@ class SuggestionService
             );
         }
 
-        // Fetch the updated suggestion with all its data
         $updatedSuggestion = $this->suggestion->find((int)$params['id']);
         if (!$updatedSuggestion) {
             return Response::formatError(
@@ -179,7 +176,6 @@ class SuggestionService
             );
         }
 
-        // Format the suggestion data with user and feedback
         $suggestionUser = $updatedSuggestion->getUser();
         $feedback = $updatedSuggestion->getFeedback();
 

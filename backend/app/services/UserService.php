@@ -114,7 +114,6 @@ class UserService
             );
         }
 
-        // Verify password
         $user = $this->authService->verifyPassword($currentUser['id'], $data['password']);
         if (!$user) {
             return Response::formatError(
@@ -125,7 +124,6 @@ class UserService
             );
         }
 
-        // Delete the account
         $result = $this->authService->deleteAccount($currentUser['id']);
         if (!$result) {
             return Response::formatError(
@@ -151,7 +149,6 @@ class UserService
             );
         }
 
-        // Format user data to include all fields
         $userData = [
             'id' => $user['id'],
             'username' => $user['username'],

@@ -52,7 +52,7 @@ class FeedbackController extends Controller
             return;
         }
 
-        // Check if either complaint_id or suggestion_id is provided
+        // handle existence of either complaint_id or suggestion_id
         if (!isset($data['complaint_id']) && !isset($data['suggestion_id'])) {
             Response::sendError(
                 'Either complaint_id or suggestion_id must be provided',
@@ -63,7 +63,7 @@ class FeedbackController extends Controller
             return;
         }
 
-        // Check if both complaint_id and suggestion_id are provided
+        // handle existence of both complaint_id and suggestion_id
         if (isset($data['complaint_id']) && isset($data['suggestion_id'])) {
             Response::sendError(
                 'Cannot provide both complaint_id and suggestion_id',
@@ -74,7 +74,7 @@ class FeedbackController extends Controller
             return;
         }
 
-        // Handle complaint feedback
+        // handle complaint feedback
         if (isset($data['complaint_id'])) {
             $complaint = $this->complaint->find((int)$data['complaint_id']);
             if (!$complaint) {
@@ -88,7 +88,7 @@ class FeedbackController extends Controller
             }
             $parentItem = $complaint;
         }
-        // Handle suggestion feedback
+        // handle suggestion feedback
         else {
             $suggestion = $this->suggestion->find((int)$data['suggestion_id']);
             if (!$suggestion) {
@@ -149,7 +149,7 @@ class FeedbackController extends Controller
             return;
         }
 
-        // Only allow the admin who created the feedback to update it
+        // handle authorization of admin who created the feedback
         if ($feedback->getAdminId() !== $user['id']) {
             Response::sendAuthorizationError('Not authorized. Only the admin who created the feedback can update it.');
             return;
@@ -202,7 +202,7 @@ class FeedbackController extends Controller
             return;
         }
 
-        // Only allow the admin who created the feedback to delete it
+        // handle authorization of admin who created the feedback
         if ($feedback->getAdminId() !== $user['id']) {
             Response::sendAuthorizationError('Not authorized. Only the admin who created the feedback can delete it.');
             return;
@@ -218,7 +218,7 @@ class FeedbackController extends Controller
             return;
         }
 
-        // Update parent item status if this was the last feedback
+        // handle update of parent item status if this was the last feedback
         if ($feedback->getComplaintId()) {
             $complaint = $this->complaint->find($feedback->getComplaintId());
             if ($complaint && empty($complaint->getFeedback())) {
@@ -257,7 +257,7 @@ class FeedbackController extends Controller
             return;
         }
 
-        // Check if user has access to the parent item
+        // handle authorization of user to the parent item
         $hasAccess = false;
         if ($feedback->getComplaintId()) {
             $complaint = $this->complaint->find($feedback->getComplaintId());
@@ -349,7 +349,7 @@ class FeedbackController extends Controller
             return;
         }
 
-        // Allow access if user owns the complaint or is an admin
+        // handle authorization of user to the parent item
         if ($complaint->getUserId() !== $user['id'] && $user['role'] !== 'admin') {
             Response::sendAuthorizationError('Not authorized to view feedback for this complaint');
             return;
@@ -403,7 +403,7 @@ class FeedbackController extends Controller
             return;
         }
 
-        // Allow access if user owns the suggestion or is an admin
+        // handle authorization of user to the parent item
         if ($suggestion->getUserId() !== $user['id'] && $user['role'] !== 'admin') {
             Response::sendAuthorizationError('Not authorized to view feedback for this suggestion');
             return;

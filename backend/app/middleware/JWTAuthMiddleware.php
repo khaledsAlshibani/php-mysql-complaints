@@ -19,13 +19,11 @@ class JWTAuthMiddleware
 
     public function handle(): bool
     {
-        // check if required cookies exist
         if (!$this->jwtService->hasRequiredAuthCookies()) {
             Response::sendAuthenticationError();
             return false;
         }
 
-        // verify authentication
         if (!$this->authService->verifyAuthentication()) {
             Response::sendAuthenticationError();
             return false;

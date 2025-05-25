@@ -14,7 +14,7 @@ class ProfileUpdateDTO
 
     public function __construct(array $data)
     {
-        // Check for disallowed fields first
+        // handle disallowed fields
         $disallowedFields = array_diff(array_keys($data), self::$allowedFields);
         if (!empty($disallowedFields)) {
             throw new \InvalidArgumentException(

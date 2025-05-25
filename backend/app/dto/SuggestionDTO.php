@@ -50,7 +50,6 @@ class SuggestionDTO
         ];
     }
 
-    // Getters
     public function getId(): ?int
     {
         return $this->id;

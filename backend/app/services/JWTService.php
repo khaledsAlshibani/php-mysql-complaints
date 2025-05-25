@@ -49,7 +49,6 @@ class JWTService
 
     public function hasRequiredAuthCookies(bool $checkRefreshToken = false): bool
     {
-        // Check for access token in various locations
         $hasAccessToken = isset($_COOKIE['access_token']) ||
             (isset($_SERVER['HTTP_AUTHORIZATION']) && strpos($_SERVER['HTTP_AUTHORIZATION'], 'Bearer') !== false) ||
             (isset($_SERVER['HTTP_COOKIE']) && strpos($_SERVER['HTTP_COOKIE'], 'access_token=') !== false);

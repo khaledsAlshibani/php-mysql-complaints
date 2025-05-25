@@ -98,6 +98,30 @@ class Complaint extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllByUserWithSearch(int $userId, string $search): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT DISTINCT c.* 
+            FROM complaints c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.user_id = :userId
+            AND (
+                LOWER(c.content) LIKE :search
+                OR LOWER(u.username) LIKE :search
+                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :search
+            )
+            ORDER BY c.created_at DESC
+        ');
+        
+        $searchTerm = '%' . strtolower($search) . '%';
+        $stmt->execute([
+            'userId' => $userId,
+            'search' => $searchTerm
+        ]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getAllByStatus(string $status): array
     {
         $stmt = $this->db->prepare('SELECT * FROM complaints WHERE status = :status ORDER BY created_at DESC');
@@ -105,10 +129,53 @@ class Complaint extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllByStatusWithSearch(string $status, string $search): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT DISTINCT c.* 
+            FROM complaints c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.status = :status
+            AND (
+                LOWER(c.content) LIKE :search
+                OR LOWER(u.username) LIKE :search
+                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :search
+            )
+            ORDER BY c.created_at DESC
+        ');
+        
+        $searchTerm = '%' . strtolower($search) . '%';
+        $stmt->execute([
+            'status' => $status,
+            'search' => $searchTerm
+        ]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getAll(): array
     {
         $stmt = $this->db->prepare('SELECT * FROM complaints ORDER BY created_at DESC');
         $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllWithSearch(string $search): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT DISTINCT c.* 
+            FROM complaints c
+            JOIN users u ON c.user_id = u.id
+            WHERE 
+                LOWER(c.content) LIKE :search
+                OR LOWER(u.username) LIKE :search
+                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :search
+            ORDER BY c.created_at DESC
+        ');
+        
+        $searchTerm = '%' . strtolower($search) . '%';
+        $stmt->execute(['search' => $searchTerm]);
+        
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

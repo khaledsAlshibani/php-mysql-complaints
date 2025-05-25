@@ -78,10 +78,7 @@ class AuthService
             $userData['role'] = 'user';
             $userData['password'] = password_hash($userData['password'], PASSWORD_DEFAULT);
 
-            // Handle empty last_name
             $userData['last_name'] = empty($userData['last_name']) ? null : $userData['last_name'];
-
-            // Set default user photo
             $userData['photo_path'] = 'uploads/profiles/defaults/user.webp';
 
             $stmt = $this->db->prepare('
@@ -278,7 +275,6 @@ class AuthService
         try {
             $this->db->beginTransaction();
 
-            // Delete the user - related records will be deleted automatically due to CASCADE
             $stmt = $this->db->prepare('DELETE FROM users WHERE id = ?');
             $success = $stmt->execute([$userId]);
 
