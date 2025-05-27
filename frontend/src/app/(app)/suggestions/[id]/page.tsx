@@ -4,10 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { suggestionService } from '@/services/suggestionService';
-import { feedbackService } from '@/services/feedbackService';
-import type { Suggestion, UpdateSuggestionRequest } from '@/types/api/suggestion';
-import type { CreateFeedbackRequest, Feedback, UpdateFeedbackRequest } from '@/types/api/feedback';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Suggestion, SuggestionFeedback, UpdateSuggestionRequest } from '@/types/api/suggestion';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
@@ -28,20 +26,16 @@ import {
 
 const statusColors = {
   pending_no_feedback: 'border-yellow-300 text-yellow-700 bg-yellow-50 dark:border-yellow-400 dark:text-yellow-300 dark:bg-yellow-950/30',
-  pending_with_feedback: 'border-sky-300 text-sky-700 bg-sky-50 dark:border-sky-400 dark:text-sky-300 dark:bg-sky-950/30',
   pending_reviewed: 'border-sky-300 text-sky-700 bg-sky-50 dark:border-sky-400 dark:text-sky-300 dark:bg-sky-950/30',
   resolved: 'border-emerald-300 text-emerald-700 bg-emerald-50 dark:border-emerald-400 dark:text-emerald-300 dark:bg-emerald-950/30',
-  ignored: 'border-rose-300 text-rose-700 bg-rose-50 dark:border-rose-400 dark:text-rose-300 dark:bg-rose-950/30',
-  rejected: 'border-rose-300 text-rose-700 bg-rose-50 dark:border-rose-400 dark:text-rose-300 dark:bg-rose-950/30'
+  ignored: 'border-rose-300 text-rose-700 bg-rose-50 dark:border-rose-400 dark:text-rose-300 dark:bg-rose-950/30'
 } as const;
 
 const statusIcons = {
   pending_no_feedback: Clock,
-  pending_with_feedback: AlertCircle,
   pending_reviewed: AlertCircle,
   resolved: CheckCircle2,
-  ignored: XCircle,
-  rejected: XCircle
+  ignored: XCircle
 } as const;
 
 export default function SuggestionPage() {
@@ -58,7 +52,7 @@ export default function SuggestionPage() {
   const [updatedContent, setUpdatedContent] = useState('');
   const [feedbackContent, setFeedbackContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
+  const [selectedFeedback, setSelectedFeedback] = useState<SuggestionFeedback | null>(null);
   const [isUpdateFeedbackDialogOpen, setIsUpdateFeedbackDialogOpen] = useState(false);
   const [isDeleteFeedbackDialogOpen, setIsDeleteFeedbackDialogOpen] = useState(false);
   const [updatedFeedbackContent, setUpdatedFeedbackContent] = useState('');
@@ -90,7 +84,7 @@ export default function SuggestionPage() {
   }, [searchParams, user?.role]);
 
   const canModify = user && suggestion && (
-    user.id === suggestion.user.id || 
+    user.id === suggestion.user.id ||
     user.role === 'admin'
   );
 
@@ -102,7 +96,7 @@ export default function SuggestionPage() {
       const updateData: UpdateSuggestionRequest = {
         content: updatedContent
       };
-      
+
       const response = await suggestionService.update(suggestion.id, updateData);
       if (response.status === 'error') {
         throw new Error(response.error.message);
@@ -142,10 +136,10 @@ export default function SuggestionPage() {
 
     try {
       setIsSubmitting(true);
-      const response = await feedbackService.create({ 
-        content: feedbackContent,
-        suggestion_id: suggestion.id 
-      });
+      const response = await suggestionService.createFeedback(
+        suggestion.id,
+        { content: feedbackContent }
+      );
       if (response.status === 'error') {
         throw new Error(response.error.message);
       }
@@ -168,13 +162,15 @@ export default function SuggestionPage() {
   };
 
   const handleUpdateFeedback = async () => {
-    if (!selectedFeedback) return;
+    if (!selectedFeedback || !suggestion?.id) return;
 
     try {
       setIsSubmitting(true);
-      const response = await feedbackService.update(selectedFeedback.id, { 
-        content: updatedFeedbackContent 
-      });
+      const response = await suggestionService.updateFeedback(
+        suggestion?.id,
+        selectedFeedback.id,
+        { content: updatedFeedbackContent }
+      );
       if (response.status === 'error') {
         throw new Error(response.error.message);
       }
@@ -198,11 +194,14 @@ export default function SuggestionPage() {
   };
 
   const handleDeleteFeedback = async () => {
-    if (!selectedFeedback) return;
+    if (!selectedFeedback || !suggestion?.id) return;
 
     try {
       setIsSubmitting(true);
-      const response = await feedbackService.delete(selectedFeedback.id);
+      const response = await suggestionService.deleteFeedback(
+        suggestion?.id,
+        selectedFeedback.id
+      );
       if (response.status === 'error') {
         throw new Error(response.error.message);
       }
@@ -283,8 +282,8 @@ export default function SuggestionPage() {
           {user?.role === 'admin' && (
             <Dialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen}>
               <DialogTrigger asChild>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   className="flex items-center justify-center gap-2"
                 >
@@ -330,8 +329,8 @@ export default function SuggestionPage() {
             <div className="flex items-stretch sm:items-center gap-2">
               <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
                     onClick={() => setUpdatedContent(suggestion.content)}
@@ -375,8 +374,8 @@ export default function SuggestionPage() {
 
               <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button 
-                    variant="destructive" 
+                  <Button
+                    variant="destructive"
                     size="sm"
                     className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
                   >
@@ -445,7 +444,7 @@ export default function SuggestionPage() {
               </h3>
               <div className="relative space-y-4 pl-4">
                 {suggestion.feedback.map((feedback, index) => (
-                  <div 
+                  <div
                     key={feedback.id}
                     className={cn(
                       "relative",
@@ -462,7 +461,7 @@ export default function SuggestionPage() {
                               {feedback.admin.fullName}
                             </span>
                             <span className="hidden sm:inline text-muted-foreground">•</span>
-                            <time 
+                            <time
                               dateTime={feedback.createdAt}
                               className="text-xs sm:text-sm text-muted-foreground"
                             >
@@ -472,9 +471,9 @@ export default function SuggestionPage() {
                           {user?.role === 'admin' && (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
                                   className="h-8 w-8 p-0 hover:bg-accent/10 -mr-2"
                                 >
                                   <MoreVertical className="h-4 w-4" />

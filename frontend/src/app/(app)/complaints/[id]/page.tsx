@@ -4,10 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { complaintService } from '@/services/complaintService';
-import { feedbackService } from '@/services/feedbackService';
-import type { Complaint, UpdateComplaintRequest } from '@/types/api/complaint';
-import type { CreateFeedbackRequest, Feedback, UpdateFeedbackRequest } from '@/types/api/feedback';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Complaint, ComplaintFeedback, UpdateComplaintRequest } from '@/types/api/complaint';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
@@ -54,7 +52,7 @@ export default function ComplaintPage() {
   const [updatedContent, setUpdatedContent] = useState('');
   const [feedbackContent, setFeedbackContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
+  const [selectedFeedback, setSelectedFeedback] = useState<ComplaintFeedback | null>(null);
   const [isUpdateFeedbackDialogOpen, setIsUpdateFeedbackDialogOpen] = useState(false);
   const [isDeleteFeedbackDialogOpen, setIsDeleteFeedbackDialogOpen] = useState(false);
   const [updatedFeedbackContent, setUpdatedFeedbackContent] = useState('');
@@ -86,7 +84,7 @@ export default function ComplaintPage() {
   }, [searchParams, user?.role]);
 
   const canModify = user && complaint && (
-    user.id === complaint.user.id || 
+    user.id === complaint.user.id ||
     user.role === 'admin'
   );
 
@@ -98,7 +96,7 @@ export default function ComplaintPage() {
       const updateData: UpdateComplaintRequest = {
         content: updatedContent
       };
-      
+
       const response = await complaintService.update(complaint.id, updateData);
       if (response.status === 'error') {
         throw new Error(response.error.message);
@@ -138,10 +136,10 @@ export default function ComplaintPage() {
 
     try {
       setIsSubmitting(true);
-      const response = await feedbackService.create({ 
-        content: feedbackContent,
-        complaint_id: complaint.id 
-      });
+      const response = await complaintService.createFeedback(
+        complaint.id,
+        { content: feedbackContent }
+      );
       if (response.status === 'error') {
         throw new Error(response.error.message);
       }
@@ -164,13 +162,15 @@ export default function ComplaintPage() {
   };
 
   const handleUpdateFeedback = async () => {
-    if (!selectedFeedback) return;
+    if (!selectedFeedback || !complaint?.id) return;
 
     try {
       setIsSubmitting(true);
-      const response = await feedbackService.update(selectedFeedback.id, { 
-        content: updatedFeedbackContent 
-      });
+      const response = await complaintService.updateFeedback(
+        complaint?.id,
+        selectedFeedback.id,
+        { content: updatedFeedbackContent }
+      );
       if (response.status === 'error') {
         throw new Error(response.error.message);
       }
@@ -194,11 +194,14 @@ export default function ComplaintPage() {
   };
 
   const handleDeleteFeedback = async () => {
-    if (!selectedFeedback) return;
+    if (!selectedFeedback || !complaint?.id) return;
 
     try {
       setIsSubmitting(true);
-      const response = await feedbackService.delete(selectedFeedback.id);
+      const response = await complaintService.deleteFeedback(
+        complaint?.id,
+        selectedFeedback.id
+      );
       if (response.status === 'error') {
         throw new Error(response.error.message);
       }
@@ -279,8 +282,8 @@ export default function ComplaintPage() {
           {user?.role === 'admin' && (
             <Dialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen}>
               <DialogTrigger asChild>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   className="flex items-center justify-center gap-2"
                 >
@@ -326,8 +329,8 @@ export default function ComplaintPage() {
             <div className="flex items-stretch sm:items-center gap-2">
               <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
                     onClick={() => setUpdatedContent(complaint.content)}
@@ -371,8 +374,8 @@ export default function ComplaintPage() {
 
               <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button 
-                    variant="destructive" 
+                  <Button
+                    variant="destructive"
                     size="sm"
                     className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
                   >
@@ -441,7 +444,7 @@ export default function ComplaintPage() {
               </h3>
               <div className="relative space-y-4 pl-4">
                 {complaint.feedback.map((feedback, index) => (
-                  <div 
+                  <div
                     key={feedback.id}
                     className={cn(
                       "relative",
@@ -458,7 +461,7 @@ export default function ComplaintPage() {
                               {feedback.admin.fullName}
                             </span>
                             <span className="hidden sm:inline text-muted-foreground">•</span>
-                            <time 
+                            <time
                               dateTime={feedback.createdAt}
                               className="text-xs sm:text-sm text-muted-foreground"
                             >
@@ -468,9 +471,9 @@ export default function ComplaintPage() {
                           {user?.role === 'admin' && (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
                                   className="h-8 w-8 p-0 hover:bg-accent/10 -mr-2"
                                 >
                                   <MoreVertical className="h-4 w-4" />
