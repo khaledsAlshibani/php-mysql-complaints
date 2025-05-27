@@ -186,6 +186,23 @@ export default function ComplaintPage() {
     }
   };
 
+  const handleStatusChange = async (newStatus: string) => {
+    if (!complaint) return;
+    try {
+      setIsSubmitting(true);
+      const response = await complaintService.updateStatus(complaint.id, newStatus);
+      if (response.status === 'error') {
+        throw new Error(response.error.message);
+      }
+      setComplaint(response.data);
+      toast.success("Status updated successfully");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update status");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <DetailPageLayout<Complaint, ComplaintFeedback>
       item={complaint}
@@ -227,6 +244,8 @@ export default function ComplaintPage() {
       onUpdatedFeedbackContentChange={setUpdatedFeedbackContent}
       onUpdateFeedback={handleUpdateFeedback}
       onConfirmDeleteFeedback={handleDeleteFeedback}
+      currentStatus={complaint?.status}
+      onStatusChange={handleStatusChange}
     />
   );
 }

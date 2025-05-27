@@ -2,6 +2,8 @@ import { MessageSquarePlus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { StatusSelect } from './StatusSelect';
+import type { CommonStatus } from '@/types/api/common';
 
 interface ActionButtonsProps {
   isAdmin: boolean;
@@ -22,6 +24,8 @@ interface ActionButtonsProps {
   onUpdate: () => void;
   onDelete: () => void;
   type: 'complaints' | 'suggestions';
+  currentStatus?: CommonStatus;
+  onStatusChange?: (status: CommonStatus) => void;
 }
 
 export function ActionButtons({
@@ -42,54 +46,67 @@ export function ActionButtons({
   onAddFeedback,
   onUpdate,
   onDelete,
-  type
+  type,
+  currentStatus,
+  onStatusChange
 }: ActionButtonsProps) {
   return (
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
       {isAdmin && (
-        <Dialog open={isFeedbackDialogOpen} onOpenChange={onFeedbackDialogChange}>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center justify-center gap-2"
-            >
-              <MessageSquarePlus className="h-4 w-4" />
-              Add Feedback
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Feedback</DialogTitle>
-              <DialogDescription>
-                Add your feedback to this {type.slice(0, -1)}. The user will be able to see this feedback.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-              <Textarea
-                value={feedbackContent}
-                onChange={(e) => onFeedbackContentChange(e.target.value)}
-                placeholder="Write your feedback..."
-                className="min-h-[100px]"
-              />
-            </div>
-            <DialogFooter>
+        <>
+          {currentStatus && onStatusChange && (
+            <StatusSelect
+              currentStatus={currentStatus}
+              type={type}
+              onStatusChange={onStatusChange}
+              isAdmin={isAdmin}
+            />
+          )}
+          
+          <Dialog open={isFeedbackDialogOpen} onOpenChange={onFeedbackDialogChange}>
+            <DialogTrigger asChild>
               <Button
                 variant="outline"
-                onClick={() => onFeedbackDialogChange(false)}
-                disabled={isSubmitting}
+                size="sm"
+                className="flex items-center justify-center gap-2"
               >
-                Cancel
-              </Button>
-              <Button
-                onClick={onAddFeedback}
-                disabled={isSubmitting}
-              >
+                <MessageSquarePlus className="h-4 w-4" />
                 Add Feedback
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Feedback</DialogTitle>
+                <DialogDescription>
+                  Add your feedback to this {type.slice(0, -1)}. The user will be able to see this feedback.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <Textarea
+                  value={feedbackContent}
+                  onChange={(e) => onFeedbackContentChange(e.target.value)}
+                  placeholder="Write your feedback..."
+                  className="min-h-[100px]"
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => onFeedbackDialogChange(false)}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={onAddFeedback}
+                  disabled={isSubmitting}
+                >
+                  Add Feedback
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
       )}
 
       {isOwner && (

@@ -10,6 +10,7 @@ import { FeedbackDialogs } from './FeedbackDialogs';
 import { ErrorState } from './ErrorState';
 import type { ComplaintFeedback } from '@/types/api/complaint';
 import type { SuggestionFeedback } from '@/types/api/suggestion';
+import type { CommonStatus } from '@/types/api/common';
 
 interface DetailPageLayoutProps<T extends { id: number; content: string; status: string; createdAt: string; user: { id: number; fullName: string }; feedback: any[] }, F extends ComplaintFeedback | SuggestionFeedback> {
   item: T | null;
@@ -44,6 +45,8 @@ interface DetailPageLayoutProps<T extends { id: number; content: string; status:
   onUpdatedFeedbackContentChange: (content: string) => void;
   onUpdateFeedback: () => void;
   onConfirmDeleteFeedback: () => void;
+  currentStatus?: CommonStatus;
+  onStatusChange?: (status: CommonStatus) => void;
 }
 
 export function DetailPageLayout<T extends { id: number; content: string; status: string; createdAt: string; user: { id: number; fullName: string }; feedback: any[] }, F extends ComplaintFeedback | SuggestionFeedback>({
@@ -78,7 +81,9 @@ export function DetailPageLayout<T extends { id: number; content: string; status
   onDeleteFeedbackDialogChange,
   onUpdatedFeedbackContentChange,
   onUpdateFeedback,
-  onConfirmDeleteFeedback
+  onConfirmDeleteFeedback,
+  currentStatus,
+  onStatusChange
 }: DetailPageLayoutProps<T, F>) {
   if (error) {
     return <ErrorState error={error} type={type} />;
@@ -119,6 +124,8 @@ export function DetailPageLayout<T extends { id: number; content: string; status
           onUpdate={onUpdate}
           onDelete={onDelete}
           type={type}
+          currentStatus={currentStatus}
+          onStatusChange={onStatusChange}
         />
       </div>
 

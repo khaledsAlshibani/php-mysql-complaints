@@ -187,6 +187,23 @@ export default function SuggestionPage() {
     }
   };
 
+  const handleStatusChange = async (newStatus: string) => {
+    if (!suggestion) return;
+    try {
+      setIsSubmitting(true);
+      const response = await suggestionService.updateStatus(suggestion.id, newStatus);
+      if (response.status === 'error') {
+        throw new Error(response.error.message);
+      }
+      setSuggestion(response.data);
+      toast.success("Status updated successfully");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update status");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <DetailPageLayout<Suggestion, SuggestionFeedback>
       item={suggestion}
@@ -228,6 +245,8 @@ export default function SuggestionPage() {
       onUpdatedFeedbackContentChange={setUpdatedFeedbackContent}
       onUpdateFeedback={handleUpdateFeedback}
       onConfirmDeleteFeedback={handleDeleteFeedback}
+      currentStatus={suggestion?.status}
+      onStatusChange={handleStatusChange}
     />
   );
 }
