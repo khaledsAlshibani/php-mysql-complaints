@@ -117,3 +117,101 @@ Authorization: Bearer {{adminLogin.response.body.data.token}}
 {
     "content": ""
 }
+
+### Suggestion Feedback Tests
+
+### Create feedback for a suggestion (as admin)
+POST {{baseUrl}}/suggestions/1/feedback
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+{
+    "content": "This is a test feedback for the suggestion"
+}
+
+### Get all feedback for a suggestion (as user)
+GET {{baseUrl}}/suggestions/1/feedback
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+### Get all feedback for a suggestion (as admin)
+GET {{baseUrl}}/suggestions/1/feedback
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+### Get specific feedback for a suggestion (as user)
+GET {{baseUrl}}/suggestions/1/feedback/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+### Get specific feedback for a suggestion (as admin)
+GET {{baseUrl}}/suggestions/1/feedback/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+### Update feedback for a suggestion (as admin)
+PUT {{baseUrl}}/suggestions/1/feedback/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+{
+    "content": "This is an updated test feedback for the suggestion"
+}
+
+### Delete feedback for a suggestion (as admin)
+DELETE {{baseUrl}}/suggestions/1/feedback/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+### Test Cases for Suggestion Feedback Error Scenarios
+
+### Try to create feedback as non-admin user
+POST {{baseUrl}}/suggestions/1/feedback
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+{
+    "content": "This should fail - user is not admin"
+}
+
+### Try to update feedback as non-admin user
+PUT {{baseUrl}}/suggestions/1/feedback/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+{
+    "content": "This should fail - user is not admin"
+}
+
+### Try to delete feedback as non-admin user
+DELETE {{baseUrl}}/suggestions/1/feedback/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+### Try to access feedback for non-existent suggestion
+GET {{baseUrl}}/suggestions/999/feedback
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+### Try to access non-existent feedback
+GET {{baseUrl}}/suggestions/1/feedback/999
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+### Try to create feedback with invalid data
+POST {{baseUrl}}/suggestions/1/feedback
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+{
+    "content": ""
+}
+
+### Try to update feedback with invalid data
+PUT {{baseUrl}}/suggestions/1/feedback/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+{
+    "content": ""
+}

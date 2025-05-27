@@ -164,6 +164,34 @@ class Feedback extends Model
         }, $feedbacks);
     }
 
+    public function getAllForSubmission(int $submissionId): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT f.*, u.username, u.first_name, u.last_name 
+            FROM feedback f
+            JOIN users u ON f.admin_id = u.id
+            WHERE f.complaint_id = :submissionId OR f.suggestion_id = :submissionId
+            ORDER BY f.created_at DESC
+        ');
+        $stmt->execute(['submissionId' => $submissionId]);
+        $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Format each feedback entry
+        return array_map(function($feedback) {
+            return [
+                'id' => (int)$feedback['id'],
+                'content' => $feedback['content'],
+                'createdAt' => $feedback['created_at'],
+                'admin' => [
+                    'id' => (int)$feedback['admin_id'],
+                    'username' => $feedback['username'],
+                    'fullName' => trim($feedback['first_name'] . ' ' . ($feedback['last_name'] ?? ''))
+                ],
+                'submissionId' => $feedback['complaint_id'] ? (int)$feedback['complaint_id'] : (int)$feedback['suggestion_id']
+            ];
+        }, $feedbacks);
+    }
+
     protected function mapToObject(array $data): static
     {
         $this->id = (int)$data['id'];

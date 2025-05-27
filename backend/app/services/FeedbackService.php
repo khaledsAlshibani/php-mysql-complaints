@@ -563,4 +563,54 @@ class FeedbackService
 
         return Response::formatSuccess($formattedFeedback);
     }
+
+    public function getAllForSubmission(array $params): array
+    {
+        if (!isset($params['id'])) {
+            return Response::formatError(
+                'Submission ID is required',
+                400,
+                [],
+                'MISSING_ID'
+            );
+        }
+
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            return Response::formatError(
+                'Authentication required',
+                401,
+                [],
+                'AUTHENTICATION_REQUIRED'
+            );
+        }
+
+        $feedback = $this->feedback->getAllForSubmission((int)$params['id']);
+        if (!$feedback) {
+            return Response::formatError(
+                'Failed to fetch feedback',
+                500,
+                [],
+                'FEEDBACK_FETCH_ERROR'
+            );
+        }
+
+        // Format the feedback data
+        $formattedFeedback = array_map(function($item) {
+            $admin = $item->getAdmin();
+            return [
+                'id' => $item->getId(),
+                'content' => $item->getContent(),
+                'createdAt' => $item->getCreatedAt(),
+                'admin' => [
+                    'id' => $admin->getId(),
+                    'username' => $admin->getUsername(),
+                    'fullName' => $admin->getFullName()
+                ],
+                'submissionId' => $item->getComplaintId() ?? $item->getSuggestionId()
+            ];
+        }, $feedback);
+
+        return Response::formatSuccess($formattedFeedback);
+    }
 }
