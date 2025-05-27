@@ -3,7 +3,7 @@
 @contentType = application/json
 
 ### Login as user
-# @name login
+# @name userLogin
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
@@ -22,10 +22,40 @@ Content-Type: {{contentType}}
     "password": "Admin123!"
 }
 
+### Suggestion CRUD
+
+### Create suggestion
+POST {{baseUrl}}/suggestions
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+{
+    "content": "This is a test suggestion"
+}
+
+### Get suggestions
+GET {{baseUrl}}/suggestions
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+### Update suggestion
+PUT {{baseUrl}}/suggestions/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+{
+    "content": "This is an updated test suggestion"
+}
+
+### Delete suggestion
+DELETE {{baseUrl}}/suggestions/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
 ### Create new suggestion
 POST {{baseUrl}}/suggestions
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 {
     "content": "Test suggestion content"
@@ -34,51 +64,37 @@ Cookie: access_token={{login.response.headers.Set-Cookie}}
 ### Get all suggestions
 GET {{baseUrl}}/suggestions
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get all suggestions with status filter
 GET {{baseUrl}}/suggestions?status=pending_no_feedback
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get all suggestions with status and search
 GET {{baseUrl}}/suggestions?status=pending_no_feedback&search=test
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get all suggestions with search by content
 GET {{baseUrl}}/suggestions?search=contentssadasdasdassdsd555656
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get all suggestions with search by username
 GET {{baseUrl}}/suggestions?search=admin
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get specific suggestion
 GET {{baseUrl}}/suggestions/4
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get specific suggestion with status filter
 GET {{baseUrl}}/suggestions/4?status=pending_no_feedback
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
-
-### Update suggestion
-PUT {{baseUrl}}/suggestions/4
-Content-Type: {{contentType}}
-Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
-
-{
-    "content": "Updated suggestion content 25"
-}
-
-### Delete suggestion
-DELETE {{baseUrl}}/suggestions/1
-Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Update suggestion status (admin only)
 PATCH {{baseUrl}}/suggestions/4/status
@@ -92,7 +108,7 @@ Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 ### Try to update suggestion status as regular user (should fail)
 PATCH {{baseUrl}}/suggestions/4/status
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 {
     "status": "resolved"
@@ -101,36 +117,36 @@ Cookie: access_token={{login.response.headers.Set-Cookie}}
 ### Test empty search (should return all results)
 GET {{baseUrl}}/suggestions?search=
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Test search with special characters
 GET {{baseUrl}}/suggestions?search=test%20suggestion
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Test case-insensitive search
 GET {{baseUrl}}/suggestions?search=TEST
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Test invalid status filter (should return 404)
 GET {{baseUrl}}/suggestions/5?status=invalid_status
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Test all possible status values
 GET {{baseUrl}}/suggestions?status=pending_no_feedback
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 GET {{baseUrl}}/suggestions?status=pending_reviewed
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 GET {{baseUrl}}/suggestions?status=resolved
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 GET {{baseUrl}}/suggestions?status=ignored
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}} 
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}} 

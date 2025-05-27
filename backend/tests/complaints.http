@@ -3,7 +3,7 @@
 @contentType = application/json
 
 ### Login as user
-# @name login
+# @name userLogin
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
@@ -22,10 +22,40 @@ Content-Type: {{contentType}}
     "password": "Admin123!"
 }
 
+### Complaint CRUD
+
+### Create complaint
+POST {{baseUrl}}/complaints
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+{
+    "content": "This is a test complaint"
+}
+
+### Get complaints
+GET {{baseUrl}}/complaints
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+### Update complaint
+PUT {{baseUrl}}/complaints/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+{
+    "content": "This is an updated test complaint"
+}
+
+### Delete complaint
+DELETE {{baseUrl}}/complaints/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
 ### Create new complaint
 POST {{baseUrl}}/complaints
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 {
     "content": "Test complaint content"
@@ -34,51 +64,37 @@ Cookie: access_token={{login.response.headers.Set-Cookie}}
 ### Get all complaints
 GET {{baseUrl}}/complaints
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get all complaints with status filter
 GET {{baseUrl}}/complaints?status=pending_no_feedback
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get all complaints with status and search
 GET {{baseUrl}}/complaints?status=pending_no_feedback&search=test
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get all complaints with search by content
 GET {{baseUrl}}/complaints?search=contentssadasdasdassdsd555656
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get all complaints with search by username
 GET {{baseUrl}}/complaints?search=admin
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get specific complaint
 GET {{baseUrl}}/complaints/4
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Get specific complaint with status filter
 GET {{baseUrl}}/complaints/4?status=pending_no_feedback
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
-
-### Update complaint
-PUT {{baseUrl}}/complaints/4
-Content-Type: {{contentType}}
-Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
-
-{
-    "content": "Updated complaint content 25"
-}
-
-### Delete complaint
-DELETE {{baseUrl}}/complaints/1
-Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Update complaint status (admin only)
 PATCH {{baseUrl}}/complaints/4/status
@@ -92,7 +108,7 @@ Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 ### Try to update complaint status as regular user (should fail)
 PATCH {{baseUrl}}/complaints/4/status
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 {
     "status": "resolved"
@@ -101,36 +117,36 @@ Cookie: access_token={{login.response.headers.Set-Cookie}}
 ### Test empty search (should return all results)
 GET {{baseUrl}}/complaints?search=
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Test search with special characters
 GET {{baseUrl}}/complaints?search=test%20complaint
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Test case-insensitive search
 GET {{baseUrl}}/complaints?search=TEST
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Test invalid status filter (should return 404)
 GET {{baseUrl}}/complaints/5?status=invalid_status
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 ### Test all possible status values
 GET {{baseUrl}}/complaints?status=pending_no_feedback
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 GET {{baseUrl}}/complaints?status=pending_reviewed
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 GET {{baseUrl}}/complaints?status=resolved
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
 
 GET {{baseUrl}}/complaints?status=ignored
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}} 
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}} 

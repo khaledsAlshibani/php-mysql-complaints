@@ -2,85 +2,48 @@
 @baseUrl = {{$dotenv API_BASE_URL}}
 @contentType = application/json
 
-### Login (needed for authentication)
-# @name login
+### Login as admin
+# @name adminLogin
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-    "username": "testuser5",
-    "password": "Test123!"
+    "username": "admin",
+    "password": "Admin123!"
 }
 
-### Get user profile
-GET {{baseUrl}}/users/me
-Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+### User CRUD
 
-### Update profile
-PUT {{baseUrl}}/users/me
+### Create user
+POST {{baseUrl}}/users
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+{
+    "username": "testuser",
+    "password": "Test123!",
+    "email": "test@example.com",
+    "firstName": "Test",
+    "lastName": "User",
+    "role": "user"
+}
+
+### Get users
+GET {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+### Update user
+PUT {{baseUrl}}/users/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
 
 {
     "firstName": "Updated",
-    "lastName": "User",
-    "birthDate": "1990-01-01",
-    "photoPath": "/uploads/profile/new-photo.jpg"
+    "lastName": "User"
 }
 
-### Update profile with invalid fields (should fail)
-PUT {{baseUrl}}/users/me
+### Delete user
+DELETE {{baseUrl}}/users/1
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
-
-{
-    "firstName": "Updated",
-    "lastName": "User",
-    "birthDate": "1990-01-01",
-    "username": "hacker",
-    "password": "hack123",
-    "created_at": "2024-01-01"
-}
-
-### Update password
-PUT {{baseUrl}}/users/password
-Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
-
-{
-    "current_password": "NewTest123!",
-    "new_password": "NewTest1234!"
-}
-
-### Delete account with wrong password (should fail)
-DELETE {{baseUrl}}/users/me
-Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
-
-{
-    "password": "WrongPassword123!"
-}
-
-### Delete account with correct password
-DELETE {{baseUrl}}/users/me
-Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
-
-{
-    "password": "Test123!"
-}
-
-### Verify account is deleted - try to login (should fail)
-POST {{baseUrl}}/auth/login
-Content-Type: {{contentType}}
-
-{
-    "username": "testuser5",
-    "password": "Test123!"
-}
-
-### Verify account is deleted - try to get profile (should fail)
-GET {{baseUrl}}/users/me
-Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}

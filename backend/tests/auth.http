@@ -14,8 +14,8 @@ Content-Type: {{contentType}}
     "birth_date": "1990-01-01"
 }
 
-### Login
-# @name login
+### Login as user
+# @name userLogin
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
@@ -24,12 +24,22 @@ Content-Type: {{contentType}}
     "password": "Test123!"
 }
 
+### Login as admin
+# @name adminLogin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "admin",
+    "password": "Admin123!"
+}
+
 ### Refresh token
 POST {{baseUrl}}/auth/refresh
 Content-Type: {{contentType}}
-Cookie: refresh_token={{login.response.headers.Set-Cookie.[1]}}
+Cookie: refresh_token={{userLogin.response.headers.Set-Cookie.[1]}}
 
 ### Logout
 POST {{baseUrl}}/auth/logout
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}; refresh_token={{login.response.headers.Set-Cookie.[1]}}
+Cookie: access_token={{userLogin.response.headers.Set-Cookie}}; refresh_token={{userLogin.response.headers.Set-Cookie.[1]}}
