@@ -68,7 +68,7 @@ class Config {
         $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
         $this->corsHeaders = [
             'Access-Control-Allow-Origin' => $origin ?: 'null',
-            'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
             'Access-Control-Allow-Headers' => 'Content-Type, Authorization, Cookie',
             'Access-Control-Allow-Credentials' => 'true',
             'Content-Type' => 'application/json'
