@@ -165,7 +165,7 @@ export function ProfileActions({ profile, onProfileUpdate }: ProfileActionsProps
                                     <AlertDialogFooter>
                                         <AlertDialogCancel onClick={() => setDeletePassword("")}>Cancel</AlertDialogCancel>
                                         <AlertDialogAction 
-                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            className="bg-destructive hover:bg-destructive/90"
                                             onClick={handleDelete}
                                             disabled={!deletePassword || isLoading}
                                         >
