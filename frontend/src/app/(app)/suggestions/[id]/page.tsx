@@ -8,6 +8,7 @@ import type { Suggestion, SuggestionFeedback, UpdateSuggestionRequest } from '@/
 import { toast } from "sonner";
 import { DetailPageLayout } from '@/components/detailPage/DetailPageLayout';
 import { suggestionStatusColors, suggestionStatusIcons } from '@/constants/status';
+import { CommonStatus } from '@/types/api/common';
 
 export default function SuggestionPage() {
   const params = useParams();
@@ -187,7 +188,7 @@ export default function SuggestionPage() {
     }
   };
 
-  const handleStatusChange = async (newStatus: string) => {
+  const handleStatusChange = async (newStatus: CommonStatus) => {
     if (!suggestion) return;
     try {
       setIsSubmitting(true);

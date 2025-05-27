@@ -45,7 +45,7 @@ export function ProfileActions({ profile, onProfileUpdate }: ProfileActionsProps
             } else {
                 toast.error(response.error?.message || "Failed to update profile");
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred while updating profile");
         } finally {
             setIsLoading(false);
@@ -64,7 +64,7 @@ export function ProfileActions({ profile, onProfileUpdate }: ProfileActionsProps
             } else {
                 toast.error(response.error?.message || "Failed to delete account");
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred while deleting account");
         } finally {
             setIsLoading(false);

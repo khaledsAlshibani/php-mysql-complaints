@@ -44,8 +44,9 @@ export function ProfileSummary({ profile, onProfileUpdate }: ProfileSummaryProps
             }
 
             toast.success("Profile photo updated successfully");
-        } catch (error: any) {
-            toast.error(error.message || "Failed to update profile photo");
+        } catch (error: Error | unknown) {
+            const errorMessage = error instanceof Error ? error.message : "Failed to update profile photo";
+            toast.error(errorMessage);
         } finally {
             setIsUploading(false);
         }
@@ -69,7 +70,7 @@ export function ProfileSummary({ profile, onProfileUpdate }: ProfileSummaryProps
                             htmlFor="photo-upload" 
                             className="absolute bottom-0 right-0 p-2 rounded-full bg-background border shadow-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-200 group"
                         >
-                            <Camera className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+                            <Camera className="w-4 h-4 transition-transform duration-200" />
                             <input
                                 id="photo-upload"
                                 type="file"

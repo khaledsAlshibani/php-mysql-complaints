@@ -32,7 +32,7 @@ export function FeedbackDialogs({
           <DialogHeader>
             <DialogTitle>Update Feedback</DialogTitle>
             <DialogDescription>
-              Make changes to your feedback here. Click save when you're done.
+              Make changes to your feedback here. Click save when you&apos;re done.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">

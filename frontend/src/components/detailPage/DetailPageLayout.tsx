@@ -12,7 +12,7 @@ import type { ComplaintFeedback } from '@/types/api/complaint';
 import type { SuggestionFeedback } from '@/types/api/suggestion';
 import type { CommonStatus } from '@/types/api/common';
 
-interface DetailPageLayoutProps<T extends { id: number; content: string; status: string; createdAt: string; user: { id: number; fullName: string }; feedback: any[] }, F extends ComplaintFeedback | SuggestionFeedback> {
+interface DetailPageLayoutProps<T extends { id: number; content: string; status: string; createdAt: string; user: { id: number; fullName: string }; feedback: F[] }, F extends ComplaintFeedback | SuggestionFeedback> {
   item: T | null;
   isLoading: boolean;
   error: string | null;
@@ -49,7 +49,7 @@ interface DetailPageLayoutProps<T extends { id: number; content: string; status:
   onStatusChange?: (status: CommonStatus) => void;
 }
 
-export function DetailPageLayout<T extends { id: number; content: string; status: string; createdAt: string; user: { id: number; fullName: string }; feedback: any[] }, F extends ComplaintFeedback | SuggestionFeedback>({
+export function DetailPageLayout<T extends { id: number; content: string; status: string; createdAt: string; user: { id: number; fullName: string }; feedback: F[] }, F extends ComplaintFeedback | SuggestionFeedback>({
   item,
   isLoading,
   error,

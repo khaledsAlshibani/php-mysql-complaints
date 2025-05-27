@@ -8,6 +8,7 @@ import type { Complaint, ComplaintFeedback, UpdateComplaintRequest } from '@/typ
 import { toast } from "sonner";
 import { DetailPageLayout } from '@/components/detailPage/DetailPageLayout';
 import { complaintStatusColors, complaintStatusIcons } from '@/constants/status';
+import { CommonStatus } from '@/types/api/common';
 
 export default function ComplaintPage() {
   const params = useParams();
@@ -186,7 +187,7 @@ export default function ComplaintPage() {
     }
   };
 
-  const handleStatusChange = async (newStatus: string) => {
+  const handleStatusChange = async (newStatus: CommonStatus) => {
     if (!complaint) return;
     try {
       setIsSubmitting(true);

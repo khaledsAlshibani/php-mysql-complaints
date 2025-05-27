@@ -13,7 +13,7 @@ export interface DeleteAccountData {
   password: string;
 }
 
-export interface ServiceResponse<T = any> {
+export interface ServiceResponse<T = unknown> {
   status: 'success' | 'error';
   data?: T;
   message?: string;

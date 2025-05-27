@@ -1,7 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { complaintStatusColors, complaintStatusIcons } from "@/constants/status";
-import { suggestionStatusColors, suggestionStatusIcons } from "@/constants/status";
-import { cn } from "@/lib/utils";
+import { complaintStatusIcons } from "@/constants/status";
+import { suggestionStatusIcons } from "@/constants/status";
 import { CommonStatus } from "@/types/api/common";
 import { Circle } from "lucide-react";
 

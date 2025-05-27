@@ -23,7 +23,7 @@ export interface ApiErrorResponse<E extends string = string> {
   error: {
     message: string;
     code: number;
-    details?: Record<string, any>;
+    details?: Record<string, unknown>;
     errorCode?: E | CommonErrorCode;
   };
 }

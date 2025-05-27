@@ -127,7 +127,7 @@ export function ActionButtons({
               <DialogHeader>
                 <DialogTitle>Edit {type.slice(0, -1).charAt(0).toUpperCase() + type.slice(0, -1).slice(1)}</DialogTitle>
                 <DialogDescription>
-                  Make changes to your {type.slice(0, -1)} here. Click save when you're done.
+                  Make changes to your {type.slice(0, -1)} here. Click save when you&apos;re done.
                 </DialogDescription>
               </DialogHeader>
               <div className="py-4">

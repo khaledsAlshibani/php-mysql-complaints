@@ -1,15 +1,15 @@
 import { getApiBaseUrl } from '@/utils/getApiBaseUrl';
-import axios, { AxiosError, isAxiosError } from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { authService } from '@/services/authService';
 import { useAuthStore } from '@/store/useAuthStore';
 
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value?: unknown) => void;
-  reject: (reason?: any) => void;
+  reject: (reason?: unknown) => void;
 }> = [];
 
-const processFailedQueue = (error: any = null) => {
+const processFailedQueue = (error: unknown = null) => {
   failedQueue.forEach(promise => {
     if (error) {
       promise.reject(error);
@@ -50,7 +50,7 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as any;
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     console.error(`❌ Response Error: ${originalRequest?.method?.toUpperCase()} ${originalRequest?.url}`, {
       status: error.response?.status,
