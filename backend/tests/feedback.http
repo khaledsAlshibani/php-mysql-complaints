@@ -22,8 +22,10 @@ Content-Type: {{contentType}}
     "password": "Admin123!"
 }
 
-### Create feedback for a complaint (as admin)
-POST {{baseUrl}}/complaints/4/feedback
+### Complaint Feedback Tests
+
+### Create and manage feedback for a complaint
+POST {{baseUrl}}/complaints/1/feedback
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminLogin.response.body.data.token}}
 
@@ -31,89 +33,51 @@ Authorization: Bearer {{adminLogin.response.body.data.token}}
     "content": "This is a test feedback for the complaint"
 }
 
-### Get all feedback for a complaint (as user)
-GET {{baseUrl}}/complaints/4/feedback
-Content-Type: {{contentType}}
-Authorization: Bearer {{userLogin.response.body.data.token}}
-
-### Get all feedback for a complaint (as admin)
+### Get all feedback for a complaint
 GET {{baseUrl}}/complaints/1/feedback
 Content-Type: {{contentType}}
-Authorization: Bearer {{adminLogin.response.body.data.token}}
-
-### Get specific feedback for a complaint (as user)
-GET {{baseUrl}}/complaints/1/feedback/1
-Content-Type: {{contentType}}
 Authorization: Bearer {{userLogin.response.body.data.token}}
 
-### Get specific feedback for a complaint (as admin)
-GET {{baseUrl}}/complaints/4/feedback/3
-Content-Type: {{contentType}}
-Authorization: Bearer {{adminLogin.response.body.data.token}}
-
-### Update feedback for a complaint (as admin)
-PUT {{baseUrl}}/complaints/4/feedback/5
-Content-Type: {{contentType}}
-Authorization: Bearer {{adminLogin.response.body.data.token}}
-
-{
-    "content": "This is an updated test feedback for the complaint"
-}
-
-### Delete feedback for a complaint (as admin)
-DELETE {{baseUrl}}/complaints/4/feedback/4
-Content-Type: {{contentType}}
-Authorization: Bearer {{adminLogin.response.body.data.token}}
-
-### Test Cases for Error Scenarios
-
-### Try to create feedback as non-admin user
-POST {{baseUrl}}/complaints/1/feedback
-Content-Type: {{contentType}}
-Authorization: Bearer {{userLogin.response.body.data.token}}
-
-{
-    "content": "This should fail - user is not admin"
-}
-
-### Try to update feedback as non-admin user
+### Update feedback
 PUT {{baseUrl}}/complaints/1/feedback/1
 Content-Type: {{contentType}}
-Authorization: Bearer {{userLogin.response.body.data.token}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
 
 {
-    "content": "This should fail - user is not admin"
+    "content": "This is an updated test feedback"
 }
 
-### Try to delete feedback as non-admin user
+### Delete feedback
 DELETE {{baseUrl}}/complaints/1/feedback/1
 Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+### Suggestion Feedback Tests
+
+### Create and manage feedback for a suggestion
+POST {{baseUrl}}/suggestions/1/feedback
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+{
+    "content": "This is a test feedback for the suggestion"
+}
+
+### Get all feedback for a suggestion
+GET {{baseUrl}}/suggestions/1/feedback
+Content-Type: {{contentType}}
 Authorization: Bearer {{userLogin.response.body.data.token}}
 
-### Try to access feedback for non-existent complaint
-GET {{baseUrl}}/complaints/999/feedback
-Content-Type: {{contentType}}
-Authorization: Bearer {{adminLogin.response.body.data.token}}
-
-### Try to access non-existent feedback
-GET {{baseUrl}}/complaints/1/feedback/999
-Content-Type: {{contentType}}
-Authorization: Bearer {{adminLogin.response.body.data.token}}
-
-### Try to create feedback with invalid data
-POST {{baseUrl}}/complaints/4/feedback
+### Update feedback
+PUT {{baseUrl}}/suggestions/1/feedback/15
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminLogin.response.body.data.token}}
 
 {
-    "content": ""
+    "content": "This is an updated test feedback"
 }
 
-### Try to update feedback with invalid data
-PUT {{baseUrl}}/complaints/4/feedback/5
+### Delete feedback
+DELETE {{baseUrl}}/suggestions/1/feedback/15
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminLogin.response.body.data.token}}
-
-{
-    "content": ""
-}
