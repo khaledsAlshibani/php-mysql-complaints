@@ -69,10 +69,10 @@ Cookie: access_token={{login.response.headers.Set-Cookie}}
 ### Update complaint
 PUT {{baseUrl}}/complaints/4
 Content-Type: {{contentType}}
-Cookie: access_token={{login.response.headers.Set-Cookie}}
+Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
 
 {
-    "content": "Updated complaint content"
+    "content": "Updated complaint content 25"
 }
 
 ### Delete complaint
@@ -80,10 +80,19 @@ DELETE {{baseUrl}}/complaints/1
 Content-Type: {{contentType}}
 Cookie: access_token={{login.response.headers.Set-Cookie}}
 
-### Update complaint status
-PUT {{baseUrl}}/complaints/1/status
+### Update complaint status (admin only)
+PATCH {{baseUrl}}/complaints/4/status
 Content-Type: {{contentType}}
 Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+
+{
+    "status": "resolved"
+}
+
+### Try to update complaint status as regular user (should fail)
+PATCH {{baseUrl}}/complaints/4/status
+Content-Type: {{contentType}}
+Cookie: access_token={{login.response.headers.Set-Cookie}}
 
 {
     "status": "resolved"

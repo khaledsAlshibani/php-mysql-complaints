@@ -286,6 +286,9 @@ class FeedbackService
             'suggestionId' => $feedback->getSuggestionId()
         ];
 
+        $complaintId = $feedback->getComplaintId();
+        $suggestionId = $feedback->getSuggestionId();
+
         if (!$feedback->delete()) {
             return Response::formatError(
                 'Failed to delete feedback',
@@ -293,6 +296,29 @@ class FeedbackService
                 [],
                 'FEEDBACK_DELETE_FAILED'
             );
+        }
+
+        if ($complaintId) {
+            $complaint = $this->complaint->find($complaintId);
+            if ($complaint) {
+                $remainingFeedback = $this->feedback->getAllForComplaint($complaintId);
+                if (empty($remainingFeedback)) {
+                    // If no feedback remains, update complaint status to pending_no_feedback
+                    $complaint->update(['status' => 'pending_no_feedback']);
+                }
+            }
+        }
+
+        // Handle suggestion feedback status update
+        if ($suggestionId) {
+            $suggestion = $this->suggestion->find($suggestionId);
+            if ($suggestion) {
+                $remainingFeedback = $this->feedback->getAllForSuggestion($suggestionId);
+                if (empty($remainingFeedback)) {
+                    // If no feedback remains, update suggestion status to pending_no_feedback
+                    $suggestion->update(['status' => 'pending_no_feedback']);
+                }
+            }
         }
 
         return Response::formatSuccess($feedbackData, 'Feedback deleted successfully');

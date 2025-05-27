@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Core\Response;
 use App\Models\Complaint;
 use App\DTO\ComplaintDTO;
+use App\DTO\ComplaintStatusDTO;
 
 class ComplaintService
 {
@@ -146,6 +147,78 @@ class ComplaintService
             ],
             'feedback' => $feedback
         ], 'Complaint updated successfully');
+    }
+
+    public function updateStatus(int $id, array $data, int $userId, string $userRole): array
+    {
+        $complaint = $this->complaint->find($id);
+        if (!$complaint) {
+            return Response::formatError(
+                'Complaint not found',
+                404,
+                [],
+                'COMPLAINT_NOT_FOUND'
+            );
+        }
+
+        if ($userRole !== 'admin') {
+            return Response::formatError(
+                'Not authorized',
+                403,
+                [],
+                'UNAUTHORIZED_ACCESS'
+            );
+        }
+
+        $statusDTO = new ComplaintStatusDTO($data);
+        $validationErrors = $statusDTO->validate();
+        if ($validationErrors) {
+            return Response::formatError(
+                'Validation failed',
+                422,
+                array_map(function($field, $message) {
+                    return ['field' => $field, 'issue' => $message];
+                }, array_keys($validationErrors), $validationErrors),
+                'VALIDATION_ERROR'
+            );
+        }
+
+        if (!$complaint->update($statusDTO->toArray())) {
+            return Response::formatError(
+                'Failed to update complaint status',
+                500,
+                [],
+                'COMPLAINT_UPDATE_FAILED'
+            );
+        }
+
+        // Fetch the updated complaint with all its data
+        $updatedComplaint = $this->complaint->find($id);
+        if (!$updatedComplaint) {
+            return Response::formatError(
+                'Failed to retrieve updated complaint',
+                500,
+                [],
+                'COMPLAINT_RETRIEVAL_FAILED'
+            );
+        }
+
+        // Format the complaint data with user and feedback
+        $user = $updatedComplaint->getUser();
+        $feedback = $updatedComplaint->getFeedback();
+
+        return Response::formatSuccess([
+            'id' => $updatedComplaint->getId(),
+            'content' => $updatedComplaint->getContent(),
+            'status' => $updatedComplaint->getStatus(),
+            'createdAt' => $updatedComplaint->getCreatedAt(),
+            'user' => [
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'fullName' => $user->getFullName()
+            ],
+            'feedback' => $feedback
+        ], 'Complaint status updated successfully');
     }
 
     public function delete(int $id, int $userId, string $userRole): array

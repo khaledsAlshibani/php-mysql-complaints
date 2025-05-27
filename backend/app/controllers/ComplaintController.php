@@ -179,12 +179,7 @@ class ComplaintController extends Controller
             return;
         }
 
-        if ($user['role'] !== 'admin') {
-            Response::sendAuthorizationError();
-            return;
-        }
-
-        $result = $this->complaintService->update((int)$params['id'], ['status' => $data['status']], $user['id'], $user['role']);
+        $result = $this->complaintService->updateStatus((int)$params['id'], $data, $user['id'], $user['role']);
         if ($result['status'] === 'error') {
             Response::sendError(
                 $result['error']['message'],

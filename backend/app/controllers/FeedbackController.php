@@ -8,6 +8,7 @@ use App\Models\Feedback;
 use App\Models\Complaint;
 use App\Models\Suggestion;
 use App\Services\AuthService;
+use App\Services\FeedbackService;
 
 class FeedbackController extends Controller
 {
@@ -15,6 +16,7 @@ class FeedbackController extends Controller
     private Complaint $complaint;
     private Suggestion $suggestion;
     private AuthService $authService;
+    private FeedbackService $feedbackService;
 
     public function __construct()
     {
@@ -22,6 +24,7 @@ class FeedbackController extends Controller
         $this->complaint = new Complaint();
         $this->suggestion = new Suggestion();
         $this->authService = new AuthService();
+        $this->feedbackService = new FeedbackService();
     }
 
     private function authenticate(): ?array
@@ -181,57 +184,18 @@ class FeedbackController extends Controller
             return;
         }
 
-        if ($user['role'] !== 'admin') {
-            Response::sendAuthorizationError('Access denied. Only administrators can delete feedback.');
-            return;
-        }
-
-        if (!isset($params['id'])) {
-            Response::sendError('Feedback ID is required', 400, [], 'MISSING_ID');
-            return;
-        }
-
-        $feedback = $this->feedback->find((int)$params['id']);
-        if (!$feedback) {
+        $result = $this->feedbackService->delete($params);
+        if ($result['status'] === 'error') {
             Response::sendError(
-                'Feedback not found',
-                404,
-                [],
-                'FEEDBACK_NOT_FOUND'
+                $result['error']['message'],
+                $result['error']['code'],
+                $result['error']['details'] ?? [],
+                $result['error']['errorCode']
             );
             return;
         }
 
-        // handle authorization of admin who created the feedback
-        if ($feedback->getAdminId() !== $user['id']) {
-            Response::sendAuthorizationError('Not authorized. Only the admin who created the feedback can delete it.');
-            return;
-        }
-
-        if (!$feedback->delete()) {
-            Response::sendError(
-                'Failed to delete feedback',
-                500,
-                [],
-                'FEEDBACK_DELETE_FAILED'
-            );
-            return;
-        }
-
-        // handle update of parent item status if this was the last feedback
-        if ($feedback->getComplaintId()) {
-            $complaint = $this->complaint->find($feedback->getComplaintId());
-            if ($complaint && empty($complaint->getFeedback())) {
-                $complaint->update(['status' => 'pending_no_feedback']);
-            }
-        } elseif ($feedback->getSuggestionId()) {
-            $suggestion = $this->suggestion->find($feedback->getSuggestionId());
-            if ($suggestion && empty($suggestion->getFeedback())) {
-                $suggestion->update(['status' => 'pending_no_feedback']);
-            }
-        }
-
-        Response::sendSuccess(null, 'Feedback deleted successfully');
+        Response::sendSuccess($result['data'], $result['message']);
     }
 
     public function getById(array $params): void
