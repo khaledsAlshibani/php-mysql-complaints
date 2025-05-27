@@ -18,12 +18,59 @@ class SuggestionsSeeder extends AbstractSeed
     {
         $this->table('suggestions')
             ->insert([
-                'user_id' => 2,
-                'content' => 'Suggestion Example 1',
-                'created_at' => date('Y-m-d H:i:s')
+                [
+                    'user_id' => 2,
+                    'content' => 'Add a dark mode option to improve usability at night.',
+                    'created_at' => date('Y-m-d H:i:s')
+                ],
+                [
+                    'user_id' => 3,
+                    'content' => 'Provide downloadable PDF reports for user activity.',
+                    'created_at' => date('Y-m-d H:i:s')
+                ],
+                [
+                    'user_id' => 4,
+                    'content' => 'Enable two-factor authentication for better security.',
+                    'created_at' => date('Y-m-d H:i:s')
+                ],
+                [
+                    'user_id' => 2,
+                    'content' => 'Allow users to customize their dashboard widgets.',
+                    'created_at' => date('Y-m-d H:i:s')
+                ],
+                [
+                    'user_id' => 5,
+                    'content' => 'Add a search bar to quickly find previous suggestions.',
+                    'created_at' => date('Y-m-d H:i:s')
+                ],
+                [
+                    'user_id' => 3,
+                    'content' => 'Implement email notifications for important updates.',
+                    'created_at' => date('Y-m-d H:i:s')
+                ],
+                [
+                    'user_id' => 6,
+                    'content' => 'Support exporting data to Excel and CSV formats.',
+                    'created_at' => date('Y-m-d H:i:s')
+                ],
+                [
+                    'user_id' => 2,
+                    'content' => 'Add a FAQ section to help new users get started.',
+                    'created_at' => date('Y-m-d H:i:s')
+                ],
+                [
+                    'user_id' => 7,
+                    'content' => 'Allow users to tag suggestions for better organization.',
+                    'created_at' => date('Y-m-d H:i:s')
+                ],
+                [
+                    'user_id' => 4,
+                    'content' => 'Provide a mobile app version for easier access on the go.',
+                    'created_at' => date('Y-m-d H:i:s')
+                ]
             ])
             ->save();
 
-        echo "Complaints created successfully\n";
+        echo "Suggestions created successfully\n";
     }
 }
