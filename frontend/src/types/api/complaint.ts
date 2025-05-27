@@ -49,8 +49,8 @@ export interface UpdateComplaintRequest {
 
 // Query parameters for getAll
 export interface GetAllComplaintsParams {
-  status?: CommonStatus;
   search?: string;
+  status?: Complaint['status'];
 }
 
 // Feedback request types

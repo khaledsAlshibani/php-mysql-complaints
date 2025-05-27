@@ -49,8 +49,8 @@ export interface UpdateSuggestionRequest {
 
 // Query parameters for getAll
 export interface GetAllSuggestionsParams {
-  status?: CommonStatus;
   search?: string;
+  status?: Suggestion['status'];
 }
 
 // Feedback request types
