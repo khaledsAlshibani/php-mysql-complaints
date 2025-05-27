@@ -4,10 +4,10 @@ namespace App\Services;
 
 use App\Models\Suggestion;
 use App\Models\UserSubmissionModel;
-use App\DTO\SuggestionDTO;
-use App\DTO\SuggestionStatusDTO;
-use App\DTO\UserSubmissionDTO;
-use App\DTO\UserSubmissionStatusDTO;
+use App\DTOs\SuggestionDTO;
+use App\DTOs\SuggestionStatusDTO;
+use App\DTOs\UserSubmissionDTO;
+use App\DTOs\UserSubmissionStatusDTO;
 
 class SuggestionService extends UserSubmissionService
 {

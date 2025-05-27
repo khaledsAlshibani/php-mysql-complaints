@@ -1,5 +1,10 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTOss;
 
-class ComplaintStatusDTO extends UserSubmissionStatusDTO {}
+use App\DTOss\UserSubmissionStatusDTO;
+
+class ComplaintStatusDTO extends UserSubmissionStatusDTO
+{
+    // ... existing code ...
+} 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTOs;
 
 /**
  * Abstract DTO for handling status updates of user submissions.
@@ -8,7 +8,7 @@ namespace App\DTO;
  * Validates status values shared across multiple submission types
  * such as complaints and suggestions.
  *
- * @package App\DTO
+ * @package App\DTOs
  */
 abstract class UserSubmissionStatusDTO
 {

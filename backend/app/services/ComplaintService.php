@@ -4,10 +4,10 @@ namespace App\Services;
 
 use App\Models\Complaint;
 use App\Models\UserSubmissionModel;
-use App\DTO\ComplaintDTO;
-use App\DTO\ComplaintStatusDTO;
-use App\DTO\UserSubmissionDTO;
-use App\DTO\UserSubmissionStatusDTO;
+use App\DTOs\ComplaintDTO;
+use App\DTOs\ComplaintStatusDTO;
+use App\DTOs\UserSubmissionDTO;
+use App\DTOs\UserSubmissionStatusDTO;
 
 class ComplaintService extends UserSubmissionService
 {

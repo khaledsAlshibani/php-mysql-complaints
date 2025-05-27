@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTOs;
 
 /**
  * Abstract DTO for user submissions such as complaints and suggestions.
@@ -11,7 +11,7 @@ namespace App\DTO;
  * - Content field
  * - Status validation
  *
- * @package App\DTO
+ * @package App\DTOs
  */
 abstract class UserSubmissionDTO
 {

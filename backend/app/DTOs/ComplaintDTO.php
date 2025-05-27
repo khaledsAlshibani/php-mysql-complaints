@@ -1,5 +1,5 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTOs;
 
 class ComplaintDTO extends UserSubmissionDTO {}

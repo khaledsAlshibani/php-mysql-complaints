@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Core\Response;
-use App\DTO\UserSubmissionDTO;
-use App\DTO\UserSubmissionStatusDTO;
+use App\DTOs\UserSubmissionDTO;
+use App\DTOs\UserSubmissionStatusDTO;
 use App\Services\FeedbackService;
 use App\Models\UserSubmissionModel;
 use App\Models\User;

@@ -6,7 +6,7 @@ use App\Core\Response;
 use App\Models\Feedback;
 use App\Models\Complaint;
 use App\Models\Suggestion;
-use App\DTO\FeedbackDTO;
+use App\DTOs\FeedbackDTO;
 
 class FeedbackService
 {

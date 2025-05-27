@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Core\Response;
-use App\DTO\LoginDTO;
-use App\DTO\RegistrationDTO;
-use App\DTO\PasswordUpdateDTO;
-use App\DTO\ProfileUpdateDTO;
+use App\DTOs\LoginDTO;
+use App\DTOs\RegistrationDTO;
+use App\DTOs\PasswordUpdateDTO;
+use App\DTOs\ProfileUpdateDTO;
 
 class UserService
 {
