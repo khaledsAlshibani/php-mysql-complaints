@@ -5,38 +5,9 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { complaintService } from '@/services/complaintService';
 import type { Complaint, ComplaintFeedback, UpdateComplaintRequest } from '@/types/api/complaint';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { format } from 'date-fns';
-import { AlertCircle, CheckCircle2, Clock, XCircle, Pencil, Trash2, MessageSquarePlus, MessageSquare, MoreVertical } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from "sonner";
-import { cn } from '@/lib/utils';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-const statusColors = {
-  pending_no_feedback: 'border-yellow-300 text-yellow-700 bg-yellow-50 dark:border-yellow-400 dark:text-yellow-300 dark:bg-yellow-950/30',
-  pending_reviewed: 'border-sky-300 text-sky-700 bg-sky-50 dark:border-sky-400 dark:text-sky-300 dark:bg-sky-950/30',
-  resolved: 'border-emerald-300 text-emerald-700 bg-emerald-50 dark:border-emerald-400 dark:text-emerald-300 dark:bg-emerald-950/30',
-  ignored: 'border-rose-300 text-rose-700 bg-rose-50 dark:border-rose-400 dark:text-rose-300 dark:bg-rose-950/30'
-} as const;
-
-const statusIcons = {
-  pending_no_feedback: Clock,
-  pending_reviewed: AlertCircle,
-  resolved: CheckCircle2,
-  ignored: XCircle
-} as const;
+import { DetailPageLayout } from '@/components/detailPage/DetailPageLayout';
+import { complaintStatusColors, complaintStatusIcons } from '@/constants/status';
 
 export default function ComplaintPage() {
   const params = useParams();
@@ -82,11 +53,6 @@ export default function ComplaintPage() {
       setIsFeedbackDialogOpen(true);
     }
   }, [searchParams, user?.role]);
-
-  const canModify = user && complaint && (
-    user.id === complaint.user.id ||
-    user.role === 'admin'
-  );
 
   const handleUpdate = async () => {
     if (!complaint) return;
@@ -144,7 +110,6 @@ export default function ComplaintPage() {
         throw new Error(response.error.message);
       }
 
-      // Refresh complaint data to get updated feedback
       const complaintResponse = await complaintService.getById(complaint.id);
       if (complaintResponse.status === 'error') {
         throw new Error(complaintResponse.error.message);
@@ -175,7 +140,6 @@ export default function ComplaintPage() {
         throw new Error(response.error.message);
       }
 
-      // Refresh complaint data to get updated feedback
       const complaintResponse = await complaintService.getById(complaint!.id);
       if (complaintResponse.status === 'error') {
         throw new Error(complaintResponse.error.message);
@@ -206,7 +170,6 @@ export default function ComplaintPage() {
         throw new Error(response.error.message);
       }
 
-      // Refresh complaint data to get updated feedback
       const complaintResponse = await complaintService.getById(complaint!.id);
       if (complaintResponse.status === 'error') {
         throw new Error(complaintResponse.error.message);
@@ -223,364 +186,47 @@ export default function ComplaintPage() {
     }
   };
 
-  if (error) {
-    return (
-      <div className="space-y-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/complaints" className="flex items-center gap-2">
-            <ChevronLeft className="h-4 w-4" />
-            Back to Complaints
-          </Link>
-        </Button>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-red-500">Error</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{error}</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-32" />
-        <Card>
-          <CardHeader className="space-y-2">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-6 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-24 w-full" />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!complaint) {
-    return null;
-  }
-
-  const StatusIcon = statusIcons[complaint.status];
-
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/complaints" className="flex items-center gap-2 -ml-2">
-            <ChevronLeft className="h-4 w-4" />
-            Back to Complaints
-          </Link>
-        </Button>
-
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          {user?.role === 'admin' && (
-            <Dialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center justify-center gap-2"
-                >
-                  <MessageSquarePlus className="h-4 w-4" />
-                  Add Feedback
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Feedback</DialogTitle>
-                  <DialogDescription>
-                    Add your feedback to this complaint. The user will be able to see this feedback.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="py-4">
-                  <Textarea
-                    value={feedbackContent}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFeedbackContent(e.target.value)}
-                    placeholder="Write your feedback..."
-                    className="min-h-[100px]"
-                  />
-                </div>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsFeedbackDialogOpen(false)}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleAddFeedback}
-                    disabled={isSubmitting}
-                  >
-                    Add Feedback
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
-
-          {canModify && user?.id === complaint?.user.id && (
-            <div className="flex items-stretch sm:items-center gap-2">
-              <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
-                    onClick={() => setUpdatedContent(complaint.content)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                    Edit
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Edit Complaint</DialogTitle>
-                    <DialogDescription>
-                      Make changes to your complaint here. Click save when you're done.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="py-4">
-                    <Textarea
-                      value={updatedContent}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setUpdatedContent(e.target.value)}
-                      placeholder="Describe your complaint..."
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsUpdateDialogOpen(false)}
-                      disabled={isSubmitting}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleUpdate}
-                      disabled={isSubmitting}
-                    >
-                      Save Changes
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-
-              <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Delete Complaint</DialogTitle>
-                    <DialogDescription>
-                      Are you sure you want to delete this complaint? This action cannot be undone.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsDeleteDialogOpen(false)}
-                      disabled={isSubmitting}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={handleDelete}
-                      disabled={isSubmitting}
-                    >
-                      Delete Complaint
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <Card className="overflow-hidden flex flex-col">
-        <CardHeader className="space-y-4 border-b">
-          <div className="space-y-2">
-            <Badge className={`mb-2 w-fit border ${statusColors[complaint.status]}`}>
-              <StatusIcon className="mr-1 h-3 w-3" />
-              {complaint.status
-                .split('_')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ')}
-            </Badge>
-            <CardTitle className="text-xl sm:text-2xl leading-tight">{complaint.content}</CardTitle>
-            <CardDescription className="text-sm">
-              Submitted by {complaint.user.fullName} on{' '}
-              {format(new Date(complaint.createdAt), 'MMMM d, yyyy')}
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent className="flex-1 space-y-8">
-          <div className="pt-2">
-            <h3 className="text-base font-semibold mb-3">Description</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{complaint.content}</p>
-          </div>
-
-          {complaint.feedback.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="flex items-center gap-2 text-base font-semibold">
-                <MessageSquare className="h-4 w-4" />
-                Feedback History ({complaint.feedback.length})
-              </h3>
-              <div className="relative space-y-4 pl-4">
-                {complaint.feedback.map((feedback, index) => (
-                  <div
-                    key={feedback.id}
-                    className={cn(
-                      "relative",
-                      "before:absolute before:left-[-12px] before:top-[12px] before:h-[3px] before:w-3 before:bg-border dark:before:bg-border/50",
-                      "after:absolute after:left-[-16px] after:top-2 after:h-3 after:w-3 after:rounded-full after:border-2 after:border-background after:bg-border after:content-[''] dark:after:border-background dark:after:bg-border/50",
-                      index === complaint.feedback.length - 1 && "pb-0"
-                    )}
-                  >
-                    <div className="rounded-lg border bg-card text-card-foreground shadow-sm transition-colors hover:bg-accent/5">
-                      <div className="p-4 space-y-3">
-                        <div className="flex items-start sm:items-center justify-between gap-4">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm">
-                            <span className="font-medium text-foreground">
-                              {feedback.admin.fullName}
-                            </span>
-                            <span className="hidden sm:inline text-muted-foreground">•</span>
-                            <time
-                              dateTime={feedback.createdAt}
-                              className="text-xs sm:text-sm text-muted-foreground"
-                            >
-                              {format(new Date(feedback.createdAt), 'MMM d, yyyy')}
-                            </time>
-                          </div>
-                          {user?.role === 'admin' && (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0 hover:bg-accent/10 -mr-2"
-                                >
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-[180px]">
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    setSelectedFeedback(feedback);
-                                    setUpdatedFeedbackContent(feedback.content);
-                                    setIsUpdateFeedbackDialogOpen(true);
-                                  }}
-                                >
-                                  <Pencil className="mr-2 h-4 w-4" />
-                                  Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                                  onClick={() => {
-                                    setSelectedFeedback(feedback);
-                                    setIsDeleteFeedbackDialogOpen(true);
-                                  }}
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          )}
-                        </div>
-                        <div className="prose prose-sm dark:prose-invert max-w-none">
-                          <p className="text-sm leading-relaxed">
-                            {feedback.content}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Add Update Feedback Dialog */}
-      <Dialog open={isUpdateFeedbackDialogOpen} onOpenChange={setIsUpdateFeedbackDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Update Feedback</DialogTitle>
-            <DialogDescription>
-              Make changes to your feedback here. Click save when you're done.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Textarea
-              value={updatedFeedbackContent}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setUpdatedFeedbackContent(e.target.value)}
-              placeholder="Update your feedback..."
-              className="min-h-[100px]"
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsUpdateFeedbackDialogOpen(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleUpdateFeedback}
-              disabled={isSubmitting}
-            >
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Delete Feedback Dialog */}
-      <Dialog open={isDeleteFeedbackDialogOpen} onOpenChange={setIsDeleteFeedbackDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Feedback</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this feedback? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteFeedbackDialogOpen(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteFeedback}
-              disabled={isSubmitting}
-            >
-              Delete Feedback
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+    <DetailPageLayout<Complaint, ComplaintFeedback>
+      item={complaint}
+      isLoading={isLoading}
+      error={error}
+      type="complaints"
+      statusColors={complaintStatusColors}
+      statusIcons={complaintStatusIcons}
+      isAdmin={!!user && user.role === 'admin'}
+      isOwner={!!user && user.id === complaint?.user.id}
+      isFeedbackDialogOpen={isFeedbackDialogOpen}
+      isUpdateDialogOpen={isUpdateDialogOpen}
+      isDeleteDialogOpen={isDeleteDialogOpen}
+      feedbackContent={feedbackContent}
+      updatedContent={updatedContent}
+      isSubmitting={isSubmitting}
+      isUpdateFeedbackDialogOpen={isUpdateFeedbackDialogOpen}
+      isDeleteFeedbackDialogOpen={isDeleteFeedbackDialogOpen}
+      updatedFeedbackContent={updatedFeedbackContent}
+      onFeedbackDialogChange={setIsFeedbackDialogOpen}
+      onUpdateDialogChange={setIsUpdateDialogOpen}
+      onDeleteDialogChange={setIsDeleteDialogOpen}
+      onFeedbackContentChange={setFeedbackContent}
+      onUpdatedContentChange={setUpdatedContent}
+      onAddFeedback={handleAddFeedback}
+      onUpdate={handleUpdate}
+      onDelete={handleDelete}
+      onEditFeedback={(feedback) => {
+        setSelectedFeedback(feedback);
+        setUpdatedFeedbackContent(feedback.content);
+        setIsUpdateFeedbackDialogOpen(true);
+      }}
+      onDeleteFeedback={(feedback) => {
+        setSelectedFeedback(feedback);
+        setIsDeleteFeedbackDialogOpen(true);
+      }}
+      onUpdateFeedbackDialogChange={setIsUpdateFeedbackDialogOpen}
+      onDeleteFeedbackDialogChange={setIsDeleteFeedbackDialogOpen}
+      onUpdatedFeedbackContentChange={setUpdatedFeedbackContent}
+      onUpdateFeedback={handleUpdateFeedback}
+      onConfirmDeleteFeedback={handleDeleteFeedback}
+    />
   );
 }
