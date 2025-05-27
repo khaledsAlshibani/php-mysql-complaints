@@ -1,14 +1,14 @@
 import { ApiResponse, PartialResponseUser } from './global';
+import { CommonStatus } from './common';
 
-export type ComplaintStatus = 'pending_no_feedback' | 'pending_reviewed' | 'resolved' | 'ignored';
+export type ComplaintStatus = CommonStatus;
 
 export interface ComplaintFeedback {
   id: number;
   content: string;
   createdAt: string;
   admin: PartialResponseUser;
-  complaintId: number | null;
-  suggestionId: number | null;
+  complaintId: number;
 }
 
 export interface Complaint {
@@ -49,6 +49,22 @@ export interface UpdateComplaintRequest {
 
 // Query parameters for getAll
 export interface GetAllComplaintsParams {
-  status?: string;
+  status?: CommonStatus;
   search?: string;
 }
+
+// Feedback request types
+export interface CreateFeedbackRequest {
+  content: string;
+}
+
+export interface UpdateFeedbackRequest {
+  content: string;
+}
+
+// Feedback response types
+export type GetFeedbackResponse = ApiResponse<ComplaintFeedback, ComplaintErrorCode>;
+export type GetAllFeedbackResponse = ApiResponse<ComplaintFeedback[], ComplaintErrorCode>;
+export type CreateFeedbackResponse = ApiResponse<ComplaintFeedback, ComplaintErrorCode>;
+export type UpdateFeedbackResponse = ApiResponse<ComplaintFeedback, ComplaintErrorCode>;
+export type DeleteFeedbackResponse = ApiResponse<null, ComplaintErrorCode>;

@@ -1,14 +1,14 @@
 import { ApiResponse, PartialResponseUser } from './global';
+import { CommonStatus } from './common';
 
-export type SuggestionStatus = 'pending_no_feedback' | 'pending_with_feedback' | 'resolved' | 'rejected';
+export type SuggestionStatus = CommonStatus;
 
 export interface SuggestionFeedback {
   id: number;
   content: string;
   createdAt: string;
   admin: PartialResponseUser;
-  complaintId: number | null;
-  suggestionId: number | null;
+  suggestionId: number;
 }
 
 export interface Suggestion {
@@ -22,18 +22,13 @@ export interface Suggestion {
 
 // Error codes from the backend
 export type SuggestionErrorCode = 
-  | 'AUTHENTICATION_REQUIRED'
-  | 'INVALID_PAYLOAD'
   | 'VALIDATION_ERROR'
-  | 'SUGGESTION_CREATION_FAILED'
-  | 'SUGGESTION_RETRIEVAL_FAILED'
-  | 'MISSING_ID'
+  | 'COMPLAINT_CREATION_FAILED'
+  | 'COMPLAINT_RETRIEVAL_FAILED'
+  | 'COMPLAINT_NOT_FOUND'
   | 'UNAUTHORIZED_ACCESS'
-  | 'SUGGESTION_UPDATE_FAILED'
-  | 'SUGGESTION_NOT_FOUND'
-  | 'SUGGESTION_DELETE_FAILED'
-  | 'ACCESS_DENIED'
-  | 'MISSING_STATUS';
+  | 'COMPLAINT_UPDATE_FAILED'
+  | 'COMPLAINT_DELETE_FAILED';
 
 // Response types for different suggestion endpoints
 export type GetSuggestionResponse = ApiResponse<Suggestion, SuggestionErrorCode>;
@@ -54,6 +49,22 @@ export interface UpdateSuggestionRequest {
 
 // Query parameters for getAll
 export interface GetAllSuggestionsParams {
-  status?: string;
+  status?: CommonStatus;
   search?: string;
 }
+
+// Feedback request types
+export interface CreateFeedbackRequest {
+  content: string;
+}
+
+export interface UpdateFeedbackRequest {
+  content: string;
+}
+
+// Feedback response types
+export type GetFeedbackResponse = ApiResponse<SuggestionFeedback, SuggestionErrorCode>;
+export type GetAllFeedbackResponse = ApiResponse<SuggestionFeedback[], SuggestionErrorCode>;
+export type CreateFeedbackResponse = ApiResponse<SuggestionFeedback, SuggestionErrorCode>;
+export type UpdateFeedbackResponse = ApiResponse<SuggestionFeedback, SuggestionErrorCode>;
+export type DeleteFeedbackResponse = ApiResponse<null, SuggestionErrorCode>;

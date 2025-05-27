@@ -9,7 +9,14 @@ import type {
   CreateSuggestionResponse,
   UpdateSuggestionResponse,
   DeleteSuggestionResponse,
-  GetAllSuggestionsParams
+  GetAllSuggestionsParams,
+  CreateFeedbackRequest,
+  UpdateFeedbackRequest,
+  GetFeedbackResponse,
+  GetAllFeedbackResponse,
+  CreateFeedbackResponse,
+  UpdateFeedbackResponse,
+  DeleteFeedbackResponse
 } from '@/types/api/suggestion';
 
 export const suggestionService = {
@@ -92,42 +99,6 @@ export const suggestionService = {
     }
   },
 
-  getAllAdmin: async (params?: { search?: string }): Promise<GetSuggestionsResponse> => {
-    try {
-      const searchParams = new URLSearchParams();
-      if (params?.search) searchParams.append('search', params.search);
-      const queryString = searchParams.toString();
-      const response = await axiosInstance.get(`/suggestions/admin/all${queryString ? `?${queryString}` : ''}`);
-      return response.data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.response?.status === 403) {
-          throw new Error('Access denied. Admin only.');
-        }
-        throw new Error(error.response?.data?.error?.message || 'Failed to fetch suggestions');
-      }
-      throw error;
-    }
-  },
-
-  getByStatus: async (status: Suggestion['status'], params?: { search?: string }): Promise<GetSuggestionsResponse> => {
-    try {
-      const searchParams = new URLSearchParams();
-      if (params?.search) searchParams.append('search', params.search);
-      const queryString = searchParams.toString();
-      const response = await axiosInstance.get(`/suggestions/admin/status/${status}${queryString ? `?${queryString}` : ''}`);
-      return response.data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.response?.status === 403) {
-          throw new Error('Access denied. Admin only.');
-        }
-        throw new Error(error.response?.data?.error?.message || 'Failed to fetch suggestions by status');
-      }
-      throw error;
-    }
-  },
-
   updateStatus: async (id: number, status: Suggestion['status']): Promise<UpdateSuggestionResponse> => {
     try {
       const response = await axiosInstance.patch(`/suggestions/${id}/status`, { status });
@@ -141,6 +112,97 @@ export const suggestionService = {
           throw new Error('Suggestion not found');
         }
         throw new Error(error.response?.data?.error?.message || 'Failed to update suggestion status');
+      }
+      throw error;
+    }
+  },
+
+  // Feedback methods
+  getAllFeedback: async (suggestionId: number): Promise<GetAllFeedbackResponse> => {
+    try {
+      const response = await axiosInstance.get(`/suggestions/${suggestionId}/feedback`);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          throw new Error('Suggestion not found');
+        }
+        throw new Error(error.response?.data?.error?.message || 'Failed to fetch feedback');
+      }
+      throw error;
+    }
+  },
+
+  getFeedbackById: async (suggestionId: number, feedbackId: number): Promise<GetFeedbackResponse> => {
+    try {
+      const response = await axiosInstance.get(`/suggestions/${suggestionId}/feedback/${feedbackId}`);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          throw new Error('Feedback not found');
+        }
+        throw new Error(error.response?.data?.error?.message || 'Failed to fetch feedback');
+      }
+      throw error;
+    }
+  },
+
+  createFeedback: async (suggestionId: number, data: CreateFeedbackRequest): Promise<CreateFeedbackResponse> => {
+    try {
+      const response = await axiosInstance.post(`/suggestions/${suggestionId}/feedback`, data);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          throw new Error('Access denied. Admin only.');
+        }
+        if (error.response?.status === 404) {
+          throw new Error('Suggestion not found');
+        }
+        if (error.response?.status === 422) {
+          throw new Error('Validation failed');
+        }
+        throw new Error(error.response?.data?.error?.message || 'Failed to create feedback');
+      }
+      throw error;
+    }
+  },
+
+  updateFeedback: async (suggestionId: number, feedbackId: number, data: UpdateFeedbackRequest): Promise<UpdateFeedbackResponse> => {
+    try {
+      const response = await axiosInstance.put(`/suggestions/${suggestionId}/feedback/${feedbackId}`, data);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          throw new Error('Access denied. Admin only.');
+        }
+        if (error.response?.status === 404) {
+          throw new Error('Feedback not found');
+        }
+        if (error.response?.status === 422) {
+          throw new Error('Validation failed');
+        }
+        throw new Error(error.response?.data?.error?.message || 'Failed to update feedback');
+      }
+      throw error;
+    }
+  },
+
+  deleteFeedback: async (suggestionId: number, feedbackId: number): Promise<DeleteFeedbackResponse> => {
+    try {
+      const response = await axiosInstance.delete(`/suggestions/${suggestionId}/feedback/${feedbackId}`);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          throw new Error('Access denied. Admin only.');
+        }
+        if (error.response?.status === 404) {
+          throw new Error('Feedback not found');
+        }
+        throw new Error(error.response?.data?.error?.message || 'Failed to delete feedback');
       }
       throw error;
     }

@@ -9,7 +9,14 @@ import type {
   CreateComplaintResponse,
   UpdateComplaintResponse,
   DeleteComplaintResponse,
-  GetAllComplaintsParams
+  GetAllComplaintsParams,
+  CreateFeedbackRequest,
+  UpdateFeedbackRequest,
+  GetFeedbackResponse,
+  GetAllFeedbackResponse,
+  CreateFeedbackResponse,
+  UpdateFeedbackResponse,
+  DeleteFeedbackResponse
 } from '@/types/api/complaint';
 
 export const complaintService = {
@@ -92,42 +99,6 @@ export const complaintService = {
     }
   },
 
-  getAllAdmin: async (params?: { search?: string }): Promise<GetComplaintsResponse> => {
-    try {
-      const searchParams = new URLSearchParams();
-      if (params?.search) searchParams.append('search', params.search);
-      const queryString = searchParams.toString();
-      const response = await axiosInstance.get(`/complaints/admin/all${queryString ? `?${queryString}` : ''}`);
-      return response.data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.response?.status === 403) {
-          throw new Error('Access denied. Admin only.');
-        }
-        throw new Error(error.response?.data?.error?.message || 'Failed to fetch complaints');
-      }
-      throw error;
-    }
-  },
-
-  getByStatus: async (status: Complaint['status'], params?: { search?: string }): Promise<GetComplaintsResponse> => {
-    try {
-      const searchParams = new URLSearchParams();
-      if (params?.search) searchParams.append('search', params.search);
-      const queryString = searchParams.toString();
-      const response = await axiosInstance.get(`/complaints/admin/status/${status}${queryString ? `?${queryString}` : ''}`);
-      return response.data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.response?.status === 403) {
-          throw new Error('Access denied. Admin only.');
-        }
-        throw new Error(error.response?.data?.error?.message || 'Failed to fetch complaints by status');
-      }
-      throw error;
-    }
-  },
-
   updateStatus: async (id: number, status: Complaint['status']): Promise<UpdateComplaintResponse> => {
     try {
       const response = await axiosInstance.patch(`/complaints/${id}/status`, { status });
@@ -141,6 +112,97 @@ export const complaintService = {
           throw new Error('Complaint not found');
         }
         throw new Error(error.response?.data?.error?.message || 'Failed to update complaint status');
+      }
+      throw error;
+    }
+  },
+
+  // Feedback methods
+  getAllFeedback: async (complaintId: number): Promise<GetAllFeedbackResponse> => {
+    try {
+      const response = await axiosInstance.get(`/complaints/${complaintId}/feedback`);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          throw new Error('Complaint not found');
+        }
+        throw new Error(error.response?.data?.error?.message || 'Failed to fetch feedback');
+      }
+      throw error;
+    }
+  },
+
+  getFeedbackById: async (complaintId: number, feedbackId: number): Promise<GetFeedbackResponse> => {
+    try {
+      const response = await axiosInstance.get(`/complaints/${complaintId}/feedback/${feedbackId}`);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          throw new Error('Feedback not found');
+        }
+        throw new Error(error.response?.data?.error?.message || 'Failed to fetch feedback');
+      }
+      throw error;
+    }
+  },
+
+  createFeedback: async (complaintId: number, data: CreateFeedbackRequest): Promise<CreateFeedbackResponse> => {
+    try {
+      const response = await axiosInstance.post(`/complaints/${complaintId}/feedback`, data);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          throw new Error('Access denied. Admin only.');
+        }
+        if (error.response?.status === 404) {
+          throw new Error('Complaint not found');
+        }
+        if (error.response?.status === 422) {
+          throw new Error('Validation failed');
+        }
+        throw new Error(error.response?.data?.error?.message || 'Failed to create feedback');
+      }
+      throw error;
+    }
+  },
+
+  updateFeedback: async (complaintId: number, feedbackId: number, data: UpdateFeedbackRequest): Promise<UpdateFeedbackResponse> => {
+    try {
+      const response = await axiosInstance.put(`/complaints/${complaintId}/feedback/${feedbackId}`, data);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          throw new Error('Access denied. Admin only.');
+        }
+        if (error.response?.status === 404) {
+          throw new Error('Feedback not found');
+        }
+        if (error.response?.status === 422) {
+          throw new Error('Validation failed');
+        }
+        throw new Error(error.response?.data?.error?.message || 'Failed to update feedback');
+      }
+      throw error;
+    }
+  },
+
+  deleteFeedback: async (complaintId: number, feedbackId: number): Promise<DeleteFeedbackResponse> => {
+    try {
+      const response = await axiosInstance.delete(`/complaints/${complaintId}/feedback/${feedbackId}`);
+      return response.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          throw new Error('Access denied. Admin only.');
+        }
+        if (error.response?.status === 404) {
+          throw new Error('Feedback not found');
+        }
+        throw new Error(error.response?.data?.error?.message || 'Failed to delete feedback');
       }
       throw error;
     }
