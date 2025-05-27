@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Router;
+use App\Config\Config;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 

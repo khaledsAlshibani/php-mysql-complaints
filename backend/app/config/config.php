@@ -1,15 +1,24 @@
 <?php
 
+namespace App\Config;
+
 use App\Core\Response;
+use Dotenv\Dotenv;
 
 class Config {
-    private static $instance = null;
+    private static ?Config $instance = null;
     private $corsHeaders = [];
+    private array $config = [];
 
     private function __construct() {
         $this->initErrorHandling();
         $this->loadEnvironmentVariables();
         $this->initCorsHeaders();
+
+        $this->config['api'] = [
+            'prefix' => 'api',
+            'version' => 'v1'
+        ];
     }
 
     public static function getInstance(): Config {
@@ -51,7 +60,7 @@ class Config {
     }
 
     private function loadEnvironmentVariables(): void {
-        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
         $dotenv->load();
     }
 
@@ -74,5 +83,10 @@ class Config {
 
     public function init(): void {
         $this->applyCorsHeaders();
+    }
+
+    public function get(string $key, $default = null)
+    {
+        return $this->config[$key] ?? $default;
     }
 }

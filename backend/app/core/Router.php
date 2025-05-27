@@ -2,16 +2,38 @@
 
 namespace App\Core;
 
+use App\Config\Config;
+
 class Router
 {
     private array $routes = [];
     private array $middlewares = [];
+    private string $apiPrefix;
+    private string $apiVersion;
+
+    public function __construct()
+    {
+        $config = Config::getInstance();
+        $apiConfig = $config->get('api');
+        
+        $this->apiPrefix = $apiConfig['prefix'];
+        $this->apiVersion = $apiConfig['version'];
+    }
 
     public function addRoute(string $method, string $path, array $handler, ?string $middleware = null): void
     {
+        // Remove any existing /api prefix and version from the path
+        $path = preg_replace('/^\/api\/v\d+\//', '', $path);
+        
+        // Remove leading slash from path
+        $path = ltrim($path, '/');
+        
+        // Add the global prefix and version
+        $fullPath = "/{$this->apiPrefix}/{$this->apiVersion}/{$path}";
+        
         $this->routes[] = [
             'method' => $method,
-            'path' => $path,
+            'path' => $fullPath,
             'handler' => $handler,
             'middleware' => $middleware
         ];
@@ -57,9 +79,6 @@ class Router
         $method = $_SERVER['REQUEST_METHOD'];
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         
-        // remove /api prefix if exists
-        $path = preg_replace('/^\/api/', '', $path);
-        
         // Run middlewares
         foreach ($this->middlewares as $middleware) {
             $middleware();
@@ -93,6 +112,11 @@ class Router
             }
         }
 
-        Response::sendError('Not Found', 404, [], 'ROUTE_NOT_FOUND');
+        Response::sendError(
+            sprintf('Endpoint %s %s not found', $method, $path),
+            404,
+            [],
+            'ROUTE_NOT_FOUND'
+        );
     }
 }
