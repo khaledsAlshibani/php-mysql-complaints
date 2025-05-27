@@ -119,7 +119,9 @@ class ComplaintController extends Controller
             return;
         }
 
-        $result = $this->complaintService->getById((int)$params['id'], $user['id'], $user['role']);
+        $status = $_GET['status'] ?? null;
+
+        $result = $this->complaintService->getById((int)$params['id'], $user['id'], $user['role'], $status);
         if ($result['status'] === 'error') {
             Response::sendError(
                 $result['error']['message'],
@@ -141,75 +143,10 @@ class ComplaintController extends Controller
             return;
         }
 
-        // handle search query
         $search = $_GET['search'] ?? null;
+        $status = $_GET['status'] ?? null;
 
-        $result = $this->complaintService->getAll($user['id'], $user['role'], null, $search);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message']);
-    }
-
-    public function getAllAdmin(): void
-    {
-        $user = $this->authService->getCurrentUser();
-        if (!$user) {
-            Response::sendAuthenticationError();
-            return;
-        }
-
-        if ($user['role'] !== 'admin') {
-            Response::sendAuthorizationError();
-            return;
-        }
-
-        // handle search query
-        $search = $_GET['search'] ?? null;
-
-        $result = $this->complaintService->getAll($user['id'], $user['role'], null, $search);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message']);
-    }
-
-    public function getByStatus(array $params): void
-    {
-        if (!isset($params['status'])) {
-            Response::sendError('Status parameter is required', 400);
-            return;
-        }
-
-        $user = $this->authService->getCurrentUser();
-        if (!$user) {
-            Response::sendAuthenticationError();
-            return;
-        }
-
-        if ($user['role'] !== 'admin') {
-            Response::sendAuthorizationError();
-            return;
-        }
-
-        // handle search query
-        $search = $_GET['search'] ?? null;
-
-        $result = $this->complaintService->getAll($user['id'], $user['role'], $params['status'], $search);
+        $result = $this->complaintService->getAll($user['id'], $user['role'], $status, $search);
         if ($result['status'] === 'error') {
             Response::sendError(
                 $result['error']['message'],

@@ -124,6 +124,48 @@ class Complaint extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllByUserAndStatus(int $userId, string $status): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT * FROM complaints 
+            WHERE user_id = :userId AND status = :status 
+            ORDER BY created_at DESC
+        ');
+        $stmt->execute([
+            'userId' => $userId,
+            'status' => $status
+        ]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllByUserAndStatusWithSearch(int $userId, string $status, string $search): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT DISTINCT c.* 
+            FROM complaints c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.user_id = :userId 
+            AND c.status = :status
+            AND (
+                LOWER(c.content) LIKE :searchContent
+                OR LOWER(u.username) LIKE :searchUsername
+                OR LOWER(CONCAT(u.first_name, " ", COALESCE(u.last_name, ""))) LIKE :searchName
+            )
+            ORDER BY c.created_at DESC
+        ');
+        
+        $searchTerm = '%' . strtolower($search) . '%';
+        $stmt->execute([
+            'userId' => $userId,
+            'status' => $status,
+            'searchContent' => $searchTerm,
+            'searchUsername' => $searchTerm,
+            'searchName' => $searchTerm
+        ]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getAllByStatus(string $status): array
     {
         $stmt = $this->db->prepare('SELECT * FROM complaints WHERE status = :status ORDER BY created_at DESC');

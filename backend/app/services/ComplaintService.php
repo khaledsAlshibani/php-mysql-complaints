@@ -181,7 +181,7 @@ class ComplaintService
         return Response::formatSuccess(null, 'Complaint deleted successfully');
     }
 
-    public function getById(int $id, int $userId, string $userRole): array
+    public function getById(int $id, int $userId, string $userRole, ?string $status = null): array
     {
         $complaint = $this->complaint->find($id);
         if (!$complaint) {
@@ -199,6 +199,15 @@ class ComplaintService
                 403,
                 [],
                 'UNAUTHORIZED_ACCESS'
+            );
+        }
+
+        if ($status !== null && $complaint->getStatus() !== $status) {
+            return Response::formatError(
+                'Complaint not found with the specified status',
+                404,
+                [],
+                'COMPLAINT_NOT_FOUND'
             );
         }
 
@@ -236,9 +245,15 @@ class ComplaintService
                         : $this->complaint->getAll();
                 }
             } else {
-                $rawComplaints = $search !== null && !empty($search)
-                    ? $this->complaint->getAllByUserWithSearch($userId, $search)
-                    : $this->complaint->getAllByUser($userId);
+                if ($status !== null) {
+                    $rawComplaints = $search !== null && !empty($search)
+                        ? $this->complaint->getAllByUserAndStatusWithSearch($userId, $status, $search)
+                        : $this->complaint->getAllByUserAndStatus($userId, $status);
+                } else {
+                    $rawComplaints = $search !== null && !empty($search)
+                        ? $this->complaint->getAllByUserWithSearch($userId, $search)
+                        : $this->complaint->getAllByUser($userId);
+                }
             }
 
             foreach ($rawComplaints as $complaintData) {

@@ -3,8 +3,6 @@
 use App\Controllers\ComplaintController;
 use App\Middleware\JWTAuthMiddleware;
 
-$router->addRoute('GET', '/complaints/admin/all', [ComplaintController::class, 'getAllAdmin'], JWTAuthMiddleware::class);
-$router->addRoute('GET', '/complaints/admin/status/{status}', [ComplaintController::class, 'getByStatus'], JWTAuthMiddleware::class);
 $router->addRoute('GET', '/complaints', [ComplaintController::class, 'getAll'], JWTAuthMiddleware::class);
 $router->addRoute('POST', '/complaints', [ComplaintController::class, 'create'], JWTAuthMiddleware::class);
 $router->addRoute('GET', '/complaints/{id}', [ComplaintController::class, 'getById'], JWTAuthMiddleware::class);
