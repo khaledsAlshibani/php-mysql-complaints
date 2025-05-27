@@ -20,6 +20,5 @@ require_once __DIR__ . '/api/auth.php';
 require_once __DIR__ . '/api/user.php';
 require_once __DIR__ . '/api/complaint.php';
 require_once __DIR__ . '/api/suggestion.php';
-require_once __DIR__ . '/api/feedback.php';
 
 $router->handleRequest();

@@ -8,7 +8,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-    "username": "testuser3",
+    "username": "testuser4",
     "password": "Test123!"
 }
 
@@ -22,71 +22,98 @@ Content-Type: {{contentType}}
     "password": "Admin123!"
 }
 
-### Create feedback for complaint
-POST {{baseUrl}}/feedback
+### Create feedback for a complaint (as admin)
+POST {{baseUrl}}/complaints/4/feedback
 Content-Type: {{contentType}}
-Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
 
 {
-    "complaint_id": 5,
-    "content": "Test feedback for complaint"
+    "content": "This is a test feedback for the complaint"
 }
 
-### Create feedback for suggestion
-POST {{baseUrl}}/feedback
+### Get all feedback for a complaint (as user)
+GET {{baseUrl}}/complaints/4/feedback
 Content-Type: {{contentType}}
-Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+### Get all feedback for a complaint (as admin)
+GET {{baseUrl}}/complaints/1/feedback
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+### Get specific feedback for a complaint (as user)
+GET {{baseUrl}}/complaints/1/feedback/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
+
+### Get specific feedback for a complaint (as admin)
+GET {{baseUrl}}/complaints/4/feedback/3
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+### Update feedback for a complaint (as admin)
+PUT {{baseUrl}}/complaints/4/feedback/5
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
 
 {
-    "suggestion_id": 7,
-    "content": "Test feedback for suggestion"
+    "content": "This is an updated test feedback for the complaint"
 }
 
-### Get specific feedback
-GET {{baseUrl}}/feedback/5
+### Delete feedback for a complaint (as admin)
+DELETE {{baseUrl}}/complaints/4/feedback/4
 Content-Type: {{contentType}}
-Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
 
-### Update feedback
-PUT {{baseUrl}}/feedback/7
+### Test Cases for Error Scenarios
+
+### Try to create feedback as non-admin user
+POST {{baseUrl}}/complaints/1/feedback
 Content-Type: {{contentType}}
-Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
 
 {
-    "content": "Updated feedback content"
+    "content": "This should fail - user is not admin"
 }
 
-### Delete feedback
-DELETE {{baseUrl}}/feedback/1
+### Try to update feedback as non-admin user
+PUT {{baseUrl}}/complaints/1/feedback/1
 Content-Type: {{contentType}}
-Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
 
-### Get all feedback by admin
-GET {{baseUrl}}/feedback/admin
-Content-Type: {{contentType}}
-Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+{
+    "content": "This should fail - user is not admin"
+}
 
-### Get all feedback for specific complaint
-GET {{baseUrl}}/feedback/complaint/2
+### Try to delete feedback as non-admin user
+DELETE {{baseUrl}}/complaints/1/feedback/1
 Content-Type: {{contentType}}
-Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+Authorization: Bearer {{userLogin.response.body.data.token}}
 
-### Get all feedback for specific suggestion
-GET {{baseUrl}}/feedback/suggestion/2
+### Try to access feedback for non-existent complaint
+GET {{baseUrl}}/complaints/999/feedback
 Content-Type: {{contentType}}
-Cookie: access_token={{adminLogin.response.headers.Set-Cookie}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
 
-### Get feedback for user's complaint
-GET {{baseUrl}}/feedback/complaint/1
+### Try to access non-existent feedback
+GET {{baseUrl}}/complaints/1/feedback/999
 Content-Type: {{contentType}}
-Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
 
-### Get feedback for user's suggestion
-GET {{baseUrl}}/feedback/suggestion/2
+### Try to create feedback with invalid data
+POST {{baseUrl}}/complaints/4/feedback
 Content-Type: {{contentType}}
-Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
 
-### Get specific feedback item for user's complaint
-GET {{baseUrl}}/feedback/1
+{
+    "content": ""
+}
+
+### Try to update feedback with invalid data
+PUT {{baseUrl}}/complaints/4/feedback/5
 Content-Type: {{contentType}}
-Cookie: access_token={{userLogin.response.headers.Set-Cookie}}
+Authorization: Bearer {{adminLogin.response.body.data.token}}
+
+{
+    "content": ""
+}
