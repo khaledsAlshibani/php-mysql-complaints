@@ -6,89 +6,49 @@ use App\Core\Controller;
 use App\Core\Response;
 use App\Services\ComplaintService;
 use App\Services\AuthService;
-use App\Services\FeedbackService;
 
 class ComplaintController extends Controller
 {
     private ComplaintService $complaintService;
     private AuthService $authService;
-    private FeedbackService $feedbackService;
 
     public function __construct()
     {
         $this->complaintService = new ComplaintService();
         $this->authService = new AuthService();
-        $this->feedbackService = new FeedbackService();
     }
 
     public function create(): void
     {
-        $data = $this->getJsonInput();
-        if (!$data) {
-            Response::sendError('Invalid request payload', 400);
-            return;
-        }
-
         $user = $this->authService->getCurrentUser();
         if (!$user) {
             Response::sendAuthenticationError();
             return;
         }
 
-        $result = $this->complaintService->create($data, $user['id']);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message'], 201);
+        $result = $this->complaintService->create($this->getJsonInput(), $user['id']);
+        $this->sendResponse($result);
     }
 
     public function update(array $params): void
     {
-        if (!isset($params['id'])) {
-            Response::sendError('Complaint ID is required', 400);
-            return;
-        }
-
-        $data = $this->getJsonInput();
-        if (!$data) {
-            Response::sendError('Invalid request payload', 400);
-            return;
-        }
-
         $user = $this->authService->getCurrentUser();
         if (!$user) {
             Response::sendAuthenticationError();
             return;
         }
 
-        $result = $this->complaintService->update((int)$params['id'], $data, $user['id'], $user['role']);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message']);
+        $result = $this->complaintService->update(
+            (int)$params['id'],
+            $this->getJsonInput(),
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
     }
 
     public function delete(array $params): void
     {
-        if (!isset($params['id'])) {
-            Response::sendError('Complaint ID is required', 400);
-            return;
-        }
-
         $user = $this->authService->getCurrentUser();
         if (!$user) {
             Response::sendAuthenticationError();
@@ -96,46 +56,24 @@ class ComplaintController extends Controller
         }
 
         $result = $this->complaintService->delete((int)$params['id'], $user['id'], $user['role']);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message']);
+        $this->sendResponse($result);
     }
 
     public function getById(array $params): void
     {
-        if (!isset($params['id'])) {
-            Response::sendError('Complaint ID is required', 400);
-            return;
-        }
-
         $user = $this->authService->getCurrentUser();
         if (!$user) {
             Response::sendAuthenticationError();
             return;
         }
 
-        $status = $_GET['status'] ?? null;
-
-        $result = $this->complaintService->getById((int)$params['id'], $user['id'], $user['role'], $status);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message']);
+        $result = $this->complaintService->getById(
+            (int)$params['id'],
+            $user['id'],
+            $user['role'],
+            $_GET['status'] ?? null
+        );
+        $this->sendResponse($result);
     }
 
     public function getAll(): void
@@ -146,190 +84,119 @@ class ComplaintController extends Controller
             return;
         }
 
-        $search = $_GET['search'] ?? null;
-        $status = $_GET['status'] ?? null;
-
-        $result = $this->complaintService->getAll($user['id'], $user['role'], $status, $search);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message']);
+        $result = $this->complaintService->getAll(
+            $user['id'],
+            $user['role'],
+            $_GET['status'] ?? null,
+            $_GET['search'] ?? null
+        );
+        $this->sendResponse($result);
     }
 
     public function updateStatus(array $params): void
     {
-        if (!isset($params['id'])) {
-            Response::sendError('Complaint ID is required', 400);
-            return;
-        }
-
-        $data = $this->getJsonInput();
-        if (!$data || !isset($data['status'])) {
-            Response::sendError('Status is required', 400);
-            return;
-        }
-
         $user = $this->authService->getCurrentUser();
         if (!$user) {
             Response::sendAuthenticationError();
             return;
         }
 
-        $result = $this->complaintService->updateStatus((int)$params['id'], $data, $user['id'], $user['role']);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message']);
+        $result = $this->complaintService->updateStatus(
+            (int)$params['id'],
+            $this->getJsonInput(),
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
     }
 
     public function getAllFeedback(array $params): void
     {
-        if (!isset($params['id'])) {
-            Response::sendError('Complaint ID is required', 400);
-            return;
-        }
-
         $user = $this->authService->getCurrentUser();
         if (!$user) {
             Response::sendAuthenticationError();
             return;
         }
 
-        $result = $this->complaintService->getAllFeedback((int)$params['id'], $user['id'], $user['role']);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message']);
+        $result = $this->complaintService->getAllFeedback(
+            (int)$params['id'],
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
     }
 
     public function createFeedback(array $params): void
     {
-        if (!isset($params['id'])) {
-            Response::sendError('Complaint ID is required', 400);
-            return;
-        }
-
-        $data = $this->getJsonInput();
-        if (!$data) {
-            Response::sendError('Invalid request payload', 400);
-            return;
-        }
-
         $user = $this->authService->getCurrentUser();
         if (!$user) {
             Response::sendAuthenticationError();
             return;
         }
 
-        $result = $this->complaintService->createFeedback((int)$params['id'], $data, $user['id'], $user['role']);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message'], 201);
+        $result = $this->complaintService->createFeedback(
+            (int)$params['id'],
+            $this->getJsonInput(),
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result, 201);
     }
 
     public function getFeedbackById(array $params): void
     {
-        if (!isset($params['id']) || !isset($params['feedbackId'])) {
-            Response::sendError('Complaint ID and Feedback ID are required', 400);
-            return;
-        }
-
         $user = $this->authService->getCurrentUser();
         if (!$user) {
             Response::sendAuthenticationError();
             return;
         }
 
-        $result = $this->complaintService->getFeedbackById((int)$params['id'], (int)$params['feedbackId'], $user['id'], $user['role']);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message']);
+        $result = $this->complaintService->getFeedbackById(
+            (int)$params['id'],
+            (int)$params['feedbackId'],
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
     }
 
     public function updateFeedback(array $params): void
     {
-        if (!isset($params['id']) || !isset($params['feedbackId'])) {
-            Response::sendError('Complaint ID and Feedback ID are required', 400);
-            return;
-        }
-
-        $data = $this->getJsonInput();
-        if (!$data) {
-            Response::sendError('Invalid request payload', 400);
-            return;
-        }
-
         $user = $this->authService->getCurrentUser();
         if (!$user) {
             Response::sendAuthenticationError();
             return;
         }
 
-        $result = $this->complaintService->updateFeedback((int)$params['id'], (int)$params['feedbackId'], $data, $user['id'], $user['role']);
-        if ($result['status'] === 'error') {
-            Response::sendError(
-                $result['error']['message'],
-                $result['error']['code'],
-                $result['error']['details'] ?? [],
-                $result['error']['errorCode']
-            );
-            return;
-        }
-
-        Response::sendSuccess($result['data'], $result['message']);
+        $result = $this->complaintService->updateFeedback(
+            (int)$params['id'],
+            (int)$params['feedbackId'],
+            $this->getJsonInput(),
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
     }
 
     public function deleteFeedback(array $params): void
     {
-        if (!isset($params['id']) || !isset($params['feedbackId'])) {
-            Response::sendError('Complaint ID and Feedback ID are required', 400);
-            return;
-        }
-
         $user = $this->authService->getCurrentUser();
         if (!$user) {
             Response::sendAuthenticationError();
             return;
         }
 
-        $result = $this->complaintService->deleteFeedback((int)$params['id'], (int)$params['feedbackId'], $user['id'], $user['role']);
+        $result = $this->complaintService->deleteFeedback(
+            (int)$params['id'],
+            (int)$params['feedbackId'],
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
+    }
+
+    private function sendResponse(array $result, int $successCode = 200): void
+    {
         if ($result['status'] === 'error') {
             Response::sendError(
                 $result['error']['message'],
@@ -340,6 +207,6 @@ class ComplaintController extends Controller
             return;
         }
 
-        Response::sendSuccess($result['data'], $result['message']);
+        Response::sendSuccess($result['data'], $result['message'], $successCode);
     }
 }

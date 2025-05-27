@@ -21,6 +21,10 @@ class ComplaintService
 
     public function create(array $data, int $userId): array
     {
+        if (!$data) {
+            return Response::formatError('Invalid request payload', 400);
+        }
+
         $data['user_id'] = $userId;
         $complaintDTO = new ComplaintDTO($data);
         
@@ -79,6 +83,10 @@ class ComplaintService
 
     public function update(int $id, array $data, int $userId, string $userRole): array
     {
+        if (!$data) {
+            return Response::formatError('Invalid request payload', 400);
+        }
+
         $complaint = $this->complaint->find($id);
         if (!$complaint) {
             return Response::formatError(
@@ -154,6 +162,10 @@ class ComplaintService
 
     public function updateStatus(int $id, array $data, int $userId, string $userRole): array
     {
+        if (!$data || !isset($data['status'])) {
+            return Response::formatError('Status is required', 400);
+        }
+
         $complaint = $this->complaint->find($id);
         if (!$complaint) {
             return Response::formatError(
@@ -406,6 +418,10 @@ class ComplaintService
 
     public function createFeedback(int $complaintId, array $data, int $userId, string $userRole): array
     {
+        if (!$data) {
+            return Response::formatError('Invalid request payload', 400);
+        }
+
         $complaint = $this->complaint->find($complaintId);
         if (!$complaint) {
             return Response::formatError(
@@ -489,6 +505,10 @@ class ComplaintService
 
     public function updateFeedback(int $complaintId, int $feedbackId, array $data, int $userId, string $userRole): array
     {
+        if (!$data) {
+            return Response::formatError('Invalid request payload', 400);
+        }
+
         $complaint = $this->complaint->find($complaintId);
         if (!$complaint) {
             return Response::formatError(
