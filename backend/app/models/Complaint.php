@@ -7,13 +7,6 @@ use PDO;
 
 class Complaint extends Model
 {
-    protected string $table = 'complaints';
-    protected array $fillable = [
-        'user_id',
-        'content',
-        'status'
-    ];
-
     private int $id;
     private int $userId;
     private string $content;

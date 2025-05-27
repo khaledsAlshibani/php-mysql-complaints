@@ -5,40 +5,27 @@ namespace App\Services;
 use App\Core\Response;
 use App\Models\Suggestion;
 use App\DTO\SuggestionDTO;
+use App\DTO\SuggestionStatusDTO;
+use App\Services\FeedbackService;
 
 class SuggestionService
 {
     private Suggestion $suggestion;
-    private AuthService $authService;
+    private FeedbackService $feedbackService;
 
     public function __construct()
     {
         $this->suggestion = new Suggestion();
-        $this->authService = new AuthService();
+        $this->feedbackService = new FeedbackService();
     }
 
-    public function create(array $data): array
+    public function create(array $data, int $userId): array
     {
-        $user = $this->authService->getCurrentUser();
-        if (!$user) {
-            return Response::formatError(
-                'Authentication required',
-                401,
-                [],
-                'AUTHENTICATION_REQUIRED'
-            );
-        }
-
         if (!$data) {
-            return Response::formatError(
-                'Invalid request payload',
-                400,
-                [],
-                'INVALID_PAYLOAD'
-            );
+            return Response::formatError('Invalid request payload', 400);
         }
 
-        $data['user_id'] = $user['id'];
+        $data['user_id'] = $userId;
         $suggestionDTO = new SuggestionDTO($data);
         
         $validationErrors = $suggestionDTO->validate();
@@ -61,21 +48,23 @@ class SuggestionService
                 'Failed to create suggestion',
                 500,
                 [],
-                'SUGGESTION_CREATION_FAILED'
+                'COMPLAINT_CREATION_FAILED'
             );
         }
 
+        // Fetch the newly created suggestion with all its data
         $newSuggestion = $this->suggestion->find($newSuggestionId);
         if (!$newSuggestion) {
             return Response::formatError(
                 'Failed to retrieve created suggestion',
                 500,
                 [],
-                'SUGGESTION_RETRIEVAL_FAILED'
+                'COMPLAINT_RETRIEVAL_FAILED'
             );
         }
 
-        $suggestionUser = $newSuggestion->getUser();
+        // Format the suggestion data with user and feedback
+        $user = $newSuggestion->getUser();
         $feedback = $newSuggestion->getFeedback();
 
         return Response::formatSuccess([
@@ -84,55 +73,31 @@ class SuggestionService
             'status' => $newSuggestion->getStatus(),
             'createdAt' => $newSuggestion->getCreatedAt(),
             'user' => [
-                'id' => $suggestionUser->getId(),
-                'username' => $suggestionUser->getUsername(),
-                'fullName' => $suggestionUser->getFullName()
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'fullName' => $user->getFullName()
             ],
             'feedback' => $feedback
         ], 'Suggestion created successfully');
     }
 
-    public function update(array $params, array $data): array
+    public function update(int $id, array $data, int $userId, string $userRole): array
     {
-        if (!isset($params['id'])) {
-            return Response::formatError(
-                'Suggestion ID is required',
-                400,
-                [],
-                'MISSING_ID'
-            );
-        }
-
-        $user = $this->authService->getCurrentUser();
-        if (!$user) {
-            return Response::formatError(
-                'Authentication required',
-                401,
-                [],
-                'AUTHENTICATION_REQUIRED'
-            );
-        }
-
         if (!$data) {
-            return Response::formatError(
-                'Invalid request payload',
-                400,
-                [],
-                'INVALID_PAYLOAD'
-            );
+            return Response::formatError('Invalid request payload', 400);
         }
 
-        $suggestion = $this->suggestion->find((int)$params['id']);
+        $suggestion = $this->suggestion->find($id);
         if (!$suggestion) {
             return Response::formatError(
                 'Suggestion not found',
                 404,
                 [],
-                'SUGGESTION_NOT_FOUND'
+                'COMPLAINT_NOT_FOUND'
             );
         }
 
-        if ($suggestion->getUserId() !== $user['id'] && $user['role'] !== 'admin') {
+        if ($suggestion->getUserId() !== $userId && $userRole !== 'admin') {
             return Response::formatError(
                 'Not authorized',
                 403,
@@ -141,7 +106,7 @@ class SuggestionService
             );
         }
 
-        $data['id'] = $params['id'];
+        $data['id'] = $id;
         $data['user_id'] = $suggestion->getUserId();
         $suggestionDTO = new SuggestionDTO($data);
         
@@ -162,21 +127,23 @@ class SuggestionService
                 'Failed to update suggestion',
                 500,
                 [],
-                'SUGGESTION_UPDATE_FAILED'
+                'COMPLAINT_UPDATE_FAILED'
             );
         }
 
-        $updatedSuggestion = $this->suggestion->find((int)$params['id']);
+        // Fetch the updated suggestion with all its data
+        $updatedSuggestion = $this->suggestion->find($id);
         if (!$updatedSuggestion) {
             return Response::formatError(
                 'Failed to retrieve updated suggestion',
                 500,
                 [],
-                'SUGGESTION_RETRIEVAL_FAILED'
+                'COMPLAINT_RETRIEVAL_FAILED'
             );
         }
 
-        $suggestionUser = $updatedSuggestion->getUser();
+        // Format the suggestion data with user and feedback
+        $user = $updatedSuggestion->getUser();
         $feedback = $updatedSuggestion->getFeedback();
 
         return Response::formatSuccess([
@@ -185,46 +152,103 @@ class SuggestionService
             'status' => $updatedSuggestion->getStatus(),
             'createdAt' => $updatedSuggestion->getCreatedAt(),
             'user' => [
-                'id' => $suggestionUser->getId(),
-                'username' => $suggestionUser->getUsername(),
-                'fullName' => $suggestionUser->getFullName()
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'fullName' => $user->getFullName()
             ],
             'feedback' => $feedback
         ], 'Suggestion updated successfully');
     }
 
-    public function delete(array $params): array
+    public function updateStatus(int $id, array $data, int $userId, string $userRole): array
     {
-        if (!isset($params['id'])) {
-            return Response::formatError(
-                'Suggestion ID is required',
-                400,
-                [],
-                'MISSING_ID'
-            );
+        if (!$data || !isset($data['status'])) {
+            return Response::formatError('Status is required', 400);
         }
 
-        $user = $this->authService->getCurrentUser();
-        if (!$user) {
-            return Response::formatError(
-                'Authentication required',
-                401,
-                [],
-                'AUTHENTICATION_REQUIRED'
-            );
-        }
-
-        $suggestion = $this->suggestion->find((int)$params['id']);
+        $suggestion = $this->suggestion->find($id);
         if (!$suggestion) {
             return Response::formatError(
                 'Suggestion not found',
                 404,
                 [],
-                'SUGGESTION_NOT_FOUND'
+                'COMPLAINT_NOT_FOUND'
             );
         }
 
-        if ($suggestion->getUserId() !== $user['id'] && $user['role'] !== 'admin') {
+        if ($userRole !== 'admin') {
+            return Response::formatError(
+                'Not authorized',
+                403,
+                [],
+                'UNAUTHORIZED_ACCESS'
+            );
+        }
+
+        $statusDTO = new SuggestionStatusDTO($data);
+        $validationErrors = $statusDTO->validate();
+        if ($validationErrors) {
+            return Response::formatError(
+                'Validation failed',
+                422,
+                array_map(function($field, $message) {
+                    return ['field' => $field, 'issue' => $message];
+                }, array_keys($validationErrors), $validationErrors),
+                'VALIDATION_ERROR'
+            );
+        }
+
+        if (!$suggestion->update($statusDTO->toArray())) {
+            return Response::formatError(
+                'Failed to update suggestion status',
+                500,
+                [],
+                'COMPLAINT_UPDATE_FAILED'
+            );
+        }
+
+        // Fetch the updated suggestion with all its data
+        $updatedSuggestion = $this->suggestion->find($id);
+        if (!$updatedSuggestion) {
+            return Response::formatError(
+                'Failed to retrieve updated suggestion',
+                500,
+                [],
+                'COMPLAINT_RETRIEVAL_FAILED'
+            );
+        }
+
+        // Format the suggestion data with user and feedback
+        $user = $updatedSuggestion->getUser();
+        $feedback = $updatedSuggestion->getFeedback();
+
+        return Response::formatSuccess([
+            'id' => $updatedSuggestion->getId(),
+            'content' => $updatedSuggestion->getContent(),
+            'status' => $updatedSuggestion->getStatus(),
+            'createdAt' => $updatedSuggestion->getCreatedAt(),
+            'user' => [
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'fullName' => $user->getFullName()
+            ],
+            'feedback' => $feedback
+        ], 'Suggestion status updated successfully');
+    }
+
+    public function delete(int $id, int $userId, string $userRole): array
+    {
+        $suggestion = $this->suggestion->find($id);
+        if (!$suggestion) {
+            return Response::formatError(
+                'Suggestion not found',
+                404,
+                [],
+                'COMPLAINT_NOT_FOUND'
+            );
+        }
+
+        if ($suggestion->getUserId() !== $userId && $userRole !== 'admin') {
             return Response::formatError(
                 'Not authorized',
                 403,
@@ -238,45 +262,26 @@ class SuggestionService
                 'Failed to delete suggestion',
                 500,
                 [],
-                'SUGGESTION_DELETE_FAILED'
+                'COMPLAINT_DELETE_FAILED'
             );
         }
 
         return Response::formatSuccess(null, 'Suggestion deleted successfully');
     }
 
-    public function getById(array $params): array
+    public function getById(int $id, int $userId, string $userRole, ?string $status = null): array
     {
-        if (!isset($params['id'])) {
-            return Response::formatError(
-                'Suggestion ID is required',
-                400,
-                [],
-                'MISSING_ID'
-            );
-        }
-
-        $user = $this->authService->getCurrentUser();
-        if (!$user) {
-            return Response::formatError(
-                'Authentication required',
-                401,
-                [],
-                'AUTHENTICATION_REQUIRED'
-            );
-        }
-
-        $suggestion = $this->suggestion->find((int)$params['id']);
+        $suggestion = $this->suggestion->find($id);
         if (!$suggestion) {
             return Response::formatError(
                 'Suggestion not found',
                 404,
                 [],
-                'SUGGESTION_NOT_FOUND'
+                'COMPLAINT_NOT_FOUND'
             );
         }
 
-        if ($suggestion->getUserId() !== $user['id'] && !in_array($user['role'], ['admin', 'staff'])) {
+        if ($suggestion->getUserId() !== $userId && !in_array($userRole, ['admin', 'staff'])) {
             return Response::formatError(
                 'Not authorized',
                 403,
@@ -285,7 +290,16 @@ class SuggestionService
             );
         }
 
-        $suggestionUser = $suggestion->getUser();
+        if ($status !== null && $suggestion->getStatus() !== $status) {
+            return Response::formatError(
+                'Suggestion not found with the specified status',
+                404,
+                [],
+                'COMPLAINT_NOT_FOUND'
+            );
+        }
+
+        $user = $suggestion->getUser();
         $feedback = $suggestion->getFeedback();
 
         return Response::formatSuccess([
@@ -294,37 +308,46 @@ class SuggestionService
             'status' => $suggestion->getStatus(),
             'createdAt' => $suggestion->getCreatedAt(),
             'user' => [
-                'id' => $suggestionUser->getId(),
-                'username' => $suggestionUser->getUsername(),
-                'fullName' => $suggestionUser->getFullName()
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'fullName' => $user->getFullName()
             ],
             'feedback' => $feedback
         ]);
     }
 
-    public function getAll(): array
+    public function getAll(int $userId, string $userRole, ?string $status = null, ?string $search = null): array
     {
-        $user = $this->authService->getCurrentUser();
-        if (!$user) {
-            return Response::formatError(
-                'Authentication required',
-                401,
-                [],
-                'AUTHENTICATION_REQUIRED'
-            );
-        }
+        $suggestions = [];
+        $rawSuggestions = [];
 
         try {
-            $search = $_GET['search'] ?? null;
-            $rawSuggestions = $user['role'] === 'admin' ? 
-                ($search ? $this->suggestion->getAllWithSearch($search) : $this->suggestion->getAll()) :
-                ($search ? $this->suggestion->getAllByUserWithSearch($user['id'], $search) : $this->suggestion->getAllByUser($user['id']));
+            if ($userRole === 'admin') {
+                if ($status !== null) {
+                    $rawSuggestions = $search !== null && !empty($search)
+                        ? $this->suggestion->getAllByStatusWithSearch($status, $search)
+                        : $this->suggestion->getAllByStatus($status);
+                } else {
+                    $rawSuggestions = $search !== null && !empty($search)
+                        ? $this->suggestion->getAllWithSearch($search)
+                        : $this->suggestion->getAll();
+                }
+            } else {
+                if ($status !== null) {
+                    $rawSuggestions = $search !== null && !empty($search)
+                        ? $this->suggestion->getAllByUserAndStatusWithSearch($userId, $status, $search)
+                        : $this->suggestion->getAllByUserAndStatus($userId, $status);
+                } else {
+                    $rawSuggestions = $search !== null && !empty($search)
+                        ? $this->suggestion->getAllByUserWithSearch($userId, $search)
+                        : $this->suggestion->getAllByUser($userId);
+                }
+            }
 
-            $suggestions = [];
             foreach ($rawSuggestions as $suggestionData) {
                 $suggestion = $this->suggestion->find((int)$suggestionData['id']);
                 if ($suggestion) {
-                    $suggestionUser = $suggestion->getUser();
+                    $user = $suggestion->getUser();
                     $feedback = $suggestion->getFeedback();
 
                     $suggestions[] = [
@@ -333,9 +356,9 @@ class SuggestionService
                         'status' => $suggestion->getStatus(),
                         'createdAt' => $suggestion->getCreatedAt(),
                         'user' => [
-                            'id' => $suggestionUser->getId(),
-                            'username' => $suggestionUser->getUsername(),
-                            'fullName' => $suggestionUser->getFullName()
+                            'id' => $user->getId(),
+                            'username' => $user->getUsername(),
+                            'fullName' => $user->getFullName()
                         ],
                         'feedback' => $feedback
                     ];
@@ -348,179 +371,225 @@ class SuggestionService
                 'Failed to fetch suggestions',
                 500,
                 ['error' => $e->getMessage()],
-                'SUGGESTIONS_FETCH_ERROR'
+                'COMPLAINTS_FETCH_ERROR'
             );
         }
     }
 
-    public function getAllAdmin(): array
+    public function getAllFeedback(int $suggestionId, int $userId, string $userRole): array
     {
-        $user = $this->authService->getCurrentUser();
-        if (!$user) {
+        $suggestion = $this->suggestion->find($suggestionId);
+        if (!$suggestion) {
             return Response::formatError(
-                'Authentication required',
-                401,
+                'Suggestion not found',
+                404,
                 [],
-                'AUTHENTICATION_REQUIRED'
+                'COMPLAINT_NOT_FOUND'
             );
         }
 
-        if ($user['role'] !== 'admin') {
+        if ($suggestion->getUserId() !== $userId && $userRole !== 'admin') {
             return Response::formatError(
-                'Access denied',
+                'Not authorized to view feedback for this suggestion',
+                403,
+                [],
+                'UNAUTHORIZED_ACCESS'
+            );
+        }
+
+        $result = $this->feedbackService->getAllForSuggestion(['id' => $suggestionId]);
+        if ($result['status'] === 'error') {
+            return $result;
+        }
+
+        // Format the response to only include relevant IDs
+        $formattedFeedback = array_map(function($feedback) {
+            return [
+                'id' => $feedback['id'],
+                'suggestionId' => $feedback['suggestionId'],
+                'content' => $feedback['content'],
+                'createdAt' => $feedback['createdAt'],
+                'admin' => $feedback['admin']
+            ];
+        }, $result['data']);
+
+        return Response::formatSuccess($formattedFeedback);
+    }
+
+    public function createFeedback(int $suggestionId, array $data, int $userId, string $userRole): array
+    {
+        if (!$data) {
+            return Response::formatError('Invalid request payload', 400);
+        }
+
+        $suggestion = $this->suggestion->find($suggestionId);
+        if (!$suggestion) {
+            return Response::formatError(
+                'Suggestion not found',
+                404,
+                [],
+                'COMPLAINT_NOT_FOUND'
+            );
+        }
+
+        if ($userRole !== 'admin') {
+            return Response::formatError(
+                'Access denied. Only administrators can create feedback.',
                 403,
                 [],
                 'ACCESS_DENIED'
             );
         }
 
-        try {
-            $search = $_GET['search'] ?? null;
-            $rawSuggestions = $search ? 
-                $this->suggestion->getAllWithSearch($search) : 
-                $this->suggestion->getAll();
-
-            $suggestions = [];
-            foreach ($rawSuggestions as $suggestionData) {
-                $suggestion = $this->suggestion->find((int)$suggestionData['id']);
-                if ($suggestion) {
-                    $suggestionUser = $suggestion->getUser();
-                    $feedback = $suggestion->getFeedback();
-
-                    $suggestions[] = [
-                        'id' => $suggestion->getId(),
-                        'content' => $suggestion->getContent(),
-                        'status' => $suggestion->getStatus(),
-                        'createdAt' => $suggestion->getCreatedAt(),
-                        'user' => [
-                            'id' => $suggestionUser->getId(),
-                            'username' => $suggestionUser->getUsername(),
-                            'fullName' => $suggestionUser->getFullName()
-                        ],
-                        'feedback' => $feedback
-                    ];
-                }
-            }
-
-            return Response::formatSuccess($suggestions);
-        } catch (\Exception $e) {
-            return Response::formatError(
-                'Failed to fetch suggestions',
-                500,
-                ['error' => $e->getMessage()],
-                'SUGGESTIONS_FETCH_ERROR'
-            );
+        $data['suggestion_id'] = $suggestionId;
+        $result = $this->feedbackService->create($data);
+        if ($result['status'] === 'error') {
+            return $result;
         }
+
+        // Format the response to only include relevant IDs
+        return Response::formatSuccess([
+            'id' => $result['data']['id'],
+            'suggestionId' => $suggestionId,
+            'content' => $result['data']['content'],
+            'createdAt' => $result['data']['createdAt'],
+            'admin' => $result['data']['admin']
+        ], 'Feedback created successfully');
     }
 
-    public function getByStatus(array $params): array
+    public function getFeedbackById(int $suggestionId, int $feedbackId, int $userId, string $userRole): array
     {
-        if (!isset($params['status'])) {
+        $suggestion = $this->suggestion->find($suggestionId);
+        if (!$suggestion) {
             return Response::formatError(
-                'Status parameter is required',
-                400,
+                'Suggestion not found',
+                404,
                 [],
-                'MISSING_STATUS'
+                'COMPLAINT_NOT_FOUND'
             );
         }
 
-        $user = $this->authService->getCurrentUser();
-        if (!$user) {
+        if ($suggestion->getUserId() !== $userId && $userRole !== 'admin') {
             return Response::formatError(
-                'Authentication required',
-                401,
+                'Not authorized to view feedback for this suggestion',
+                403,
                 [],
-                'AUTHENTICATION_REQUIRED'
+                'UNAUTHORIZED_ACCESS'
             );
         }
 
-        if ($user['role'] !== 'admin') {
+        $result = $this->feedbackService->getById(['id' => $feedbackId]);
+        if ($result['status'] === 'error') {
+            return $result;
+        }
+
+        // Verify the feedback belongs to the specified suggestion
+        if ($result['data']['suggestionId'] !== $suggestionId) {
             return Response::formatError(
-                'Access denied',
+                'Feedback does not belong to the specified suggestion',
+                404,
+                [],
+                'FEEDBACK_NOT_FOUND'
+            );
+        }
+
+        // Format the response to only include relevant IDs
+        return Response::formatSuccess([
+            'id' => $result['data']['id'],
+            'suggestionId' => $suggestionId,
+            'content' => $result['data']['content'],
+            'createdAt' => $result['data']['createdAt'],
+            'admin' => $result['data']['admin']
+        ]);
+    }
+
+    public function updateFeedback(int $suggestionId, int $feedbackId, array $data, int $userId, string $userRole): array
+    {
+        if (!$data) {
+            return Response::formatError('Invalid request payload', 400);
+        }
+
+        $suggestion = $this->suggestion->find($suggestionId);
+        if (!$suggestion) {
+            return Response::formatError(
+                'Suggestion not found',
+                404,
+                [],
+                'COMPLAINT_NOT_FOUND'
+            );
+        }
+
+        if ($userRole !== 'admin') {
+            return Response::formatError(
+                'Access denied. Only administrators can update feedback.',
                 403,
                 [],
                 'ACCESS_DENIED'
             );
         }
 
-        try {
-            $search = $_GET['search'] ?? null;
-            $rawSuggestions = $search ? 
-                $this->suggestion->getAllByStatusWithSearch($params['status'], $search) : 
-                $this->suggestion->getAllByStatus($params['status']);
-
-            $suggestions = [];
-            foreach ($rawSuggestions as $suggestionData) {
-                $suggestion = $this->suggestion->find((int)$suggestionData['id']);
-                if ($suggestion) {
-                    $suggestionUser = $suggestion->getUser();
-                    $feedback = $suggestion->getFeedback();
-
-                    $suggestions[] = [
-                        'id' => $suggestion->getId(),
-                        'content' => $suggestion->getContent(),
-                        'status' => $suggestion->getStatus(),
-                        'createdAt' => $suggestion->getCreatedAt(),
-                        'user' => [
-                            'id' => $suggestionUser->getId(),
-                            'username' => $suggestionUser->getUsername(),
-                            'fullName' => $suggestionUser->getFullName()
-                        ],
-                        'feedback' => $feedback
-                    ];
-                }
-            }
-
-            return Response::formatSuccess($suggestions);
-        } catch (\Exception $e) {
-            return Response::formatError(
-                'Failed to fetch suggestions',
-                500,
-                ['error' => $e->getMessage()],
-                'SUGGESTIONS_FETCH_ERROR'
-            );
+        $data['suggestion_id'] = $suggestionId;
+        $result = $this->feedbackService->update(['id' => $feedbackId], $data);
+        if ($result['status'] === 'error') {
+            return $result;
         }
+
+        // Format the response to only include relevant IDs
+        return Response::formatSuccess([
+            'id' => $feedbackId,
+            'suggestionId' => $suggestionId,
+            'content' => $result['data']['content'],
+            'createdAt' => $result['data']['createdAt'],
+            'admin' => $result['data']['admin']
+        ], 'Feedback updated successfully');
     }
 
-    public function updateStatus(array $params, array $data): array
+    public function deleteFeedback(int $suggestionId, int $feedbackId, int $userId, string $userRole): array
     {
-        if (!isset($params['id'])) {
+        $suggestion = $this->suggestion->find($suggestionId);
+        if (!$suggestion) {
             return Response::formatError(
-                'Suggestion ID is required',
-                400,
+                'Suggestion not found',
+                404,
                 [],
-                'MISSING_ID'
+                'COMPLAINT_NOT_FOUND'
             );
         }
 
-        if (!$data || !isset($data['status'])) {
+        if ($userRole !== 'admin') {
             return Response::formatError(
-                'Status is required',
-                400,
-                [],
-                'MISSING_STATUS'
-            );
-        }
-
-        $user = $this->authService->getCurrentUser();
-        if (!$user) {
-            return Response::formatError(
-                'Authentication required',
-                401,
-                [],
-                'AUTHENTICATION_REQUIRED'
-            );
-        }
-
-        if ($user['role'] !== 'admin') {
-            return Response::formatError(
-                'Access denied',
+                'Access denied. Only administrators can delete feedback.',
                 403,
                 [],
                 'ACCESS_DENIED'
             );
         }
 
-        return $this->update($params, ['status' => $data['status']]);
+        // Get feedback before deletion to check its type
+        $feedback = $this->feedbackService->getById(['id' => $feedbackId]);
+        if ($feedback['status'] === 'error') {
+            return $feedback;
+        }
+
+        // Verify the feedback belongs to the specified suggestion
+        if ($feedback['data']['suggestionId'] !== $suggestionId) {
+            return Response::formatError(
+                'Feedback does not belong to the specified suggestion',
+                404,
+                [],
+                'FEEDBACK_NOT_FOUND'
+            );
+        }
+
+        $result = $this->feedbackService->delete(['id' => $feedbackId]);
+        if ($result['status'] === 'error') {
+            return $result;
+        }
+
+        // Return only the feedback ID and suggestion ID
+        return Response::formatSuccess([
+            'id' => $feedbackId,
+            'suggestionId' => $suggestionId
+        ], 'Feedback deleted successfully');
     }
 }

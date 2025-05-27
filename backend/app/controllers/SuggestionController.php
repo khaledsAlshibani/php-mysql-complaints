@@ -5,65 +5,197 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Response;
 use App\Services\SuggestionService;
+use App\Services\AuthService;
 
 class SuggestionController extends Controller
 {
     private SuggestionService $suggestionService;
+    private AuthService $authService;
 
     public function __construct()
     {
         $this->suggestionService = new SuggestionService();
+        $this->authService = new AuthService();
     }
 
     public function create(): void
     {
-        $result = $this->suggestionService->create($this->getJsonInput());
-        $this->handleResponse($result);
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            Response::sendAuthenticationError();
+            return;
+        }
+
+        $result = $this->suggestionService->create($this->getJsonInput(), $user['id']);
+        $this->sendResponse($result);
     }
 
     public function update(array $params): void
     {
-        $result = $this->suggestionService->update($params, $this->getJsonInput());
-        $this->handleResponse($result);
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            Response::sendAuthenticationError();
+            return;
+        }
+
+        $result = $this->suggestionService->update(
+            (int)$params['id'],
+            $this->getJsonInput(),
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
     }
 
     public function delete(array $params): void
     {
-        $result = $this->suggestionService->delete($params);
-        $this->handleResponse($result);
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            Response::sendAuthenticationError();
+            return;
+        }
+
+        $result = $this->suggestionService->delete((int)$params['id'], $user['id'], $user['role']);
+        $this->sendResponse($result);
     }
 
     public function getById(array $params): void
     {
-        $result = $this->suggestionService->getById($params);
-        $this->handleResponse($result);
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            Response::sendAuthenticationError();
+            return;
+        }
+
+        $result = $this->suggestionService->getById(
+            (int)$params['id'],
+            $user['id'],
+            $user['role'],
+            $_GET['status'] ?? null
+        );
+        $this->sendResponse($result);
     }
 
     public function getAll(): void
     {
-        $result = $this->suggestionService->getAll();
-        $this->handleResponse($result);
-    }
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            Response::sendAuthenticationError();
+            return;
+        }
 
-    public function getAllAdmin(): void
-    {
-        $result = $this->suggestionService->getAllAdmin();
-        $this->handleResponse($result);
-    }
-
-    public function getByStatus(array $params): void
-    {
-        $result = $this->suggestionService->getByStatus($params);
-        $this->handleResponse($result);
+        $result = $this->suggestionService->getAll(
+            $user['id'],
+            $user['role'],
+            $_GET['status'] ?? null,
+            $_GET['search'] ?? null
+        );
+        $this->sendResponse($result);
     }
 
     public function updateStatus(array $params): void
     {
-        $result = $this->suggestionService->updateStatus($params, $this->getJsonInput());
-        $this->handleResponse($result);
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            Response::sendAuthenticationError();
+            return;
+        }
+
+        $result = $this->suggestionService->updateStatus(
+            (int)$params['id'],
+            $this->getJsonInput(),
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
     }
 
-    private function handleResponse(array $result): void
+    public function getAllFeedback(array $params): void
+    {
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            Response::sendAuthenticationError();
+            return;
+        }
+
+        $result = $this->suggestionService->getAllFeedback(
+            (int)$params['id'],
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
+    }
+
+    public function createFeedback(array $params): void
+    {
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            Response::sendAuthenticationError();
+            return;
+        }
+
+        $result = $this->suggestionService->createFeedback(
+            (int)$params['id'],
+            $this->getJsonInput(),
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result, 201);
+    }
+
+    public function getFeedbackById(array $params): void
+    {
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            Response::sendAuthenticationError();
+            return;
+        }
+
+        $result = $this->suggestionService->getFeedbackById(
+            (int)$params['id'],
+            (int)$params['feedbackId'],
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
+    }
+
+    public function updateFeedback(array $params): void
+    {
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            Response::sendAuthenticationError();
+            return;
+        }
+
+        $result = $this->suggestionService->updateFeedback(
+            (int)$params['id'],
+            (int)$params['feedbackId'],
+            $this->getJsonInput(),
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
+    }
+
+    public function deleteFeedback(array $params): void
+    {
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            Response::sendAuthenticationError();
+            return;
+        }
+
+        $result = $this->suggestionService->deleteFeedback(
+            (int)$params['id'],
+            (int)$params['feedbackId'],
+            $user['id'],
+            $user['role']
+        );
+        $this->sendResponse($result);
+    }
+
+    private function sendResponse(array $result, int $successCode = 200): void
     {
         if ($result['status'] === 'error') {
             Response::sendError(
@@ -75,6 +207,6 @@ class SuggestionController extends Controller
             return;
         }
 
-        Response::sendSuccess($result['data'], $result['message']);
+        Response::sendSuccess($result['data'], $result['message'], $successCode);
     }
 }

@@ -32,7 +32,7 @@ class SuggestionDTO
         if ($this->userId <= 0) {
             $errors['user_id'] = 'Valid user ID is required';
         }
-        
+
         if (!empty($this->status) && !in_array($this->status, ['pending_no_feedback', 'pending_reviewed', 'resolved', 'ignored'])) {
             $errors['status'] = 'Invalid status value';
         }

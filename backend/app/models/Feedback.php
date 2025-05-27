@@ -7,14 +7,6 @@ use PDO;
 
 class Feedback extends Model
 {
-    protected string $table = 'feedback';
-    protected array $fillable = [
-        'admin_id',
-        'complaint_id',
-        'suggestion_id',
-        'content'
-    ];
-
     private int $id;
     private int $adminId;
     private ?int $complaintId;
